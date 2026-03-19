@@ -1,3 +1,4 @@
+import { Tag, Author } from "types";
 export interface Book {
     id: number;
     slug: string;
@@ -15,6 +16,23 @@ export interface Book {
     label: string;
     shelf: string;
     description: string;
+
+    keywords: string[];
+    loans: BookLoan[];
+    tags: BookTag[];
+    authors: BookAuthor[];
+}
+
+export interface BookLoan {
+    due_date: string;
+    loan_date: string;
+}
+export interface BookTag {
+    tag: Tag;
+}
+export interface BookAuthor {
+    description?: string;
+    author: Author;
 }
 
 export interface BookContextType {

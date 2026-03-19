@@ -7,13 +7,14 @@ import { useTranslations } from "next-intl";
 import {
     Body,
     BookGrid,
-    BookCard,
+    BookGridCard,
     SimpleIconButton,
     FormInput,
     SimpleCheckBoxGroup,
     SortSelect,
     GhostButton,
-    ActiveFilterBadge
+    ActiveFilterBadge,
+    PageHeading
 } from "components";
 
 import {
@@ -260,6 +261,14 @@ export default function Buckets() {
         loadPublishers();
     };
 
+    const clearFilters = async () => {
+        setSearch("");
+        setSelectedAuthors([]);
+        setSelectedSpiritAuthors([]);
+        setSelectedTags([]);
+        setSelectedPublishers([]);
+    };
+
     useEffect(() => {
         changedFilters();
     }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedPublishers, sort]);
@@ -293,6 +302,7 @@ export default function Buckets() {
         return () => clearTimeout(timeout);
     }, [search]);
 
+    // ToDo: talvez componentizar esses pedaços de layout (???)
     const activeFiltersBadges = (
         <Wrap>
             {search !== "" && (
@@ -366,7 +376,7 @@ export default function Buckets() {
         selectedAuthors.length > 0 ||
         selectedSpiritAuthors.length > 0 ||
         selectedTags.length > 0 ||
-        selectedPublishers.length > 0) && <GhostButton>{t("removeFilters")}</GhostButton>;
+        selectedPublishers.length > 0) && <GhostButton onClick={clearFilters}>{t("removeFilters")}</GhostButton>;
 
     const filtersContent = (
         <VStack align="start" gap="6" w="100%">
@@ -394,7 +404,7 @@ export default function Buckets() {
                 options={filterAuthors.elements
                     .filter((a) => !a.is_spirit)
                     .map((a) => ({
-                        label: `${a.name} (${a._count.books})`,
+                        label: `${a.name} (${a._count?.books || "0"})`,
                         value: `${a.id}`
                     }))}
                 values={selectedAuthors}
@@ -407,7 +417,7 @@ export default function Buckets() {
                 options={filterAuthors.elements
                     .filter((a) => a.is_spirit)
                     .map((a) => ({
-                        label: `${a.name} (${a._count.books})`,
+                        label: `${a.name} (${a._count?.books || "0"})`,
                         value: `${a.id}`
                     }))}
                 values={selectedSpiritAuthors}
@@ -418,7 +428,7 @@ export default function Buckets() {
                 label="Temas"
                 hide={isTagsLoadFailed}
                 options={filterTags.elements.map((a) => ({
-                    label: `${a.name} (${a._count.books})`,
+                    label: `${a.name} (${a._count?.books || "0"})`,
                     value: `${a.id}`
                 }))}
                 values={selectedTags}
@@ -441,7 +451,9 @@ export default function Buckets() {
     return (
         <>
             <Body>
-                {/* <PageHeading header={t("title")} description={t("description")} /> */}
+                <VStack pt={"12px"}>
+                    <PageHeading header={t("title")} description={t("description")} />
+                </VStack>
 
                 {/* <Spacer py={"12px"} /> */}
 
@@ -475,11 +487,11 @@ export default function Buckets() {
                                 <Drawer.Backdrop />
                                 <Drawer.Positioner>
                                     <Drawer.Content>
-                                        <Drawer.Header>
+                                        {/* <Drawer.Header>
                                             <Drawer.Title>{t("filterAndSort")}</Drawer.Title>
-                                        </Drawer.Header>
+                                        </Drawer.Header> */}
 
-                                        <Drawer.Body>{filtersContent}</Drawer.Body>
+                                        <Drawer.Body pt={"12px"}>{filtersContent}</Drawer.Body>
                                     </Drawer.Content>
                                 </Drawer.Positioner>
                             </Portal>
@@ -514,7 +526,7 @@ export default function Buckets() {
                             pt={"12px"}
                         >
                             {books.elements.map((obj: Book) => {
-                                return <BookCard book={obj} key={`bookCard#${obj.id}`} />;
+                                return <BookGridCard book={obj} key={`bookCard#${obj.id}`} />;
                             })}
                         </BookGrid>
 

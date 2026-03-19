@@ -29,6 +29,16 @@ export const listBooks = async (
     );
 };
 
+export const getBook = async (slug: string): Promise<Book> => {
+    const response = await callAPI({
+        method: "GET",
+        url: `/public/book/${slug}`,
+        data: {}
+    });
+
+    return response?.body?.book || {};
+};
+
 export const listPublishers = async (
     filter = {},
     pagination = { limit: 10, page: 1 }

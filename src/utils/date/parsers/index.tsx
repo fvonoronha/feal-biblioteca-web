@@ -19,7 +19,8 @@ const getTimeZoneAbbreviation = (date: Date, timeZone: string): string => {
     }
 };
 
-export const formatDateFullText = (date: Date): string => {
+// ToDo: Organizar melhor essas funçoes. a maioria fz a mesma coisa. Muita coisa duplicada assim pode complicar a nossa vida no futuro.
+export const formatDateTimeFullText = (date: Date): string => {
     try {
         if (!date) return "--";
 
@@ -31,6 +32,23 @@ export const formatDateFullText = (date: Date): string => {
         });
 
         return `${formattedDate} (${abbreviation})`;
+    } catch {
+        return "--";
+    }
+};
+
+export const parseDateFullText = (date: Date): string => {
+    try {
+        if (!date) return "--";
+
+        const dt = new Date(date);
+        // const abbreviation = getTimeZoneAbbreviation(dt, getUserTimeZone());
+
+        const formattedDate = formatInTimeZone(dt, getUserTimeZone(), "dd 'de' MMMM 'de' yyyy", {
+            locale: ptBR
+        });
+
+        return `${formattedDate}`;
     } catch {
         return "--";
     }

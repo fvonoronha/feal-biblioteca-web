@@ -6,18 +6,12 @@ import type { PageHeadingProps } from "types";
 const PageHeading = (props: PageHeadingProps) => {
     return (
         <>
-            <Flex
-                w="100%"
-                direction="column"
-                pt="10px"
-                gap={2}
-                align={{ base: "flex-start", sm: "center", md: "flex-start" }}
-            >
-                <Heading fontSize={"4xl"} fontWeight={"bold"}>
+            <Flex w="100%" direction="column" pt="10px" gap={2} align={"flex-start"}>
+                <Heading w="100%" fontSize={"4xl"} fontWeight={"bold"} textAlign={"justify"}>
                     {props.header}
                 </Heading>
 
-                <Text ml={"2px"} fontSize={"lg"}>
+                <Text w="100%" ml={"2px"} fontSize={"lg"} textAlign={"justify"}>
                     {props.description}
                 </Text>
             </Flex>

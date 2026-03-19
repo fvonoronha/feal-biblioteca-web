@@ -29,13 +29,29 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
         toaster.create({
             type: "info",
-            title: "Usuário desconectado: " + isLoading,
-            description: "Redirecionando para a pagina de login"
+            title: "Usuário desconectado",
+            description: "Sua sessão foi encerrada."
         });
 
-        const publicRoute = PUBLIC_ROUTES.find((route) => route.path === pathname);
+        // 1. Limpa o locale do pathname atual (ex: /pt/b/slug -> /b/slug)
+        const cleanPathname = pathname.replace(/^\/[a-z]{2}(\/|$)/, "/");
 
-        if (!publicRoute) {
+        // 2. Verifica se a rota atual é uma das rotas públicas configuradas
+        const isPublicRoute = PUBLIC_ROUTES.some((route) => {
+            // Normaliza a home
+            if (route.path === "/") {
+                return cleanPathname === "/" || cleanPathname === "";
+            }
+
+            // Converte o padrão [slug] em Regex (ex: /b/[book-slug] -> ^/b/[^/]+$)
+            const pattern = new RegExp(`^${route.path.replace(/\//g, "\\/").replace(/\[.*?\]/g, "[^/]+")}\\/?$`, "i");
+
+            return pattern.test(cleanPathname);
+        });
+
+        // 3. Se NÃO for uma rota pública, redireciona para o login
+        // Se FOR pública (como a página do livro), o usuário continua onde está, mas deslogado
+        if (!isPublicRoute) {
             router.push("/login");
         }
     };

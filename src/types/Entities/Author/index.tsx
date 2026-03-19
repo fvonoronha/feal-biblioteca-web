@@ -5,10 +5,10 @@ export interface Author {
     id: number;
     slug: string;
     name: string;
-    description: string;
-    avatar_url: string;
+    description?: string;
+    avatar_url?: string;
     is_spirit: boolean;
-    _count: AuthorCount;
+    _count?: AuthorCount;
 }
 
 // export interface BookContextType {

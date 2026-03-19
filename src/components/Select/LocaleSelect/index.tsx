@@ -16,12 +16,23 @@ const SelectValue = () => {
     const items = select.selectedItems as Array<Locale>;
     const { key, name, flag } = items[0];
     return (
-        <Select.ValueText w={"40px"} bg="transparent">
-            <VStack align={"center"} bg="transparent">
+        <Select.ValueText bg="transparent">
+            {/* <VStack align={"center"} bg="transparent">
                 <Avatar.Root shape="square" size="xs" bg="transparent" p={0} m={0}>
                     <Avatar.Image src={flag.src} w={"50px"} alt={name} bg="transparent" />
                     <Avatar.Fallback name={key} bg="transparent" p={0} m={0} />
                 </Avatar.Root>
+                <Text>{"Algo aqui"}</Text>
+            </VStack> */}
+
+            <VStack align={"left"} bg="transparent">
+                <HStack gap="5px" align={"center"}>
+                    <Avatar.Root shape="square" size="xs" bg="transparent" p={0} m={0}>
+                        <Avatar.Image src={flag.src} w={"50px"} alt={name} bg="transparent" />
+                        <Avatar.Fallback name={key} bg="transparent" p={0} m={0} />
+                    </Avatar.Root>
+                    <Text>{name}</Text>
+                </HStack>
             </VStack>
         </Select.ValueText>
     );

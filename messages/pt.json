@@ -1,17 +1,31 @@
 {
     "Utils": {
         "loading": "Carregando",
-        "somethingIsWrong": "Algo deu errado",
-        "loaned": "Emprestado"
+        "somethingIsWrong": "Algo deu errado. Verifique sua conexão e atualize a página.",
+        "somethingIsWrongRefresh": "Recarregar Página",
+        "loaned": "Emprestado",
+        "loanedTooltip": "Este volume está previsto para ser devolvido pelo usuário atual no dia {due_date}.",
+        "available": "Disponível",
+        "availableTooltip": "Este volume está disponível para empréstimos."
     },
 
     "NavBar": {
         "title": "Biblioteca"
     },
+    "Footer": {
+        "feal": "Fraternidade Espírita Amor e Luz - FEAL",
+        "address": "Av. Princesa Isabel, 1570, jardim Floresta - Boa Vista, RR",
+        "description": "Biblioteca Francisco Cândido Xavier",
+        "followUs": "Siga-nos nas redes sociais",
+        "visitUs": "Ou faça-nos uma visita",
+        "language": "Idioma do site",
+        "workingHours": "Aos Sábados das 9h às 11h ou das 19h às 20h30",
+        "allRightsReserved": "Todos os direitos reervados"
+    },
 
     "Collection": {
         "title": "Todo o Acervo",
-        "description": "mostrar todos os livros disponíveis",
+        "description": "Encontre livros, autores e temas em um catálogo simples e acessível",
         "filter": "Filtrar",
         "filterAndSort": "Filtrar e Ordenar",
         "filterSearchLabel": "Pesquisar",
@@ -27,5 +41,24 @@
         "sortByTitleDesc": "Título, Z→A",
         "sortByCreationAsc": "Mais antigos",
         "sortByCreationDesc": "Mais recentes"
+    },
+
+    "BookDetails": {
+        "backToCollection": "Ver todo o acervo",
+        "description": "Resumo",
+        "share": "Compartilhar",
+        "author": "Autor",
+        "publisher": "Editora",
+        "publishedAt": "Publicada em",
+        "edition": "Edição",
+        "tags": "Temas",
+        "isbn": "ISBN",
+        "pages": "Páginas",
+        "availability": "Status",
+        "shelf": "Prateleira",
+        "label": "Etiqueta",
+        "keywords": "Palavras-chave",
+        "loanedTooltip": "Volume em empréstimo desde o dia {loan_date}. Previsto para ser devolvido no dia {due_date}.",
+        "availableTooltip": "Você pode pegar emprestado este volume de maneira gratuita por até 15 dias."
     }
 }
