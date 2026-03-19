@@ -1,0 +1,527 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { listBooks, listAuthors, listTags, listPublishers } from "endpoints";
+import { APIPaginatedResponse, Book, Author, Tag, Publisher, SortOption } from "types";
+import { useTranslations } from "next-intl";
+import {
+    Body,
+    BookGrid,
+    BookCard,
+    SimpleIconButton,
+    FormInput,
+    SimpleCheckBoxGroup,
+    SortSelect,
+    GhostButton,
+    ActiveFilterBadge
+} from "components";
+
+import {
+    Spacer,
+    HStack,
+    Box,
+    useBreakpointValue,
+    VStack,
+    Text,
+    Drawer,
+    Portal,
+    useDisclosure,
+    Heading,
+    Wrap,
+    WrapItem
+} from "@chakra-ui/react";
+
+import { LuSlidersHorizontal } from "react-icons/lu";
+
+const PAGE_SIZE = 24;
+const UNLIMITED_PAGE_SIZE = 1000;
+const SEARCH_DELAY_IN_MS = 1000;
+const RESET_BOOKS_PAGINATION = true;
+
+export default function Buckets() {
+    const t = useTranslations("Collection");
+
+    const isMobile = useBreakpointValue({ base: true, md: false });
+    const { open, onOpen, onClose } = useDisclosure();
+
+    const pageRef = useRef(1);
+    const [hasNext, setHasNext] = useState(true);
+    const loadMoreBooksRef = useRef<HTMLDivElement | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const [isBooksLoading, setIsBooksLoading] = useState(false);
+    const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
+    const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
+        elements: [],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
+    });
+
+    const [, setIsAuthorsLoading] = useState(false);
+    const [isAuthorsLoadFailed, setIsAuthorsLoadFailed] = useState(false);
+    const [filterAuthors, setFilterAuthors] = useState<APIPaginatedResponse<Author>>({
+        elements: [],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
+    });
+
+    const [, setIsTagsLoading] = useState(false);
+    const [isTagsLoadFailed, setIsTagsLoadFailed] = useState(false);
+    const [filterTags, setFilterTags] = useState<APIPaginatedResponse<Tag>>({
+        elements: [],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
+    });
+
+    const [, setIsPublishersLoading] = useState(false);
+    const [isPublishersLoadFailed, setIsPublishersLoadFailed] = useState(false);
+    const [filterPublishers, setFilterPublishers] = useState<APIPaginatedResponse<Publisher>>({
+        elements: [],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
+    });
+
+    const [search, setSearch] = useState("");
+    const [sort, setSort] = useState<SortOption>({
+        value: "sortByCreationDesc",
+        label: "sortByCreationDesc",
+        field: "id",
+        direction: "desc"
+    });
+
+    const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
+    const [selectedSpiritAuthors, setSelectedSpiritAuthors] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedPublishers, setSelectedPublishers] = useState<string[]>([]);
+
+    const loadBooks = async (reset: boolean = false) => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        setIsBooksLoading(true);
+        setIsBooksLoadFailed(false);
+
+        try {
+            if (reset) {
+                pageRef.current = 1;
+            }
+
+            const pagination = {
+                limit: PAGE_SIZE,
+                page: pageRef.current,
+                orderBy: {
+                    [sort.field]: sort.direction
+                }
+            };
+
+            const filter = {
+                search: search,
+                authors: [...selectedAuthors, ...selectedSpiritAuthors],
+                publishers: selectedPublishers,
+                tags: selectedTags
+            };
+
+            const response = await listBooks(filter, pagination, { signal: controller.signal });
+
+            setBooks((prev) => ({
+                elements: reset ? response.elements : [...prev.elements, ...response.elements],
+                pagination: response.pagination
+            }));
+
+            setHasNext(response.pagination.has_next);
+            pageRef.current += 1;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
+            if (err.name === "CanceledError" || err.name === "AbortError") return;
+            setIsBooksLoadFailed(true);
+        } finally {
+            if (abortControllerRef.current === controller) {
+                setIsBooksLoading(false);
+            }
+        }
+    };
+
+    const loadAuthors = async () => {
+        setIsAuthorsLoading(true);
+        setIsAuthorsLoadFailed(false);
+
+        try {
+            const filter = {
+                search: search,
+                authors: [...selectedAuthors, ...selectedSpiritAuthors],
+                publishers: selectedPublishers,
+                tags: selectedTags
+            };
+
+            const pagination = {
+                limit: UNLIMITED_PAGE_SIZE,
+                page: 1
+            };
+
+            const objs = await listAuthors(filter, pagination);
+
+            setFilterAuthors(objs || { elements: [], totalElements: 0 });
+        } catch {
+            setIsAuthorsLoadFailed(true);
+        } finally {
+            setIsAuthorsLoading(false);
+        }
+    };
+
+    const loadTags = async () => {
+        setIsTagsLoading(true);
+        setIsTagsLoadFailed(false);
+
+        try {
+            const filter = {
+                search: search,
+                authors: [...selectedAuthors, ...selectedSpiritAuthors],
+                publishers: selectedPublishers,
+                tags: selectedTags
+            };
+
+            const pagination = {
+                limit: UNLIMITED_PAGE_SIZE,
+                page: 1
+            };
+
+            const objs = await listTags(filter, pagination);
+            setFilterTags(objs || { elements: [], totalElements: 0 });
+        } catch {
+            setIsTagsLoadFailed(true);
+        } finally {
+            setIsTagsLoading(false);
+        }
+    };
+
+    const loadPublishers = async () => {
+        setIsPublishersLoading(true);
+        setIsPublishersLoadFailed(false);
+
+        try {
+            const filter = {
+                search: search,
+                authors: [...selectedAuthors, ...selectedSpiritAuthors],
+                publishers: selectedPublishers,
+                tags: selectedTags
+            };
+
+            const pagination = {
+                limit: UNLIMITED_PAGE_SIZE,
+                page: 1
+            };
+
+            const objs = await listPublishers(filter, pagination);
+            setFilterPublishers(objs || { elements: [], totalElements: 0 });
+        } catch {
+            setIsPublishersLoadFailed(true);
+        } finally {
+            setIsPublishersLoading(false);
+        }
+    };
+
+    const changedFilters = async () => {
+        // setBooks((prev) => ({
+        //     ...prev,
+        //     elements: []
+        // }));
+
+        loadBooks(RESET_BOOKS_PAGINATION);
+        loadAuthors();
+        loadTags();
+        loadPublishers();
+    };
+
+    useEffect(() => {
+        changedFilters();
+    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedPublishers, sort]);
+
+    useEffect(() => {
+        const el = loadMoreBooksRef.current;
+
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const entry = entries[0];
+
+                if (entry.isIntersecting && hasNext && !isBooksLoading) {
+                    loadBooks();
+                }
+            },
+            { rootMargin: "200px" }
+        );
+
+        observer.observe(el);
+
+        return () => observer.disconnect();
+    }, [hasNext, isBooksLoading]);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            changedFilters();
+        }, SEARCH_DELAY_IN_MS);
+
+        return () => clearTimeout(timeout);
+    }, [search]);
+
+    const activeFiltersBadges = (
+        <Wrap>
+            {search !== "" && (
+                <WrapItem>
+                    <ActiveFilterBadge
+                        label={`${t("search")}: ${search}`}
+                        value={search}
+                        cancelFilter={() => {
+                            setSearch("");
+                        }}
+                    />
+                </WrapItem>
+            )}
+
+            {filterAuthors.elements
+                .filter(
+                    (author) =>
+                        selectedAuthors.includes(`${author.id}`) || selectedSpiritAuthors.includes(`${author.id}`)
+                )
+                .map((author) => {
+                    return (
+                        <WrapItem key={`author#${author.id}`}>
+                            <ActiveFilterBadge
+                                label={`${t("author")}: ${author.name}`}
+                                value={`${author.id}`}
+                                cancelFilter={(value) => {
+                                    setSelectedAuthors(selectedAuthors.filter((id) => id != value));
+                                }}
+                            />
+                        </WrapItem>
+                    );
+                })}
+
+            {filterTags.elements
+                .filter((tag) => selectedTags.includes(`${tag.id}`))
+                .map((tag) => {
+                    return (
+                        <WrapItem key={`tag#${tag.id}`}>
+                            <ActiveFilterBadge
+                                key={`tag#${tag.id}`}
+                                label={`${t("tag")}: ${tag.name}`}
+                                value={`${tag.id}`}
+                                cancelFilter={(value) => {
+                                    setSelectedTags(selectedTags.filter((id) => id != value));
+                                }}
+                            />
+                        </WrapItem>
+                    );
+                })}
+
+            {filterPublishers.elements
+                .filter((publisher) => selectedPublishers.includes(publisher.name))
+                .map((publisher) => {
+                    return (
+                        <WrapItem key={`publisher#${publisher.name}`}>
+                            <ActiveFilterBadge
+                                key={`publisher#${publisher.name}`}
+                                label={`${t("publisher")}: ${publisher.name}`}
+                                value={publisher.name}
+                                cancelFilter={(value) => {
+                                    setSelectedPublishers(selectedPublishers.filter((name) => name != value));
+                                }}
+                            />
+                        </WrapItem>
+                    );
+                })}
+        </Wrap>
+    );
+
+    const clearFiltersContent = (search !== "" ||
+        selectedAuthors.length > 0 ||
+        selectedSpiritAuthors.length > 0 ||
+        selectedTags.length > 0 ||
+        selectedPublishers.length > 0) && <GhostButton>{t("removeFilters")}</GhostButton>;
+
+    const filtersContent = (
+        <VStack align="start" gap="6" w="100%">
+            <HStack w="100%">
+                <Heading fontSize={"xl"}>{t("filter")}</Heading>
+                <Spacer />
+                {clearFiltersContent}
+            </HStack>
+
+            {activeFiltersBadges}
+
+            <FormInput
+                label={t("filterSearchLabel")}
+                placeholder={t("filterSearchPlaceholder")}
+                w="100%"
+                value={search}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+            />
+
+            <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
+
+            <SimpleCheckBoxGroup
+                label="Autor"
+                hide={isAuthorsLoadFailed}
+                options={filterAuthors.elements
+                    .filter((a) => !a.is_spirit)
+                    .map((a) => ({
+                        label: `${a.name} (${a._count.books})`,
+                        value: `${a.id}`
+                    }))}
+                values={selectedAuthors}
+                setValues={setSelectedAuthors}
+            />
+
+            <SimpleCheckBoxGroup
+                label="Autor Espiritual"
+                hide={isAuthorsLoadFailed}
+                options={filterAuthors.elements
+                    .filter((a) => a.is_spirit)
+                    .map((a) => ({
+                        label: `${a.name} (${a._count.books})`,
+                        value: `${a.id}`
+                    }))}
+                values={selectedSpiritAuthors}
+                setValues={setSelectedSpiritAuthors}
+            />
+
+            <SimpleCheckBoxGroup
+                label="Temas"
+                hide={isTagsLoadFailed}
+                options={filterTags.elements.map((a) => ({
+                    label: `${a.name} (${a._count.books})`,
+                    value: `${a.id}`
+                }))}
+                values={selectedTags}
+                setValues={setSelectedTags}
+            />
+
+            <SimpleCheckBoxGroup
+                label="Editora"
+                hide={isPublishersLoadFailed}
+                options={filterPublishers.elements.map((a) => ({
+                    label: `${a.name} (${a._count.books})`,
+                    value: `${a.name}`
+                }))}
+                values={selectedPublishers}
+                setValues={setSelectedPublishers}
+            />
+        </VStack>
+    );
+
+    return (
+        <>
+            <Body>
+                {/* <PageHeading header={t("title")} description={t("description")} /> */}
+
+                {/* <Spacer py={"12px"} /> */}
+
+                {isMobile && (
+                    <>
+                        <HStack w="100%" cursor={"pointer"} onClick={onOpen}>
+                            <SimpleIconButton>
+                                <LuSlidersHorizontal />
+                            </SimpleIconButton>
+                            <Text>{t("filterAndSort")}</Text>
+
+                            <Spacer />
+
+                            <Text>
+                                {books.elements.length > 0 &&
+                                    t("showingXFromYBooks", {
+                                        count: books.elements.length,
+                                        total: books.pagination.total_elements
+                                    })}
+                            </Text>
+                        </HStack>
+
+                        <HStack>
+                            {activeFiltersBadges}
+
+                            {clearFiltersContent}
+                        </HStack>
+
+                        <Drawer.Root open={open} onOpenChange={(e) => (e.open ? onOpen() : onClose())}>
+                            <Portal>
+                                <Drawer.Backdrop />
+                                <Drawer.Positioner>
+                                    <Drawer.Content>
+                                        <Drawer.Header>
+                                            <Drawer.Title>{t("filterAndSort")}</Drawer.Title>
+                                        </Drawer.Header>
+
+                                        <Drawer.Body>{filtersContent}</Drawer.Body>
+                                    </Drawer.Content>
+                                </Drawer.Positioner>
+                            </Portal>
+                        </Drawer.Root>
+                    </>
+                )}
+
+                <HStack align="start" gap="0">
+                    {!isMobile && (
+                        <Box w="300px" p="4" position="sticky" top="0" maxH="100vh" overflowY="auto">
+                            {filtersContent}
+                        </Box>
+                    )}
+
+                    <Box flex="1">
+                        {!isMobile && (
+                            <HStack>
+                                <Spacer />
+                                <Text>
+                                    {books.elements.length > 0 &&
+                                        t("showingXFromYBooks", {
+                                            total: books.pagination.total_elements
+                                        })}
+                                </Text>
+                            </HStack>
+                        )}
+
+                        <BookGrid
+                            isLoading={isBooksLoading}
+                            loadingFailed={isBooksLoadFailed}
+                            eWidth={"180px"}
+                            pt={"12px"}
+                        >
+                            {books.elements.map((obj: Book) => {
+                                return <BookCard book={obj} key={`bookCard#${obj.id}`} />;
+                            })}
+                        </BookGrid>
+
+                        <Box ref={loadMoreBooksRef} h="40px" />
+                    </Box>
+                </HStack>
+            </Body>
+        </>
+    );
+}

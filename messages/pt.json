@@ -1,0 +1,31 @@
+{
+    "Utils": {
+        "loading": "Carregando",
+        "somethingIsWrong": "Algo deu errado",
+        "loaned": "Emprestado"
+    },
+
+    "NavBar": {
+        "title": "Biblioteca"
+    },
+
+    "Collection": {
+        "title": "Todo o Acervo",
+        "description": "mostrar todos os livros disponíveis",
+        "filter": "Filtrar",
+        "filterAndSort": "Filtrar e Ordenar",
+        "filterSearchLabel": "Pesquisar",
+        "filterSearchPlaceholder": "Título, Autor, Tema, etc...",
+        "removeFilters": "Limpar filtros",
+        "showingXFromYBooks": "{total} Livros",
+        "author": "Autor",
+        "tag": "Tema",
+        "publisher": "Editora",
+        "search": "Busca",
+        "sortBy": "Ordenar por",
+        "sortByTitleAsc": "Título, A→Z",
+        "sortByTitleDesc": "Título, Z→A",
+        "sortByCreationAsc": "Mais antigos",
+        "sortByCreationDesc": "Mais recentes"
+    }
+}
