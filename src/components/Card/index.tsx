@@ -1,1 +1,2 @@
-export { default as BookCard } from "./BookCard";
+export { default as BookGridCard } from "./BookGridCard";
+export { default as BookImageCard } from "./BookImageCard";

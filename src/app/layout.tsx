@@ -21,6 +21,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         throw new Error(`Locale inválido: ${locale}`);
     }
 
+    /// Isso aqui provavelmente nunca será utilizado, mas eu decidi manter.
+    /// Faz com que, dependendo da linguagem, o sistema mude para Right-To-Left reading
+    /// (o árabe, por exemplo, funciona assim)
     const dir = locale === "ar" || locale === "he" ? "rtl" : "ltr";
     const messages = await getMessages({ locale });
 

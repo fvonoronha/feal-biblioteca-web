@@ -5,8 +5,8 @@ export interface Tag {
     id: number;
     slug: string;
     name: string;
-    description: string;
-    _count: TagCount;
+    description?: string;
+    _count?: TagCount;
 }
 
 // export interface BookContextType {

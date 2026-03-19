@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { LoanBadge } from "components";
 import { bookCover } from "assets";
 
-const BookCard = (props: BookCardProps) => {
+const BookGridCard = (props: BookCardProps) => {
     const book = props.book;
 
     const router = useRouter();
@@ -15,7 +15,7 @@ const BookCard = (props: BookCardProps) => {
     useEffect(() => {}, []);
 
     const clickBook = () => {
-        router.push(`/acervo/livro/${book.slug}`);
+        router.push(`/b/${book.slug}`);
     };
 
     return (
@@ -45,7 +45,7 @@ const BookCard = (props: BookCardProps) => {
                 />
 
                 {/* ToDo: Adicionar a lógica para empréstimo */}
-                {true && <LoanBadge position="absolute" bottom="6px" left="6px" />}
+                {book.loans.length > 0 && <LoanBadge bookLoan={book.loans[0]} position="absolute" bottom="6px" left="6px" />}
             </Box>
 
             <Card.Body py="1" px="2">
@@ -63,4 +63,4 @@ const BookCard = (props: BookCardProps) => {
     );
 };
 
-export default memo(BookCard);
+export default memo(BookGridCard);

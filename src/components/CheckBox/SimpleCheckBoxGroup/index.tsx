@@ -26,6 +26,9 @@ const SimpleCheckBoxGroup = ({ label, hide, options, values, setValues }: Simple
 
             <Checkbox.Group value={values} onValueChange={setValues} cursor={"pointer"}>
                 <VStack align="start" gap="2">
+                    {/* ToDO: Aqui seria interessante tratar os casos onde as opções passam de 10.
+                    Penso em mostrar apenas as primeiras 10 e um botão VER MAIS / VER MENOS 
+                    para alternar entre a visão completa e a visão inicial */}
                     {options.map((opt) => (
                         <Checkbox.Root key={opt.value} value={opt.value} cursor={"pointer"}>
                             <Checkbox.HiddenInput />

@@ -57,7 +57,7 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                     <FealLogo size="sm" name={t("title")} onClick={clickMainLogo} cursor={"pointer"} />
 
                     <HStack gap={1}>
-                        <LocaleSelect />
+                        {/* <LocaleSelect /> */}
                         <Flex align="center" gap={0}>
                             <ColorModeButton />
                         </Flex>

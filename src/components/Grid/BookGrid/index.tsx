@@ -3,6 +3,7 @@ import { Grid, Image, HStack, VStack, Spinner, Heading } from "@chakra-ui/react"
 import { BookGridProps } from "types";
 import { LoadingIcons } from "assets";
 import { useTranslations } from "next-intl";
+import { GhostButton } from "components/Button";
 
 const BookGrid = (props: BookGridProps) => {
     const t = useTranslations("Utils");
@@ -15,8 +16,17 @@ const BookGrid = (props: BookGridProps) => {
         <VStack align={"center"}>
             <HStack align={"center"} pt="50px">
                 <VStack align={"center"}>
-                    <Image w="200px" src={LoadingIcons.failed.src} alt="Falha a carregar os dados" />{" "}
-                    <Heading>{t("somethingIsWrong")}</Heading>
+                    <Image w="300px" src={LoadingIcons.failed.src} alt={t("somethingIsWrong")} />{" "}
+                    <Heading textAlign={"center"}>{t("somethingIsWrong")}</Heading>
+                    <GhostButton
+                        // ToDO: Remover isso daqui. Não deve ser responsabilidade do componente recarregar a página.
+                        /// Essa é apenas uma solução temporária e preguiçosa
+                        onClick={() => {
+                            window.location.reload();
+                        }}
+                    >
+                        {t("somethingIsWrongRefresh")}
+                    </GhostButton>
                 </VStack>
             </HStack>
         </VStack>
