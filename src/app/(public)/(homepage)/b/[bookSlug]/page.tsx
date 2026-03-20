@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getBook, listRelatedBooks } from "endpoints";
 import { Book, APIPaginatedResponse } from "types";
 import { useTranslations } from "next-intl";
+import { Metadata } from "next";
 import {
     Body,
     PageHeading,
@@ -62,6 +63,46 @@ const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
     authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
 };
+
+// ToDo: remover isso daqui?
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+    const book = await getBook(params.slug);
+
+    if (!book) {
+        return { title: "Livro não encontrado | FEAL" };
+    }
+
+    const title = `${book.title} - Biblioteca FEAL`;
+    const description =
+        book.subtitle || book.description || "Confira este livro na Biblioteca da Fraternidade Espírita Amor e Luz.";
+    const imageUrl = book.cover_url || "https://biblioteca.feal.espirita.casa/default-share.png"; // ToDo: default img
+
+    return {
+        title: title,
+        description: description,
+        openGraph: {
+            title: title,
+            description: description,
+            url: `https://biblioteca.feal.espirita.casa/b/${params.slug}`,
+            siteName: "Biblioteca Amor e Luz",
+            images: [
+                {
+                    url: imageUrl,
+                    width: 800,
+                    height: 1100,
+                    alt: `Capa do livro ${book.title}`
+                }
+            ],
+            type: "book"
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: title,
+            description: description,
+            images: [imageUrl]
+        }
+    };
+}
 
 export default function BookDetails() {
     const t = useTranslations("BookDetails");
