@@ -10,7 +10,6 @@ export const listBooks = async (
         method: "POST",
         url: `/public/books`,
         data: { filter: filter, pagination: pagination },
-        // ToDo: tratar a tipagem
         signal: options.signal
     });
 

@@ -17,7 +17,7 @@ const defaultValues = {
 export const AuthContext = createContext<AuthContextType>(defaultValues);
 
 export function AuthContextProvider({ children }: { children: ReactNode }) {
-    const [isLoading, setIsLoading] = useState(false);
+    const [, setIsLoading] = useState(false);
     const [user, setUser] = useState<User | null>(null);
 
     const router = useRouter();

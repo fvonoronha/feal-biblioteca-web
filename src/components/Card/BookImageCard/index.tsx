@@ -3,7 +3,6 @@
 import { memo } from "react";
 import { Image, Box } from "@chakra-ui/react";
 import { BookCardProps } from "types";
-import { LoanBadge } from "components";
 import { bookCover } from "assets";
 
 const BookImageCard = (props: BookCardProps) => {

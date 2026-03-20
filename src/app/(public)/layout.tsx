@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Container, Stack, Text, Image, VStack, HStack, Icon, Separator, Flex, Spacer } from "@chakra-ui/react";
+import { Box, Container, Stack, Text, Image, VStack, HStack, Separator, Flex, Spacer } from "@chakra-ui/react";
 import { LuMapPin, LuInstagram, LuYoutube, LuFacebook, LuClock7 } from "react-icons/lu";
 import { fealIdentity } from "assets";
 import { LocaleSelect } from "components";

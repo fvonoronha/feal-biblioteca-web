@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { VStack, Checkbox, Field, Skeleton } from "@chakra-ui/react";
+import { VStack, Checkbox, Field } from "@chakra-ui/react";
 
 type Option = {
     label: string;

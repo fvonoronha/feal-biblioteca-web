@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { Box, Container, Stack, Text, Image, VStack, HStack, Icon, Separator } from "@chakra-ui/react";
 // import { SelectRoot, SelectTrigger, SelectValueText, SelectContent, SelectItem } from "components"; // Ajuste o path conforme seu projeto
-import { LuMapPin, LuMail, LuLanguages } from "react-icons/lu";
+import { LuMapPin, LuMail } from "react-icons/lu";
 // import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 

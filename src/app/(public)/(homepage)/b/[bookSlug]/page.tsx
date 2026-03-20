@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getBook, listRelatedBooks } from "endpoints";
 import { Book, APIPaginatedResponse } from "types";
-import { parseDateFullText } from "utils";
 import { useTranslations } from "next-intl";
 import {
     Body,
@@ -37,7 +36,6 @@ import {
     LuCheck,
     LuArrowLeft
 } from "react-icons/lu";
-import { randomInt } from "crypto";
 
 const NUMBER_OF_RELATED_BOOKS_TO_SHOW = 6;
 const TIMEOUT_OF_SHARE_BUTTON_ICON_CHANGE_IN_MS = 3000;

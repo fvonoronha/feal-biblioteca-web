@@ -1,5 +1,6 @@
 import { useLocale } from "next-intl";
-import navigation from "next/navigation";
+import { memo } from "react";
+import { useRouter } from "next/navigation";
 import { listSupporteLocales, setLocale } from "utils";
 import { Locale } from "types";
 
@@ -38,9 +39,9 @@ const SelectValue = () => {
     );
 };
 
-export default function LocaleSelect() {
+function LocaleSelect() {
     const locale = useLocale();
-    const router = navigation.useRouter();
+    const router = useRouter();
 
     return (
         <Select.Root
@@ -95,3 +96,5 @@ export default function LocaleSelect() {
         </Select.Root>
     );
 }
+
+export default memo(LocaleSelect);

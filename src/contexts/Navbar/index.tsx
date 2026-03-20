@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex, HStack, Box } from "@chakra-ui/react";
-import { FealLogo, UserNavbarMenu, LocaleSelect } from "components";
+import { FealLogo, UserNavbarMenu } from "components";
 import { ColorModeButton } from "components/ui/color-mode";
 
 import { createContext, ReactNode, useContext } from "react";
