@@ -29,30 +29,36 @@ api.interceptors.response.use(
     }
 );
 
-export const callAPI = async ({
-    method = "GET",
-    url = "/",
-    data = {},
-    params = {},
-    headers = {},
-    signal = null
-}): Promise<APIResponseType> => {
-    if (signal) {
+type CallAPIOptions = {
+    method: string;
+    url: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    headers?: any;
+
+    signal?: AbortSignal;
+};
+
+export const callAPI = async (opt: CallAPIOptions): Promise<APIResponseType> => {
+    if (opt.signal) {
         return await api.request({
-            method,
-            url,
-            data,
-            params,
-            headers,
-            signal: signal as GenericAbortSignal
+            method: opt.method,
+            url: opt.url,
+            data: opt.data,
+            params: opt.params,
+            headers: opt.headers,
+            signal: opt.signal as GenericAbortSignal
         });
     } else {
         return await api.request({
-            method,
-            url,
-            data,
-            params,
-            headers
+            method: opt.method,
+            url: opt.url,
+            data: opt.data,
+            params: opt.params,
+            headers: opt.headers
         });
     }
 };

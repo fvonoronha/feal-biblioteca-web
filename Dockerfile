@@ -14,14 +14,12 @@ RUN apk add --no-cache curl \
     && update-ca-certificates
 
 COPY package*.json ./
-RUN yarn install --non-interactive --network-timeout 1000000
+
+RUN npm install --omit=dev --unsafe-perm --include=optional sharp
 
 
 COPY . .
-RUN yarn build \
-    && yarn cache clean \
-    && rm -rf /app/.next/cache/* \
-    && rm -rf /usr/local/share/.cache/yarn*
+RUN npm run build
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["npm", "start"]

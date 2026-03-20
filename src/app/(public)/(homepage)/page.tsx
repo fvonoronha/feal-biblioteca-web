@@ -135,7 +135,7 @@ export default function Buckets() {
         }
     });
 
-    const [isTagsLoading, setIsTagsLoading] = useState(false);
+    const [, setIsTagsLoading] = useState(false);
     const [isTagsLoadFailed, setIsTagsLoadFailed] = useState(false);
     const [filterTags, setFilterTags] = useState<APIPaginatedResponse<Tag>>({
         elements: [],
@@ -149,7 +149,7 @@ export default function Buckets() {
         }
     });
 
-    const [isPublishersLoading, setIsPublishersLoading] = useState(false);
+    const [, setIsPublishersLoading] = useState(false);
     const [isPublishersLoadFailed, setIsPublishersLoadFailed] = useState(false);
     const [filterPublishers, setFilterPublishers] = useState<APIPaginatedResponse<Publisher>>({
         elements: [],
