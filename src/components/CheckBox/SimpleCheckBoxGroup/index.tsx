@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { VStack, Checkbox, Field } from "@chakra-ui/react";
+import { VStack, Checkbox, Field, Skeleton } from "@chakra-ui/react";
 
 type Option = {
     label: string;
@@ -9,13 +9,21 @@ type Option = {
 };
 
 type SimpleCheckBoxGroupProps = {
-    hide: boolean;
+    isLoading?: boolean;
+    hide?: boolean;
     label: string;
     options: Option[];
     values: string[];
     setValues: (values: string[]) => void;
 };
-const SimpleCheckBoxGroup = ({ label, hide, options, values, setValues }: SimpleCheckBoxGroupProps) => {
+const SimpleCheckBoxGroup = ({
+    label,
+    hide = false,
+    isLoading = false,
+    options,
+    values,
+    setValues
+}: SimpleCheckBoxGroupProps) => {
     if (hide || options.length === 0) return <></>;
 
     return (
@@ -23,6 +31,9 @@ const SimpleCheckBoxGroup = ({ label, hide, options, values, setValues }: Simple
             <Field.Root>
                 <Field.Label>{label}</Field.Label>
             </Field.Root>
+
+            {/* /// Nao vale a pena tratar o isLoading aqui */}
+            {isLoading && <></>}
 
             <Checkbox.Group value={values} onValueChange={setValues} cursor={"pointer"}>
                 <VStack align="start" gap="2">

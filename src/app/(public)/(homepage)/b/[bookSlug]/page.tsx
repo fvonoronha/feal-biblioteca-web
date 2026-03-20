@@ -2,11 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getBook } from "endpoints";
-import { Book } from "types";
+import { getBook, listRelatedBooks } from "endpoints";
+import { Book, APIPaginatedResponse } from "types";
 import { parseDateFullText } from "utils";
 import { useTranslations } from "next-intl";
-import { Body, PageHeading, GhostButton, BookImageCard, LoanBadge, SimpleButton } from "components";
+import {
+    Body,
+    PageHeading,
+    GhostButton,
+    BookImageCard,
+    LoanBadge,
+    SimpleButton,
+    SectionHeading,
+    BookGridCard,
+    BookGrid
+} from "components";
 
 import { Flex, Box, HStack, VStack, Text, Skeleton, Stack, SimpleGrid, Spacer } from "@chakra-ui/react";
 
@@ -27,8 +37,33 @@ import {
     LuCheck,
     LuArrowLeft
 } from "react-icons/lu";
+import { randomInt } from "crypto";
 
+const NUMBER_OF_RELATED_BOOKS_TO_SHOW = 6;
 const TIMEOUT_OF_SHARE_BUTTON_ICON_CHANGE_IN_MS = 3000;
+const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
+    id: 1,
+    slug: "slug",
+    title: "title",
+    subtitle: "subtitle",
+    publisher: "publisher",
+    year: 1857,
+    edition: "1",
+    isbn: "isbn",
+    pages: 1,
+    summary: "",
+    pdf_url: "",
+    cover_url: "",
+    images_url: [""],
+    label: "label",
+    shelf: "shelf",
+    description:
+        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
+    loans: [],
+    keywords: ["a", "b", "c"],
+    tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
+    authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
+};
 
 export default function BookDetails() {
     const t = useTranslations("BookDetails");
@@ -39,28 +74,27 @@ export default function BookDetails() {
 
     const [isBookLoading, setIsBookLoading] = useState(true);
     const [isBookLoadFailed, setIsBookLoadFailed] = useState(false);
-    const [book, setBook] = useState<Book>({
-        id: 1,
-        slug: "slug",
-        title: "title",
-        subtitle: "subtitle",
-        publisher: "publisher",
-        year: 1857,
-        edition: "1",
-        isbn: "isbn",
-        pages: 1,
-        summary: "",
-        pdf_url: "",
-        cover_url: "",
-        images_url: [""],
-        label: "label",
-        shelf: "shelf",
-        description:
-            "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
-        loans: [],
-        keywords: ["a", "b", "c"],
-        tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
-        authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
+    const [book, setBook] = useState<Book>(DEFAULT_EXAMPLE_BOOK_FOR_SKELETON);
+
+    const [isBooksLoading, setIsBooksLoading] = useState(true);
+    const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
+    const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
+        elements: [
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
+        ],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
     });
 
     const loadBook = async () => {
@@ -70,10 +104,34 @@ export default function BookDetails() {
         try {
             const response = await getBook(bookSlug as string);
             setBook(response);
+            loadRelatedBooks(response.id);
         } catch {
             setIsBookLoadFailed(true);
         } finally {
             setIsBookLoading(false);
+        }
+    };
+
+    const loadRelatedBooks = async (bookId: number) => {
+        setIsBooksLoading(true);
+        setIsBooksLoadFailed(false);
+
+        try {
+            const pagination = {
+                limit: NUMBER_OF_RELATED_BOOKS_TO_SHOW,
+                page: 1,
+                orderBy: {
+                    id: "desc"
+                }
+            };
+
+            const response = await listRelatedBooks(bookId, pagination);
+            setBooks(response);
+        } catch (err) {
+            console.log(err);
+            setIsBooksLoadFailed(true);
+        } finally {
+            setIsBooksLoading(false);
         }
     };
 
@@ -121,13 +179,6 @@ export default function BookDetails() {
 
     return (
         <Body>
-            {/* Header / Navegação */}
-            {/* <VStack align="start" pt="6" mb="8" gap="4">
-                <GhostButton onClick={() => router.back()} leftIcon={<LuArrowLeft />}>
-                    {t("backToCollection")}
-                </GhostButton>
-            </VStack> */}
-
             <GhostButton onClick={goToCollection} py={"48px"}>
                 <HStack>
                     <LuArrowLeft />
@@ -238,7 +289,7 @@ export default function BookDetails() {
                                         <LoanBadge bookLoan={book?.loans?.[0]} />
                                     </Text>
                                 </HStack>
-                                <Text
+                                {/* <Text
                                     fontStyle={"italic"}
                                     fontSize={"sm"}
                                     color={book?.loans?.length > 0 ? "fealRed" : "green"}
@@ -249,7 +300,7 @@ export default function BookDetails() {
                                               due_date: parseDateFullText(new Date(book.loans[0]?.due_date))
                                           })
                                         : t("availableTooltip")}
-                                </Text>
+                                </Text> */}
 
                                 {book?.shelf && (
                                     <HStack>
@@ -272,69 +323,128 @@ export default function BookDetails() {
                                 )}
 
                                 {book?.tags.length > 0 && (
-                                    <HStack align="start" gap="1">
-                                        <HStack>
-                                            <LuTag size="16" />
-                                            <Text fontWeight={"bold"}>{t("tags")}: </Text>
-                                        </HStack>
-                                        {/* ToDO: Tornar cada tag clicável e encaminhar para uma página com livros dessa tag */}
-                                        <HStack wrap="wrap" gap="2">
+                                    <Box>
+                                        <Box as="span" display="inline-flex" alignItems="center" mr="2">
+                                            <LuTag size="16" style={{ marginRight: "6px" }} />
+                                            <Text as="span" fontWeight="bold">
+                                                {t("tags")}:{" "}
+                                            </Text>
+                                        </Box>
+                                        <Box as="span" lineHeight="tall">
                                             {book?.tags.map((tag, index) => (
-                                                <Text key={tag.tag.id} _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                                <Text
+                                                    key={tag.tag.id}
+                                                    as="span"
+                                                    _hover={{ color: "fealRed" }}
+                                                    cursor="pointer"
+                                                    transition="color 0.2s"
+                                                >
                                                     {tag.tag.name}
-                                                    {index == book.tags.length - 1 ? "" : ", "}
+                                                    {index === book.tags.length - 1 ? "" : ", "}
                                                 </Text>
                                             ))}
-                                        </HStack>
-                                    </HStack>
+                                        </Box>
+                                    </Box>
                                 )}
                             </VStack>
                         </Skeleton>
                     </SimpleGrid>
+
                     {book?.description && (
-                        <Skeleton loading={isBookLoading}>
-                            <VStack gap="0" align={"start"}>
-                                <HStack>
-                                    <LuGlasses size="16" />
-                                    <Text fontWeight={"bold"}>{t("description")}: </Text>
-                                </HStack>
-                                <Text lineHeight="tall" color="fg.muted" textAlign={"justify"}>
+                        <Box>
+                            <Box as="span" display="inline-flex" alignItems="center" mr="2">
+                                <LuGlasses size="16" style={{ marginRight: "6px" }} />
+                                <Text as="span" fontWeight="bold">
+                                    {t("description")}:{" "}
+                                </Text>
+                            </Box>
+                            <Box as="span" lineHeight="tall">
+                                <Text as="span" color="fg.muted" textAlign={"justify"}>
                                     {book?.description}
                                 </Text>
-                            </VStack>
-                        </Skeleton>
+                            </Box>
+                        </Box>
                     )}
 
-                    {book?.keywords?.length > 0 && (
-                        <Skeleton loading={isBookLoading} w={"100%"}>
-                            <HStack align="start" gap="1">
+                    {/* ToDo: Transformar esse trecho em componente pois eu ja estou repetindo ele */}
+                    {book?.keywords.length > 0 && (
+                        <Box>
+                            <Box as="span" display="inline-flex" alignItems="center" mr="2">
+                                <LuText size="16" style={{ marginRight: "6px" }} />
+                                <Text as="span" fontWeight="bold">
+                                    {t("keywords")}:{" "}
+                                </Text>
+                            </Box>
+                            <Box as="span" lineHeight="tall">
+                                {book?.keywords.map((key, index) => (
+                                    <Text
+                                        key={key}
+                                        as="span"
+                                        _hover={{ color: "fealRed" }}
+                                        cursor="pointer"
+                                        transition="color 0.2s"
+                                    >
+                                        {key}
+                                        {index === book.keywords.length - 1 ? "" : ", "}
+                                    </Text>
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+
+                    <Skeleton loading={isBookLoading} w="100%">
+                        <VStack flex={1} align={{ base: "center", md: "start" }}>
+                            <SimpleButton onClick={shareBookUrl}>
                                 <HStack>
-                                    <LuText size="16" />
-                                    <Text fontWeight={"bold"}>{t("keywords")}: </Text>
+                                    {copied ? <LuCheck /> : <LuShare />}
+                                    <Text>{t("share")}</Text>
                                 </HStack>
-                                {/* ToDO: Tornar cada tag clicável e encaminhar para uma página com livros dessa tag */}
-                                <HStack wrap="wrap" gap="2">
-                                    {book?.keywords.map((keyword, index) => (
-                                        <Text key={keyword} _hover={{ color: "fealRed" }} cursor={"pointer"}>
-                                            {keyword}
-                                            {index == book.keywords.length - 1 ? "" : ", "}
-                                        </Text>
-                                    ))}
-                                </HStack>
-                            </HStack>
-                        </Skeleton>
-                    )}
-
-                    <Skeleton loading={isBookLoading}>
-                        <SimpleButton onClick={shareBookUrl}>
-                            <HStack>
-                                {copied ? <LuCheck /> : <LuShare />}
-                                <Text>{t("share")}</Text>
-                            </HStack>
-                        </SimpleButton>
+                            </SimpleButton>
+                        </VStack>
                     </Skeleton>
                 </VStack>
             </Stack>
+
+            {/* ToDo: Quando o livro aberto nao estiver disponível seria interessante adicionar aqui uma seção com outros volumes do memso livro */}
+
+            <Spacer pt={"24px"} />
+
+            <Skeleton loading={isBooksLoading}>
+                <SectionHeading header={t("seeAlso")} />
+            </Skeleton>
+
+            <BookGrid loadingFailed={isBooksLoadFailed} eWidth={"180px"} pt={"12px"}>
+                {books.elements.map((obj: Book) => {
+                    return (
+                        <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoading}>
+                            <BookGridCard book={obj} />
+                        </Skeleton>
+                    );
+                })}
+            </BookGrid>
+
+            <Spacer pt={"24px"} />
+
+            <Skeleton loading={isBooksLoading}>
+                <VStack flex={1} align={{ base: "center", md: "start" }}>
+                    <SectionHeading header={t("didntFindWhatYouWereLookingFor")} description={t("weAreWorkingOnIt")} />
+                </VStack>
+            </Skeleton>
+
+            <Skeleton loading={isBookLoading}>
+                <VStack flex={1} align={{ base: "center", md: "start" }}>
+                    <SimpleButton onClick={goToCollection} mt={"24px"}>
+                        <HStack>
+                            <LuBook />
+                            <Text>{t("backToCollection")}</Text>
+                        </HStack>
+                    </SimpleButton>
+                </VStack>
+            </Skeleton>
+
+            <Spacer pt={"24px"} />
+
+            {/* ToDo: Aqui seria legal também uma seção sobre doação de livros para a biblioteca */}
         </Body>
     );
 }

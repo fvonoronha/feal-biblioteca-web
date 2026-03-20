@@ -29,7 +29,8 @@ import {
     useDisclosure,
     Heading,
     Wrap,
-    WrapItem
+    WrapItem,
+    Skeleton
 } from "@chakra-ui/react";
 
 import { LuSlidersHorizontal } from "react-icons/lu";
@@ -38,6 +39,31 @@ const PAGE_SIZE = 24;
 const UNLIMITED_PAGE_SIZE = 1000;
 const SEARCH_DELAY_IN_MS = 1000;
 const RESET_BOOKS_PAGINATION = true;
+
+// ToDo: Retirar isso aqui e centralizar em algum utils
+const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
+    id: 1,
+    slug: "slug",
+    title: "title",
+    subtitle: "subtitle",
+    publisher: "publisher",
+    year: 1857,
+    edition: "1",
+    isbn: "isbn",
+    pages: 1,
+    summary: "",
+    pdf_url: "",
+    cover_url: "",
+    images_url: [""],
+    label: "label",
+    shelf: "shelf",
+    description:
+        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
+    loans: [],
+    keywords: ["a", "b", "c"],
+    tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
+    authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
+};
 
 export default function Buckets() {
     const t = useTranslations("Collection");
@@ -50,21 +76,52 @@ export default function Buckets() {
     const loadMoreBooksRef = useRef<HTMLDivElement | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const [isBooksLoading, setIsBooksLoading] = useState(false);
+    const [isBooksLoadingFirstTime, setIsBooksLoadingFirstTime] = useState(true);
+    const [isBooksLoading, setIsBooksLoading] = useState(true);
     const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
     const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
-        elements: [],
+        elements: [
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
+        ],
         pagination: {
             page: 1,
-            limit: 10,
-            total_elements: 0,
+            limit: PAGE_SIZE,
+            total_elements: PAGE_SIZE,
             total_pages: 0,
             has_next: false,
             has_previous: false
         }
     });
 
-    const [, setIsAuthorsLoading] = useState(false);
+    const [isAuthorsLoading, setIsAuthorsLoading] = useState(false);
     const [isAuthorsLoadFailed, setIsAuthorsLoadFailed] = useState(false);
     const [filterAuthors, setFilterAuthors] = useState<APIPaginatedResponse<Author>>({
         elements: [],
@@ -78,7 +135,7 @@ export default function Buckets() {
         }
     });
 
-    const [, setIsTagsLoading] = useState(false);
+    const [isTagsLoading, setIsTagsLoading] = useState(false);
     const [isTagsLoadFailed, setIsTagsLoadFailed] = useState(false);
     const [filterTags, setFilterTags] = useState<APIPaginatedResponse<Tag>>({
         elements: [],
@@ -92,7 +149,7 @@ export default function Buckets() {
         }
     });
 
-    const [, setIsPublishersLoading] = useState(false);
+    const [isPublishersLoading, setIsPublishersLoading] = useState(false);
     const [isPublishersLoadFailed, setIsPublishersLoadFailed] = useState(false);
     const [filterPublishers, setFilterPublishers] = useState<APIPaginatedResponse<Publisher>>({
         elements: [],
@@ -166,6 +223,7 @@ export default function Buckets() {
         } finally {
             if (abortControllerRef.current === controller) {
                 setIsBooksLoading(false);
+                setIsBooksLoadingFirstTime(false);
             }
         }
     };
@@ -262,6 +320,7 @@ export default function Buckets() {
     };
 
     const clearFilters = async () => {
+        setIsBooksLoadingFirstTime(true);
         setSearch("");
         setSelectedAuthors([]);
         setSelectedSpiritAuthors([]);
@@ -379,73 +438,76 @@ export default function Buckets() {
         selectedPublishers.length > 0) && <GhostButton onClick={clearFilters}>{t("removeFilters")}</GhostButton>;
 
     const filtersContent = (
-        <VStack align="start" gap="6" w="100%">
-            <HStack w="100%">
-                <Heading fontSize={"xl"}>{t("filter")}</Heading>
-                <Spacer />
-                {clearFiltersContent}
-            </HStack>
+        <Skeleton loading={isBooksLoadingFirstTime}>
+            <VStack align="start" gap="6" w="100%">
+                <HStack w="100%">
+                    <Heading fontSize={"xl"}>{t("filter")}</Heading>
+                    <Spacer />
+                    {clearFiltersContent}
+                </HStack>
 
-            {activeFiltersBadges}
+                {activeFiltersBadges}
 
-            <FormInput
-                label={t("filterSearchLabel")}
-                placeholder={t("filterSearchPlaceholder")}
-                w="100%"
-                value={search}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-            />
+                <FormInput
+                    label={t("filterSearchLabel")}
+                    placeholder={t("filterSearchPlaceholder")}
+                    w="100%"
+                    value={search}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                />
 
-            <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
+                <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
 
-            <SimpleCheckBoxGroup
-                label="Autor"
-                hide={isAuthorsLoadFailed}
-                options={filterAuthors.elements
-                    .filter((a) => !a.is_spirit)
-                    .map((a) => ({
+                <SimpleCheckBoxGroup
+                    label="Autor"
+                    isLoading={isAuthorsLoading}
+                    hide={isAuthorsLoadFailed}
+                    options={filterAuthors.elements
+                        .filter((a) => !a.is_spirit)
+                        .map((a) => ({
+                            label: `${a.name} (${a._count?.books || "0"})`,
+                            value: `${a.id}`
+                        }))}
+                    values={selectedAuthors}
+                    setValues={setSelectedAuthors}
+                />
+
+                <SimpleCheckBoxGroup
+                    label="Autor Espiritual"
+                    hide={isAuthorsLoadFailed}
+                    options={filterAuthors.elements
+                        .filter((a) => a.is_spirit)
+                        .map((a) => ({
+                            label: `${a.name} (${a._count?.books || "0"})`,
+                            value: `${a.id}`
+                        }))}
+                    values={selectedSpiritAuthors}
+                    setValues={setSelectedSpiritAuthors}
+                />
+
+                <SimpleCheckBoxGroup
+                    label="Temas"
+                    hide={isTagsLoadFailed}
+                    options={filterTags.elements.map((a) => ({
                         label: `${a.name} (${a._count?.books || "0"})`,
                         value: `${a.id}`
                     }))}
-                values={selectedAuthors}
-                setValues={setSelectedAuthors}
-            />
+                    values={selectedTags}
+                    setValues={setSelectedTags}
+                />
 
-            <SimpleCheckBoxGroup
-                label="Autor Espiritual"
-                hide={isAuthorsLoadFailed}
-                options={filterAuthors.elements
-                    .filter((a) => a.is_spirit)
-                    .map((a) => ({
-                        label: `${a.name} (${a._count?.books || "0"})`,
-                        value: `${a.id}`
+                <SimpleCheckBoxGroup
+                    label="Editora"
+                    hide={isPublishersLoadFailed}
+                    options={filterPublishers.elements.map((a) => ({
+                        label: `${a.name} (${a._count.books})`,
+                        value: `${a.name}`
                     }))}
-                values={selectedSpiritAuthors}
-                setValues={setSelectedSpiritAuthors}
-            />
-
-            <SimpleCheckBoxGroup
-                label="Temas"
-                hide={isTagsLoadFailed}
-                options={filterTags.elements.map((a) => ({
-                    label: `${a.name} (${a._count?.books || "0"})`,
-                    value: `${a.id}`
-                }))}
-                values={selectedTags}
-                setValues={setSelectedTags}
-            />
-
-            <SimpleCheckBoxGroup
-                label="Editora"
-                hide={isPublishersLoadFailed}
-                options={filterPublishers.elements.map((a) => ({
-                    label: `${a.name} (${a._count.books})`,
-                    value: `${a.name}`
-                }))}
-                values={selectedPublishers}
-                setValues={setSelectedPublishers}
-            />
-        </VStack>
+                    values={selectedPublishers}
+                    setValues={setSelectedPublishers}
+                />
+            </VStack>
+        </Skeleton>
     );
 
     return (
@@ -510,23 +572,29 @@ export default function Buckets() {
                         {!isMobile && (
                             <HStack>
                                 <Spacer />
-                                <Text>
-                                    {books.elements.length > 0 &&
-                                        t("showingXFromYBooks", {
-                                            total: books.pagination.total_elements
-                                        })}
-                                </Text>
+                                <Skeleton loading={!isBooksLoadingFirstTime && isBooksLoading}>
+                                    <Text>
+                                        {books.elements.length > 0 &&
+                                            t("showingXFromYBooks", {
+                                                total: books.pagination.total_elements
+                                            })}
+                                    </Text>
+                                </Skeleton>
                             </HStack>
                         )}
 
                         <BookGrid
-                            isLoading={isBooksLoading}
+                            isLoading={!isBooksLoadingFirstTime && isBooksLoading}
                             loadingFailed={isBooksLoadFailed}
                             eWidth={"180px"}
                             pt={"12px"}
                         >
                             {books.elements.map((obj: Book) => {
-                                return <BookGridCard book={obj} key={`bookCard#${obj.id}`} />;
+                                return (
+                                    <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoadingFirstTime}>
+                                        <BookGridCard book={obj} />
+                                    </Skeleton>
+                                );
                             })}
                         </BookGrid>
 

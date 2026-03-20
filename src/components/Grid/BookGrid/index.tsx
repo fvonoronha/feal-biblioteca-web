@@ -9,7 +9,7 @@ const BookGrid = (props: BookGridProps) => {
     const t = useTranslations("Utils");
 
     const elementWidth = props.eWidth || "100px";
-    const isLoading: boolean = props.isLoading;
+    const isLoading: boolean = !!props.isLoading;
     const hasLoadingFailed = !!props.loadingFailed;
 
     return hasLoadingFailed ? (
