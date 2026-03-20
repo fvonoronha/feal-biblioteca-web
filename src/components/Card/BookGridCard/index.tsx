@@ -45,7 +45,9 @@ const BookGridCard = (props: BookCardProps) => {
                 />
 
                 {/* ToDo: Adicionar a lógica para empréstimo */}
-                {book.loans.length > 0 && <LoanBadge bookLoan={book.loans[0]} position="absolute" bottom="6px" left="6px" />}
+                {book.loans?.length > 0 && (
+                    <LoanBadge bookLoan={book.loans[0]} position="absolute" bottom="6px" left="6px" />
+                )}
             </Box>
 
             <Card.Body py="1" px="2">

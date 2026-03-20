@@ -59,6 +59,9 @@
         "label": "Etiqueta",
         "keywords": "Palavras-chave",
         "loanedTooltip": "Volume em empréstimo desde o dia {loan_date}. Previsto para ser devolvido no dia {due_date}.",
-        "availableTooltip": "Você pode pegar emprestado este volume de maneira gratuita por até 15 dias."
+        "availableTooltip": "Você pode pegar emprestado este volume de maneira gratuita por até 15 dias.",
+        "seeAlso": "Veja também",
+        "didntFindWhatYouWereLookingFor": "Não achou o que procurava?",
+        "weAreWorkingOnIt": "Diariamente estamos trabalhando para adicionar catalogar novos volumes para você"
     }
 }

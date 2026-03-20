@@ -2,7 +2,7 @@ import { type GridProps, FlexProps, type StackProps, type UseDrawerProps } from 
 import { ReactNode } from "react";
 
 export interface BookGridProps extends GridProps {
-    isLoading: boolean;
+    isLoading?: boolean;
     loadingFailed: boolean;
     eWidth: string;
 }
