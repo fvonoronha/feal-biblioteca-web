@@ -7,10 +7,14 @@ import bg_test_dark from "assets/images/layouts/bg/bg-pesado-dark.jpg";
 import bg_login from "assets/images/layouts/bg/bg-plant.jpg";
 
 import feal_logo from "assets/images/layouts/identity/FEAL.png";
-import feal_logo_name from "assets/images/layouts/identity/FEAL name.png";
+import feal_logo_name_white from "assets/images/layouts/identity/Fraternidade_White.png";
+import feal_logo_name_black from "assets/images/layouts/identity/Fraternidade_Black.png";
+
+{/* <a href="https://storyset.com/people">People illustrations by Storyset</a>; */}
 
 export const LoadingIcons: Record<string, StaticImageData> = {
-    failed: error_loading
+    failed: error_loading,
+    empty: error_loading
 };
 
 export const bgImages: Record<string, StaticImageData> = {
@@ -21,5 +25,6 @@ export const bgImages: Record<string, StaticImageData> = {
 
 export const fealIdentity: Record<string, StaticImageData> = {
     logo: feal_logo,
-    logo_name: feal_logo_name
+    logo_name_white: feal_logo_name_white,
+    logo_name_black: feal_logo_name_black
 };

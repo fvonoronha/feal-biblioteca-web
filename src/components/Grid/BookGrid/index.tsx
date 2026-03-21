@@ -10,6 +10,7 @@ const BookGrid = (props: BookGridProps) => {
 
     const elementWidth = props.eWidth || "100px";
     const isLoading: boolean = !!props.isLoading;
+    // const isEmpty: boolean = !!props.isEmpty;
     const hasLoadingFailed = !!props.loadingFailed;
 
     return hasLoadingFailed ? (

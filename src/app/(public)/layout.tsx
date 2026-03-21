@@ -1,14 +1,20 @@
 "use client";
 
-import { Box, Container, Stack, Text, Image, VStack, HStack, Separator, Flex, Spacer } from "@chakra-ui/react";
+import { Box, Container, Stack, Text, Image, VStack, HStack, Separator, Flex, Spacer, Link } from "@chakra-ui/react";
 import { LuMapPin, LuInstagram, LuYoutube, LuFacebook, LuClock7 } from "react-icons/lu";
+import { FaWhatsapp } from "react-icons/fa";
+
 import { fealIdentity } from "assets";
-import { LocaleSelect } from "components";
+import { LocaleSelect, useColorMode } from "components";
 
 import { useTranslations } from "next-intl";
 
 export default function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const t = useTranslations("Footer");
+
+    const colorMode = useColorMode();
+
+    // ToDo: COmponentizar tudo e transformar isso em um layout
 
     return (
         <>
@@ -23,7 +29,11 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                     >
                         <VStack flex={1} align={{ base: "center", md: "start" }}>
                             <Image
-                                src={fealIdentity.logo_name.src} // Certifique-se de ter essa logo em /public
+                                src={
+                                    colorMode.colorMode === "dark"
+                                        ? fealIdentity.logo_name_white.src
+                                        : fealIdentity.logo_name_black.src
+                                } // Certifique-se de ter essa logo em /public
                                 alt={t("feal")}
                                 h="60px"
                             />
@@ -48,45 +58,103 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             </HStack>
                         </VStack>
 
-                        <VStack flex={1} align={{ base: "center", md: "start" }} maxW="500px">
+                        <VStack flex={1} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
-                                {t("followUs")}
+                                {t("socialNetwork")}
                             </Text>
 
-                            <HStack gap="2" color="fg.muted">
-                                <Box color={"fealRed"}>
-                                    <LuInstagram size={"16"} />
-                                </Box>
+                            <Link
+                                p={0}
+                                as="a"
+                                style={{ textDecoration: "none" }}
+                                href="https://chat.whatsapp.com/ItJs8VaJqgu9cIpyPMYBDC?mode=gi_t"
+                                target="_blank"
+                            >
+                                <HStack gap="2" color="fg.muted">
+                                    <Box color={"fealRed"}>
+                                        <FaWhatsapp size={"20"} />
+                                    </Box>
 
-                                <Text fontSize="sm">@fealrr</Text>
-                            </HStack>
+                                    <Text fontSize="md">{t("whatsappGroup")}</Text>
+                                </HStack>
+                            </Link>
 
-                            <HStack gap="2" color="fg.muted">
-                                <Box color={"fealRed"}>
-                                    <LuYoutube size={"16"} />
-                                </Box>
+                            <Link
+                                p={0}
+                                as="a"
+                                style={{ textDecoration: "none" }}
+                                href="https://www.instagram.com/fealrr"
+                                target="_blank"
+                            >
+                                <HStack gap="2" color="fg.muted">
+                                    <Box color={"fealRed"}>
+                                        <LuInstagram size={"20"} />
+                                    </Box>
 
-                                <Text fontSize="sm">@fealrr</Text>
-                            </HStack>
+                                    <Text fontSize="md">{t("instagram")}</Text>
+                                </HStack>
+                            </Link>
 
-                            <HStack gap="2" color="fg.muted">
-                                <Box color={"fealRed"}>
-                                    <LuFacebook size={"16"} />
-                                </Box>
+                            <Link
+                                p={0}
+                                as="a"
+                                style={{ textDecoration: "none" }}
+                                href="https://www.youtube.com/@fealrr"
+                                target="_blank"
+                            >
+                                <HStack gap="2" color="fg.muted">
+                                    <Box color={"fealRed"}>
+                                        <LuYoutube size={"20"} />
+                                    </Box>
 
-                                <Text fontSize="sm">@fealrr</Text>
-                            </HStack>
+                                    <Text fontSize="md">{t("youtube")}</Text>
+                                </HStack>
+                            </Link>
+
+                            <Link
+                                p={0}
+                                as="a"
+                                style={{ textDecoration: "none" }}
+                                href="https://www.facebook.com/FEALRR"
+                                target="_blank"
+                            >
+                                <HStack gap="2" color="fg.muted">
+                                    <Box color={"fealRed"}>
+                                        <LuFacebook size={"20"} />
+                                    </Box>
+
+                                    <Text fontSize="md">{t("facebook")}</Text>
+                                </HStack>
+                            </Link>
                         </VStack>
 
-                        {/* Coluna 3: Idioma */}
-                        <VStack flex={1} align={{ base: "center", md: "start" }} gap="3" w="100%">
+                        {/* ToDo: Adicionar informações sobre doaç'ão de livros */}
+                        <VStack flex={1} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
-                                {t("language")}
+                                {t("donateTitle")}
                             </Text>
 
-                            <Stack w={"100%"}>
-                                <LocaleSelect />
-                            </Stack>
+                            <Text fontSize="sm" color="fg.muted">
+                                {t("donateDescription")}
+                            </Text>
+
+                            <HStack gap="2" color="fg.muted">
+                                <Box color={"fealRed"}>
+                                    <FaWhatsapp size={"16"} />
+                                </Box>
+
+                                <Text fontSize="sm">{"+55 95 99138 5816"}</Text>
+                            </HStack>
+
+                            <HStack pt={"12px"}>
+                                <Text fontWeight="bold" color="fg" w={"100%"}>
+                                    {t("language")}
+                                </Text>
+
+                                <Stack>
+                                    <LocaleSelect />
+                                </Stack>
+                            </HStack>
                         </VStack>
                     </Flex>
 

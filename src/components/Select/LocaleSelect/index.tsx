@@ -26,7 +26,7 @@ const SelectValue = () => {
                 <Text>{"Algo aqui"}</Text>
             </VStack> */}
 
-            <VStack align={"left"} bg="transparent">
+            <VStack align={"left"} bg="transparent" justifyContent="center">
                 <HStack gap="5px" align={"center"}>
                     <Avatar.Root shape="square" size="xs" bg="transparent" p={0} m={0}>
                         <Avatar.Image src={flag.src} w={"50px"} alt={name} bg="transparent" />
@@ -43,6 +43,7 @@ function LocaleSelect() {
     const locale = useLocale();
     const router = useRouter();
 
+    // ToDo: As vezes fica um espaçamento inconsistente na partde de baixo do select. Investigar e tratar isso depois
     return (
         <Select.Root
             collection={locales}
@@ -62,6 +63,9 @@ function LocaleSelect() {
             <Select.Control>
                 <Select.Trigger
                     bg={"transparent"}
+                    minW="140px"
+                    borderWidth="2px"
+                    borderColor={"gray.300"}
                     _hover={{ bg: { base: "gray.100", _dark: "gray.900" } }}
                     p={0}
                     pl="7px"
@@ -95,6 +99,61 @@ function LocaleSelect() {
             </Portal>
         </Select.Root>
     );
+
+    /// Essa é uma versão que eu fiz e cai bem no NavBar, por isso nao apaguei.
+    /// TAlavez ela não venha a ter utilidade, mas está aqui
+    // return (
+    //     <Select.Root
+    //         collection={locales}
+    //         size="sm"
+    //         defaultValue={[locale]}
+    //         variant={"subtle"}
+    //         bg="transparent"
+    //         positioning={{ placement: locale === "ar" || locale === "he" ? "right-start" : "left-start", flip: false }}
+    //         onValueChange={(newLocale) => {
+    //             const selectedLocale = newLocale.items[0];
+    //             setLocale(selectedLocale.key);
+    //             router.refresh();
+    //         }}
+    //     >
+    //         <Select.HiddenSelect />
+
+    //         <Select.Control>
+    //             <Select.Trigger
+    //                 bg={"transparent"}
+    //                 _hover={{ bg: { base: "gray.100", _dark: "gray.900" } }}
+    //                 p={0}
+    //                 pl="7px"
+    //                 cursor={"pointer"}
+    //             >
+    //                 <SelectValue />
+    //             </Select.Trigger>
+    //         </Select.Control>
+    //         <Portal>
+    //             <Select.Positioner p={0}>
+    //                 <Select.Content p={0} maxHeight="none">
+    //                     {locales.items.map((item) => (
+    //                         <Select.Item item={item} key={item.key} cursor={"pointer"}>
+    //                             <VStack align={"left"} bg="transparent">
+    //                                 <HStack gap="5px" align={"center"}>
+    //                                     <Avatar.Root shape="square" size="xs" bg="transparent" p={0} m={0}>
+    //                                         <Avatar.Image
+    //                                             src={item.flag.src}
+    //                                             w={"50px"}
+    //                                             alt={item.name}
+    //                                             bg="transparent"
+    //                                         />
+    //                                     </Avatar.Root>
+    //                                     <Text>{item.name}</Text>
+    //                                 </HStack>
+    //                             </VStack>
+    //                         </Select.Item>
+    //                     ))}
+    //                 </Select.Content>
+    //             </Select.Positioner>
+    //         </Portal>
+    //     </Select.Root>
+    // );
 }
 
 export default memo(LocaleSelect);

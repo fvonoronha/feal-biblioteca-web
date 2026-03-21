@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getBook, listRelatedBooks } from "endpoints";
 import { Book, APIPaginatedResponse } from "types";
 import { useTranslations } from "next-intl";
-import { Metadata } from "next";
+
 import {
     Body,
     PageHeading,
@@ -63,46 +63,6 @@ const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
     authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
 };
-
-// ToDo: remover isso daqui?
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-    const book = await getBook(params.slug);
-
-    if (!book) {
-        return { title: "Livro não encontrado | FEAL" };
-    }
-
-    const title = `${book.title} - Biblioteca FEAL`;
-    const description =
-        book.subtitle || book.description || "Confira este livro na Biblioteca da Fraternidade Espírita Amor e Luz.";
-    const imageUrl = book.cover_url || "https://biblioteca.feal.espirita.casa/default-share.png"; // ToDo: default img
-
-    return {
-        title: title,
-        description: description,
-        openGraph: {
-            title: title,
-            description: description,
-            url: `https://biblioteca.feal.espirita.casa/b/${params.slug}`,
-            siteName: "Biblioteca Amor e Luz",
-            images: [
-                {
-                    url: imageUrl,
-                    width: 800,
-                    height: 1100,
-                    alt: `Capa do livro ${book.title}`
-                }
-            ],
-            type: "book"
-        },
-        twitter: {
-            card: "summary_large_image",
-            title: title,
-            description: description,
-            images: [imageUrl]
-        }
-    };
-}
 
 export default function BookDetails() {
     const t = useTranslations("BookDetails");
@@ -390,7 +350,7 @@ export default function BookDetails() {
                     </SimpleGrid>
 
                     {book?.description && (
-                        <Box>
+                        <Skeleton loading={isBookLoading} w="100%">
                             <Box as="span" display="inline-flex" alignItems="center" mr="2">
                                 <LuGlasses size="16" style={{ marginRight: "6px" }} />
                                 <Text as="span" fontWeight="bold">
@@ -402,12 +362,12 @@ export default function BookDetails() {
                                     {book?.description}
                                 </Text>
                             </Box>
-                        </Box>
+                        </Skeleton>
                     )}
 
                     {/* ToDo: Transformar esse trecho em componente pois eu ja estou repetindo ele */}
                     {book?.keywords.length > 0 && (
-                        <Box>
+                        <Skeleton loading={isBookLoading} w="100%">
                             <Box as="span" display="inline-flex" alignItems="center" mr="2">
                                 <LuText size="16" style={{ marginRight: "6px" }} />
                                 <Text as="span" fontWeight="bold">
@@ -428,7 +388,7 @@ export default function BookDetails() {
                                     </Text>
                                 ))}
                             </Box>
-                        </Box>
+                        </Skeleton>
                     )}
 
                     <Skeleton loading={isBookLoading} w="100%">
@@ -446,21 +406,29 @@ export default function BookDetails() {
 
             {/* ToDo: Quando o livro aberto nao estiver disponível seria interessante adicionar aqui uma seção com outros volumes do memso livro */}
 
-            <Spacer pt={"24px"} />
+            {books.elements.length > 0 ? (
+                <>
+                    <Spacer pt={"24px"} />
 
-            <Skeleton loading={isBooksLoading}>
-                <SectionHeading header={t("seeAlso")} />
-            </Skeleton>
+                    <Skeleton loading={isBooksLoading}>
+                        <SectionHeading header={t("seeAlso")} />
+                    </Skeleton>
 
-            <BookGrid loadingFailed={isBooksLoadFailed} eWidth={"180px"} pt={"12px"}>
-                {books.elements.map((obj: Book) => {
-                    return (
-                        <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoading}>
-                            <BookGridCard book={obj} />
-                        </Skeleton>
-                    );
-                })}
-            </BookGrid>
+                    <Spacer pt={"24px"} />
+
+                    <BookGrid loadingFailed={isBooksLoadFailed} eWidth={"200px"}>
+                        {books.elements.map((obj: Book) => {
+                            return (
+                                <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoading}>
+                                    <BookGridCard book={obj} />
+                                </Skeleton>
+                            );
+                        })}
+                    </BookGrid>
+                </>
+            ) : (
+                <></>
+            )}
 
             <Spacer pt={"24px"} />
 
@@ -470,9 +438,11 @@ export default function BookDetails() {
                 </VStack>
             </Skeleton>
 
+            <Spacer pt={"24px"} />
+
             <Skeleton loading={isBookLoading}>
                 <VStack flex={1} align={{ base: "center", md: "start" }}>
-                    <SimpleButton onClick={goToCollection} mt={"24px"}>
+                    <SimpleButton onClick={goToCollection}>
                         <HStack>
                             <LuBook />
                             <Text>{t("backToCollection")}</Text>
