@@ -14,9 +14,10 @@ import {
     SortSelect,
     GhostButton,
     ActiveFilterBadge,
-    PageHeading
+    PageHeading,
+    SimpleButton
 } from "components";
-
+import { LoadingIcons } from "assets";
 import {
     Spacer,
     HStack,
@@ -30,7 +31,8 @@ import {
     Heading,
     Wrap,
     WrapItem,
-    Skeleton
+    Skeleton,
+    Image
 } from "@chakra-ui/react";
 
 import { LuSlidersHorizontal } from "react-icons/lu";
@@ -361,7 +363,7 @@ export default function Buckets() {
         return () => clearTimeout(timeout);
     }, [search]);
 
-    // ToDo: talvez componentizar esses pedaços de layout (???)
+    // ToDo: talvez componentizar esses pedaços de layout
     const activeFiltersBadges = (
         <Wrap>
             {search !== "" && (
@@ -437,6 +439,7 @@ export default function Buckets() {
         selectedTags.length > 0 ||
         selectedPublishers.length > 0) && <GhostButton onClick={clearFilters}>{t("removeFilters")}</GhostButton>;
 
+    // componentizar esse pedaço de layout
     const filtersContent = (
         <Skeleton loading={isBooksLoadingFirstTime}>
             <VStack align="start" gap="6" w="100%">
@@ -563,7 +566,7 @@ export default function Buckets() {
 
                 <HStack align="start" gap="0">
                     {!isMobile && (
-                        <Box w="300px" p="4" position="sticky" top="0" maxH="100vh" overflowY="auto">
+                        <Box w="300px" py="4" pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
                             {filtersContent}
                         </Box>
                     )}
@@ -572,7 +575,7 @@ export default function Buckets() {
                         {!isMobile && (
                             <HStack>
                                 <Spacer />
-                                <Skeleton loading={!isBooksLoadingFirstTime && isBooksLoading}>
+                                <Skeleton loading={isBooksLoading}>
                                     <Text>
                                         {books.elements.length > 0 &&
                                             t("showingXFromYBooks", {
@@ -583,20 +586,39 @@ export default function Buckets() {
                             </HStack>
                         )}
 
-                        <BookGrid
-                            isLoading={!isBooksLoadingFirstTime && isBooksLoading}
-                            loadingFailed={isBooksLoadFailed}
-                            eWidth={"180px"}
-                            pt={"12px"}
-                        >
-                            {books.elements.map((obj: Book) => {
-                                return (
-                                    <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoadingFirstTime}>
-                                        <BookGridCard book={obj} />
-                                    </Skeleton>
-                                );
-                            })}
-                        </BookGrid>
+                        {books.elements.length == 0 && !isBooksLoading && !isBooksLoadingFirstTime ? (
+                            <VStack align={"center"}>
+                                <HStack align={"center"} pt="50px">
+                                    <VStack align={"center"}>
+                                        <Image w="300px" src={LoadingIcons.empty.src} alt={t("somethingIsWrong")} />
+                                        <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
+                                        <SimpleButton
+                                            // ToDO: Remover isso daqui. Não deve ser responsabilidade do componente recarregar a página.
+                                            /// Essa é apenas uma solução temporária e preguiçosa
+                                            onClick={clearFilters}
+                                        >
+                                            {t("removeFilters")}
+                                        </SimpleButton>
+                                    </VStack>
+                                </HStack>
+                            </VStack>
+                        ) : (
+                            <BookGrid
+                                isLoading={!isBooksLoadingFirstTime && isBooksLoading}
+                                loadingFailed={isBooksLoadFailed}
+                                isEmpty={books.elements.length == 0}
+                                eWidth={"180px"}
+                                pt={"12px"}
+                            >
+                                {books.elements.map((obj: Book) => {
+                                    return (
+                                        <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoadingFirstTime}>
+                                            <BookGridCard book={obj} />
+                                        </Skeleton>
+                                    );
+                                })}
+                            </BookGrid>
+                        )}
 
                         <Box ref={loadMoreBooksRef} h="40px" />
                     </Box>

@@ -16,11 +16,17 @@
         "feal": "Fraternidade Espírita Amor e Luz - FEAL",
         "address": "Av. Princesa Isabel, 1570, jardim Floresta - Boa Vista, RR",
         "description": "Biblioteca Francisco Cândido Xavier",
-        "followUs": "Siga-nos nas redes sociais",
+        "socialNetwork": "Nossas redes sociais",
         "visitUs": "Ou faça-nos uma visita",
-        "language": "Idioma do site",
+        "language": "Mudar idioma do site",
+        "instagram": "Instagram",
+        "facebook": "Facebook",
+        "youtube": "YouTube",
+        "whatsappGroup": "Grupo da Biblioteca",
         "workingHours": "Aos Sábados das 9h às 11h ou das 19h às 20h30",
-        "allRightsReserved": "Todos os direitos reervados"
+        "allRightsReserved": "Todos os direitos reervados",
+        "donateTitle": "Doe Livros ❤️",
+        "donateDescription": "Doe livros e ajude a fortalecer a nossa biblioteca! Sua doação pode inspirar novos leitores e ampliar o acesso ao estudo e à reflexão. Você pode levar seus livros em qualquer horário de funcionamento da casa. Para mais informações, entre em contato pelo telefone: "
     },
 
     "Collection": {
@@ -40,7 +46,9 @@
         "sortByTitleAsc": "Título, A→Z",
         "sortByTitleDesc": "Título, Z→A",
         "sortByCreationAsc": "Mais antigos",
-        "sortByCreationDesc": "Mais recentes"
+        "sortByCreationDesc": "Mais recentes",
+
+        "booksNotFound": "Nenhum volume encontrado com os filtros atuais"
     },
 
     "BookDetails": {

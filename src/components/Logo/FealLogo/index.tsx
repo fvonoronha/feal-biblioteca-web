@@ -11,7 +11,7 @@ const FealLogo = (props: FealLogoProps) => {
             <HStack align={"center"} {...props}>
                 <Image w="70px" src={fealIdentity.logo.src} alt={name} />
 
-                <Heading ml={"10px"} fontSize={60} color={{ base: "fealLightBlue", _dark: "fealLightBlue" }} mt={"-3"}>
+                <Heading ml={"10px"} fontSize={60} color={{ base: "black", _dark: "white" }} mt={"-3"}>
                     {name}
                 </Heading>
             </HStack>
