@@ -11,7 +11,7 @@ export interface Book {
     pages: number;
     summary: string;
     pdf_url: string;
-    cover_url: string;
+    cover_url?: string;
     images_url: string[];
     label: string;
     shelf: string;
