@@ -10,14 +10,13 @@ import { getStorage } from "utils";
 //     timeout: parseInt(process.env.NEXT_PUBLIC_API_CALL_TIMEOUT || "60000")
 // });
 
-// TODO: ESSAS CONSTANTES PODEM IR PARA ALGUM UTIL
-const API_CALL_TIMEOUT_2_MIN_IN_MS = 120000;
+// ToDo: Criar um utils para tratar constantes e .env
+const API_CALL_TIMEOUT_IN_MS = parseInt(process.env.NEXT_PUBLIC_API_CALL_TIMEOUT_IN_MS || "120000");
 const AUTH_USER_TOKEN_NAME = "usrtkn";
 
-/// Gambiarra: Isso aqui dói, mas por hora vai ter que ficar assim. Nao posos atrasar ainda mais o tempo de desenvolvimento por isso
 const api = axios.create({
-    baseURL: "https://prd.api.biblioteca.feal.espirita.casa", // Ai ai ai
-    timeout: API_CALL_TIMEOUT_2_MIN_IN_MS
+    baseURL: `${process.env.NEXT_PUBLIC_API_HOST}`,
+    timeout: API_CALL_TIMEOUT_IN_MS
 });
 
 api.interceptors.request.use(
@@ -42,6 +41,7 @@ api.interceptors.response.use(
     }
 );
 
+// ToDo: Talvez um dia possamos tipar corretamente esses parâmetros
 type CallAPIOptions = {
     method: string;
     url: string;
