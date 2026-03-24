@@ -8,7 +8,7 @@ import type { PageHeadingProps } from "types";
 const PageHeading = (props: PageHeadingProps) => {
     return (
         <>
-            <Flex w="100%" direction="column" pt="10px" gap={2} align={"flex-start"}>
+            <Flex w="100%" direction="column" gap={2} align={"flex-start"}>
                 <Heading w="100%" fontSize={"4xl"} fontWeight={"bold"} textAlign={"justify"}>
                     {props.header}
                 </Heading>

@@ -3,7 +3,7 @@
 import { Flex, HStack, Box } from "@chakra-ui/react";
 import { FealLogo, UserNavbarMenu } from "components";
 import { ColorModeButton } from "components/ui/color-mode";
-
+import { APP_MAX_WIDTH_IN_PX } from "utils";
 import { createContext, ReactNode, useContext } from "react";
 import { NavbarContextType } from "types";
 import { useAuthContext } from "contexts";
@@ -40,11 +40,11 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                 borderBottom="1px solid"
                 borderColor={{ base: "gray.200", _dark: "gray.700" }}
             >
-                {/* Conteúdo centralizado em 1440px */}
+                {/* Conteúdo centralizado em 1600px */}
                 <Flex
                     h="full"
                     w="full"
-                    maxW="1440px"
+                    maxW={`${APP_MAX_WIDTH_IN_PX}px`}
                     mx="auto"
                     align="center"
                     justify="space-between"

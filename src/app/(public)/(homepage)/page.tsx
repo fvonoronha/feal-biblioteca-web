@@ -36,36 +36,14 @@ import {
 } from "@chakra-ui/react";
 
 import { LuSlidersHorizontal } from "react-icons/lu";
+import {
+    PAGINATION_DEFAULT_BOOKS_PER_PAGE,
+    PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
+    FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS,
+    DEFAULT_EXAMPLE_BOOK_FOR_SKELETON
+} from "utils";
 
-const PAGE_SIZE = 24;
-const UNLIMITED_PAGE_SIZE = 1000;
-const SEARCH_DELAY_IN_MS = 1000;
 const RESET_BOOKS_PAGINATION = true;
-
-// ToDo: Retirar isso aqui e centralizar em algum utils
-const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
-    id: 1,
-    slug: "slug",
-    title: "title",
-    subtitle: "subtitle",
-    publisher: "publisher",
-    year: 1857,
-    edition: "1",
-    isbn: "isbn",
-    pages: 1,
-    summary: "",
-    pdf_url: "",
-    cover_url: "",
-    images_url: [""],
-    label: "label",
-    shelf: "shelf",
-    description:
-        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
-    loans: [],
-    keywords: ["a", "b", "c"],
-    tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
-    authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
-};
 
 export default function Buckets() {
     const t = useTranslations("Collection");
@@ -84,31 +62,37 @@ export default function Buckets() {
     const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
     const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
         elements: [
+            // Isso aqui deveria ser uma função de algum service específico pra Mocker Data.
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
@@ -116,8 +100,8 @@ export default function Buckets() {
         ],
         pagination: {
             page: 1,
-            limit: PAGE_SIZE,
-            total_elements: PAGE_SIZE,
+            limit: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
+            total_elements: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
             total_pages: 0,
             has_next: false,
             has_previous: false
@@ -196,7 +180,7 @@ export default function Buckets() {
             }
 
             const pagination = {
-                limit: PAGE_SIZE,
+                limit: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
                 page: pageRef.current,
                 orderBy: {
                     [sort.field]: sort.direction
@@ -245,7 +229,7 @@ export default function Buckets() {
             };
 
             const pagination = {
-                limit: UNLIMITED_PAGE_SIZE,
+                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
                 page: 1
             };
 
@@ -272,7 +256,7 @@ export default function Buckets() {
             };
 
             const pagination = {
-                limit: UNLIMITED_PAGE_SIZE,
+                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
                 page: 1
             };
 
@@ -298,7 +282,7 @@ export default function Buckets() {
             };
 
             const pagination = {
-                limit: UNLIMITED_PAGE_SIZE,
+                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
                 page: 1
             };
 
@@ -362,7 +346,7 @@ export default function Buckets() {
     useEffect(() => {
         const timeout = setTimeout(() => {
             changedFilters();
-        }, SEARCH_DELAY_IN_MS);
+        }, FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS);
 
         return () => clearTimeout(timeout);
     }, [search]);
@@ -467,6 +451,17 @@ export default function Buckets() {
                 <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
 
                 <SimpleCheckBoxGroup
+                    label={t("tag")}
+                    hide={isTagsLoadFailed}
+                    options={filterTags.elements.map((a) => ({
+                        label: `${a.name} (${a._count?.books || "0"})`,
+                        value: `${a.id}`
+                    }))}
+                    values={selectedTags}
+                    setValues={setSelectedTags}
+                />
+
+                <SimpleCheckBoxGroup
                     label={t("author")}
                     isLoading={isAuthorsLoading}
                     hide={isAuthorsLoadFailed}
@@ -494,17 +489,6 @@ export default function Buckets() {
                 />
 
                 <SimpleCheckBoxGroup
-                    label={t("tag")}
-                    hide={isTagsLoadFailed}
-                    options={filterTags.elements.map((a) => ({
-                        label: `${a.name} (${a._count?.books || "0"})`,
-                        value: `${a.id}`
-                    }))}
-                    values={selectedTags}
-                    setValues={setSelectedTags}
-                />
-
-                <SimpleCheckBoxGroup
                     label={t("publisher")}
                     hide={isPublishersLoadFailed}
                     options={filterPublishers.elements.map((a) => ({
@@ -521,7 +505,7 @@ export default function Buckets() {
     return (
         <>
             <Body>
-                <VStack pt={"12px"}>
+                <VStack>
                     <PageHeading header={t("title")} description={t("description")} />
                 </VStack>
 
@@ -571,7 +555,7 @@ export default function Buckets() {
 
                 <HStack align="start" gap="0">
                     {!isMobile && (
-                        <Box w="300px" py="4" pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
+                        <Box w="400px" py="4" pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
                             {filtersContent}
                         </Box>
                     )}

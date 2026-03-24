@@ -1,11 +1,12 @@
 "use client";
 
 import { memo, useEffect, useState, useRef } from "react";
-import { Card, VStack, Image, Text, Box, Flex } from "@chakra-ui/react";
+import { Card, VStack, Image, Text, Box, Flex, HStack } from "@chakra-ui/react";
 import { BookCardProps } from "types";
 import { useRouter } from "next/navigation";
 import { LoanBadge, MultipleImagesBadge } from "components";
 import { bookCover } from "assets";
+import { LuLibraryBig } from "react-icons/lu";
 
 const FIRST_IMAGE_SLIDE_TIME_IN_MS = 500;
 const IMAGE_SLIDE_TIME_IN_MS = 3600;
@@ -91,11 +92,13 @@ const BookGridCardV2 = (props: BookCardProps) => {
                     ))}
                 </Flex>
 
+                {/*  Disponibilidade */}
                 {book.loans?.length > 0 && (
-                    <LoanBadge bookLoan={book.loans[0]} position="absolute" bottom="6px" left="6px" zIndex="1" />
+                    <LoanBadge bookLoan={book.loans[0]} position="absolute" top="6px" left="6px" zIndex="1" />
                 )}
 
-                {images?.length > 1 && (
+                {/*Multiplas imagens */}
+                {images?.length > 1 && !isHovered && (
                     <MultipleImagesBadge
                         images={(images || []) as string[]}
                         position="absolute"
@@ -106,8 +109,26 @@ const BookGridCardV2 = (props: BookCardProps) => {
                 )}
             </Box>
 
-            <Card.Body py="1" px="2">
+            <Card.Body py="1" px="0">
                 <VStack align="start" gap="0">
+                    <HStack justifyContent="space-between" width="100%">
+                        <HStack alignItems="center">
+                            {book.label && (
+                                <Text fontSize="xs" lineClamp="1">
+                                    {book.label || ""}
+                                </Text>
+                            )}
+                        </HStack>
+                        {book.shelf && (
+                            <HStack alignItems="center">
+                                <Text fontSize="xs" lineClamp="1">
+                                    {book.shelf || ""}
+                                </Text>
+                                <LuLibraryBig size="12" />
+                            </HStack>
+                        )}
+                    </HStack>
+
                     <Text fontWeight="bold" fontSize="sm" lineClamp="2">
                         {book.title}
                     </Text>

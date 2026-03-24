@@ -3,7 +3,7 @@
 import { Box, Container, Stack, Text, Image, VStack, HStack, Separator, Flex, Spacer, Link } from "@chakra-ui/react";
 import { LuMapPin, LuInstagram, LuYoutube, LuFacebook, LuClock7 } from "react-icons/lu";
 import { FaWhatsapp } from "react-icons/fa";
-
+import { APP_MAX_WIDTH_IN_PX } from "utils";
 import { fealIdentity } from "assets";
 import { LocaleSelect, useColorMode } from "components";
 
@@ -20,14 +20,14 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
         <>
             {children}
             <Box as="footer" bg="bg.subtle" mt="auto" borderTopWidth="1px">
-                <Container maxW="container.xl" pt="10">
+                <Container maxW={`${APP_MAX_WIDTH_IN_PX}px`} pt="10">
                     <Flex
                         direction={{ base: "column", md: "row" }}
                         justify="space-between"
                         align={{ base: "center", md: "start" }}
                         gap="6"
                     >
-                        <VStack flex={1} align={{ base: "center", md: "start" }}>
+                        <VStack bg="yellow" flex={10} align={{ base: "center", md: "start" }}>
                             <Image
                                 src={
                                     colorMode.colorMode === "dark"
@@ -58,7 +58,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             </HStack>
                         </VStack>
 
-                        <VStack flex={1} align={{ base: "center", md: "start" }}>
+                        <VStack bg="yellow" flex={8} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
                                 {t("socialNetwork")}
                             </Text>
@@ -128,8 +128,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             </Link>
                         </VStack>
 
-                        {/* ToDo: Adicionar informações sobre doaç'ão de livros */}
-                        <VStack flex={1} align={{ base: "center", md: "start" }}>
+                        <VStack bg="yellow" flex={10} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
                                 {t("donateTitle")}
                             </Text>
