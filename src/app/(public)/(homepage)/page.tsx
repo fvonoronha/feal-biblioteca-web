@@ -78,6 +78,7 @@ export default function Buckets() {
     const loadMoreBooksRef = useRef<HTMLDivElement | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
+    const [isBooksLoadingFirstFilter, setIsBooksLoadingFirstFilter] = useState(true);
     const [isBooksLoadingFirstTime, setIsBooksLoadingFirstTime] = useState(true);
     const [isBooksLoading, setIsBooksLoading] = useState(true);
     const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
@@ -226,6 +227,7 @@ export default function Buckets() {
             if (abortControllerRef.current === controller) {
                 setIsBooksLoading(false);
                 setIsBooksLoadingFirstTime(false);
+                setIsBooksLoadingFirstFilter(false);
             }
         }
     };
@@ -315,6 +317,8 @@ export default function Buckets() {
         //     elements: []
         // }));
 
+        setIsBooksLoadingFirstFilter(true);
+
         loadBooks(RESET_BOOKS_PAGINATION);
         loadAuthors();
         loadTags();
@@ -391,6 +395,7 @@ export default function Buckets() {
                                 value={`${author.id}`}
                                 cancelFilter={(value) => {
                                     setSelectedAuthors(selectedAuthors.filter((id) => id != value));
+                                    setSelectedSpiritAuthors(selectedSpiritAuthors.filter((id) => id != value));
                                 }}
                             />
                         </WrapItem>
@@ -462,7 +467,7 @@ export default function Buckets() {
                 <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
 
                 <SimpleCheckBoxGroup
-                    label="Autor"
+                    label={t("author")}
                     isLoading={isAuthorsLoading}
                     hide={isAuthorsLoadFailed}
                     options={filterAuthors.elements
@@ -476,7 +481,7 @@ export default function Buckets() {
                 />
 
                 <SimpleCheckBoxGroup
-                    label="Autor Espiritual"
+                    label={t("spiritAuthor")}
                     hide={isAuthorsLoadFailed}
                     options={filterAuthors.elements
                         .filter((a) => a.is_spirit)
@@ -489,7 +494,7 @@ export default function Buckets() {
                 />
 
                 <SimpleCheckBoxGroup
-                    label="Temas"
+                    label={t("tag")}
                     hide={isTagsLoadFailed}
                     options={filterTags.elements.map((a) => ({
                         label: `${a.name} (${a._count?.books || "0"})`,
@@ -500,7 +505,7 @@ export default function Buckets() {
                 />
 
                 <SimpleCheckBoxGroup
-                    label="Editora"
+                    label={t("publisher")}
                     hide={isPublishersLoadFailed}
                     options={filterPublishers.elements.map((a) => ({
                         label: `${a.name} (${a._count.books})`,
@@ -604,7 +609,7 @@ export default function Buckets() {
                             </VStack>
                         ) : (
                             <BookGrid
-                                isLoading={!isBooksLoadingFirstTime && isBooksLoading}
+                                variant="grid"
                                 loadingFailed={isBooksLoadFailed}
                                 isEmpty={books.elements.length == 0}
                                 eWidth={"180px"}
@@ -612,7 +617,10 @@ export default function Buckets() {
                             >
                                 {books.elements.map((obj: Book) => {
                                     return (
-                                        <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoadingFirstTime}>
+                                        <Skeleton
+                                            key={`bookCard#${obj.id}`}
+                                            loading={isBooksLoadingFirstTime || isBooksLoadingFirstFilter}
+                                        >
                                             <BookGridCard book={obj} />
                                         </Skeleton>
                                     );

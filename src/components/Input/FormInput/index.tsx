@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Input, Field } from "@chakra-ui/react";
 import { FormInputProps } from "types";

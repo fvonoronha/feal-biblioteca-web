@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Heading, Text, VStack } from "@chakra-ui/react";
 

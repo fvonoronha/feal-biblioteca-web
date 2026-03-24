@@ -1,9 +1,8 @@
+"use client";
+
 import { memo } from "react";
-// import { FormEvent, memo } from "react";
 import { Field, Textarea } from "@chakra-ui/react";
-// import { LuUpload } from "react-icons/lu";
 import { FormTextareaProps } from "types";
-// import { Drawer, SimpleButton, SimpleCancelButton, toaster, AWSStorageClassSelect } from "components";
 
 const SimpleInput = (props: FormTextareaProps) => {
     const placeholder = props.placeholder || null;

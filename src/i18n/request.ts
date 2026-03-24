@@ -7,10 +7,10 @@ export default getRequestConfig(async () => {
 
     const locale = cookieStore.get("NEXT_LOCALE")?.value || "pt";
     const messages = (await import(`../../messages/${locale}.json`)).default;
-    const messagesEn = (await import(`../../messages/en.json`)).default;
+    const messagesPt = (await import(`../../messages/pt.json`)).default;
 
     return {
         locale,
-        messages: deepmerge(messagesEn, messages)
+        messages: deepmerge(messagesPt, messages)
     };
 });

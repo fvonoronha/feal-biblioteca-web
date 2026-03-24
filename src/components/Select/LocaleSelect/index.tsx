@@ -1,3 +1,5 @@
+"use client";
+
 import { useLocale } from "next-intl";
 import { memo } from "react";
 import { useRouter } from "next/navigation";
@@ -68,6 +70,7 @@ function LocaleSelect() {
                     borderColor={"gray.300"}
                     _hover={{ bg: { base: "gray.100", _dark: "gray.900" } }}
                     p={0}
+                    pb={1} // ToDo: Isso aqui é gambiarra temporária
                     pl="7px"
                     cursor={"pointer"}
                 >

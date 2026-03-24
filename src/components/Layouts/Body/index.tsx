@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Box, type BoxProps } from "@chakra-ui/react";
 

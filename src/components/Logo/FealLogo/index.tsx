@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Heading, Image, HStack, VStack } from "@chakra-ui/react";
 import { FealLogoProps } from "types";
@@ -21,7 +23,7 @@ const FealLogo = (props: FealLogoProps) => {
             <HStack align={"center"} {...props}>
                 <Image w="30px" src={fealIdentity.logo.src} alt={name} />
 
-                <Heading ml={"5px"} color={{ base: "fealLightBlue", _dark: "fealLightBlue" }}>
+                <Heading ml={"5px"} color={{ base: "fealLightBlue", _dark: "white" }}>
                     {name}
                 </Heading>
             </HStack>
