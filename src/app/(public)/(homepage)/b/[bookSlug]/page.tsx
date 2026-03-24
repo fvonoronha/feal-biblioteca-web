@@ -5,6 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { getBook, listRelatedBooks } from "endpoints";
 import { Book, APIPaginatedResponse } from "types";
 import { useTranslations } from "next-intl";
+import {
+    DEFAULT_EXAMPLE_BOOK_FOR_SKELETON,
+    SHARE_BUTTON_ICON_CHANGE_DELAY_IN_MS,
+    PAGINATION_DEFAULT_RELATED_BOOKS_PER_PAGE
+} from "utils";
 
 import {
     Body,
@@ -40,32 +45,6 @@ import {
     LuBookX
 } from "react-icons/lu";
 
-const NUMBER_OF_RELATED_BOOKS_TO_SHOW = 12;
-const TIMEOUT_OF_SHARE_BUTTON_ICON_CHANGE_IN_MS = 3000;
-const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
-    id: 1,
-    slug: "slug",
-    title: "title",
-    subtitle: "subtitle",
-    publisher: "publisher",
-    year: 1857,
-    edition: "1",
-    isbn: "isbn",
-    pages: 1,
-    summary: "",
-    pdf_url: "",
-    cover_url: "http",
-    images_url: ["http0", "http1", "http3", "http4"],
-    label: "label",
-    shelf: "shelf",
-    description:
-        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
-    loans: [],
-    keywords: ["a", "b", "c"],
-    tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
-    authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
-};
-
 export default function BookDetails() {
     const t = useTranslations("BookDetails");
     const { bookSlug } = useParams();
@@ -86,6 +65,13 @@ export default function BookDetails() {
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
         ],
@@ -120,7 +106,7 @@ export default function BookDetails() {
 
         try {
             const pagination = {
-                limit: NUMBER_OF_RELATED_BOOKS_TO_SHOW,
+                limit: PAGINATION_DEFAULT_RELATED_BOOKS_PER_PAGE,
                 page: 1,
                 orderBy: {
                     id: "desc"
@@ -155,7 +141,7 @@ export default function BookDetails() {
                 setCopied(true);
                 setTimeout(() => {
                     setCopied(false);
-                }, TIMEOUT_OF_SHARE_BUTTON_ICON_CHANGE_IN_MS);
+                }, SHARE_BUTTON_ICON_CHANGE_DELAY_IN_MS);
             }
         } catch {}
     };
@@ -181,7 +167,7 @@ export default function BookDetails() {
 
     return (
         <Body>
-            <GhostButton onClick={goToCollection} py={"48px"}>
+            <GhostButton onClick={goToCollection} pb={"24px"}>
                 <HStack>
                     <LuArrowLeft />
                     <Text>{t("backToCollection")}</Text>
