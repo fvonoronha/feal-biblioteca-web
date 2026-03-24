@@ -10,7 +10,7 @@
     },
 
     "NavBar": {
-        "title": "Biblioteca"
+        "title": "Biblioteca Francisco Cândido Xavier"
     },
     "Footer": {
         "feal": "Fraternidade Espírita Amor e Luz - FEAL",
@@ -22,7 +22,7 @@
         "instagram": "Instagram",
         "facebook": "Facebook",
         "youtube": "YouTube",
-        "whatsappGroup": "Grupo da Biblioteca",
+        "whatsappGroup": "Grupo de Whatsapp da Biblioteca",
         "workingHours": "Aos Sábados das 9h às 11h ou das 19h às 20h30",
         "allRightsReserved": "Todos os direitos reervados",
         "donateTitle": "Doe Livros ❤️",
@@ -36,9 +36,12 @@
         "filterAndSort": "Filtrar e Ordenar",
         "filterSearchLabel": "Pesquisar",
         "filterSearchPlaceholder": "Título, Autor, Tema, etc...",
+        "filterCheckBoxSeeMore": "Ver mais ({total} extras)",
+        "filterCheckBoxSeeLess": "Ver menos",
         "removeFilters": "Limpar filtros",
         "showingXFromYBooks": "{total} Livros",
         "author": "Autor",
+        "spiritAuthor": "Autor Espiritual",
         "tag": "Tema",
         "publisher": "Editora",
         "search": "Busca",
@@ -70,6 +73,6 @@
         "availableTooltip": "Você pode pegar emprestado este volume de maneira gratuita por até 15 dias.",
         "seeAlso": "Veja também",
         "didntFindWhatYouWereLookingFor": "Não achou o que procurava?",
-        "weAreWorkingOnIt": "Diariamente estamos trabalhando para adicionar catalogar novos volumes para você"
+        "weAreWorkingOnIt": "Diariamente estamos trabalhando para catalogar novos volumes para você"
     }
 }

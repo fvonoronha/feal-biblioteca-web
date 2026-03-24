@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Drawer, Portal, CloseButton, Heading, Box, Spacer } from "@chakra-ui/react";
 import { DrawerProps } from "types";

@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Badge } from "@chakra-ui/react";
 import type { ActiveFilterBadgeProps } from "types";

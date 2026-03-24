@@ -133,18 +133,24 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             <Text fontWeight="bold" color="fg">
                                 {t("donateTitle")}
                             </Text>
-
                             <Text fontSize="sm" color="fg.muted">
                                 {t("donateDescription")}
                             </Text>
+                            <Link
+                                p={0}
+                                as="a"
+                                style={{ textDecoration: "none" }}
+                                href="https://api.whatsapp.com/send?phone=5595991385816&text=Olá%2C%20eu%20gostaria%20de%20doar%20livros%20para%20a%20Biblioteca%20da%20FEAL%20📚%EF%B8%8F"
+                                target="_blank"
+                            >
+                                <HStack gap="2" color="fg.muted">
+                                    <Box color={"fealRed"}>
+                                        <FaWhatsapp size={"20"} />
+                                    </Box>
 
-                            <HStack gap="2" color="fg.muted">
-                                <Box color={"fealRed"}>
-                                    <FaWhatsapp size={"16"} />
-                                </Box>
-
-                                <Text fontSize="sm">{"+55 95 99138 5816"}</Text>
-                            </HStack>
+                                    <Text fontSize="md">{"+55 95 99138 5816"}</Text>
+                                </HStack>
+                            </Link>
 
                             <HStack pt={"12px"}>
                                 <Text fontWeight="bold" color="fg" w={"100%"}>

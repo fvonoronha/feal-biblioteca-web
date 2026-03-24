@@ -1,4 +1,5 @@
 "use client";
+
 import { memo } from "react";
 import { Center, Spinner, Heading } from "@chakra-ui/react";
 import { LoadingProps } from "types";

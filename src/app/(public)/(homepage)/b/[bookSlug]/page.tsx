@@ -21,24 +21,26 @@ import {
 import { Flex, Box, HStack, VStack, Text, Skeleton, Stack, SimpleGrid, Spacer } from "@chakra-ui/react";
 
 import {
+    LuListTodo,
+    LuPen,
     LuStar,
-    LuPenTool,
-    LuTag,
+    LuTextSearch,
     LuBuilding2,
     LuCalendar,
     LuBook,
     LuBookOpen,
     LuLibraryBig,
     LuBarcode,
-    LuBadgeInfo,
+    LuBookCopy,
     LuShare,
     LuText,
-    LuGlasses,
     LuCheck,
-    LuArrowLeft
+    LuArrowLeft,
+    LuBookCheck,
+    LuBookX
 } from "react-icons/lu";
 
-const NUMBER_OF_RELATED_BOOKS_TO_SHOW = 6;
+const NUMBER_OF_RELATED_BOOKS_TO_SHOW = 12;
 const TIMEOUT_OF_SHARE_BUTTON_ICON_CHANGE_IN_MS = 3000;
 const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     id: 1,
@@ -52,8 +54,8 @@ const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     pages: 1,
     summary: "",
     pdf_url: "",
-    cover_url: "",
-    images_url: [""],
+    cover_url: "http",
+    images_url: ["http0", "http1", "http3", "http4"],
     label: "label",
     shelf: "shelf",
     description:
@@ -75,10 +77,11 @@ export default function BookDetails() {
     const [isBookLoadFailed, setIsBookLoadFailed] = useState(false);
     const [book, setBook] = useState<Book>(DEFAULT_EXAMPLE_BOOK_FOR_SKELETON);
 
-    const [isBooksLoading, setIsBooksLoading] = useState(true);
-    const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
-    const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
+    const [isSeeAlsoBooksLoading, setIsSeeAlsoBooksLoading] = useState(true);
+    const [isSeeAlsoBooksLoadFailed, setIsSeeAlsoBooksLoadFailed] = useState(false);
+    const [seeAlsoBooks, setSeeAlsoBooks] = useState<APIPaginatedResponse<Book>>({
         elements: [
+            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
             { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
@@ -112,8 +115,8 @@ export default function BookDetails() {
     };
 
     const loadRelatedBooks = async (bookId: number) => {
-        setIsBooksLoading(true);
-        setIsBooksLoadFailed(false);
+        setIsSeeAlsoBooksLoading(true);
+        setIsSeeAlsoBooksLoadFailed(false);
 
         try {
             const pagination = {
@@ -125,12 +128,12 @@ export default function BookDetails() {
             };
 
             const response = await listRelatedBooks(bookId, pagination);
-            setBooks(response);
+            setSeeAlsoBooks(response);
         } catch (err) {
             console.log(err);
-            setIsBooksLoadFailed(true);
+            setIsSeeAlsoBooksLoadFailed(true);
         } finally {
-            setIsBooksLoading(false);
+            setIsSeeAlsoBooksLoading(false);
         }
     };
 
@@ -187,14 +190,7 @@ export default function BookDetails() {
 
             <Stack direction={{ base: "column", md: "row" }} gap="6" align="start">
                 <Flex justify="center" w={{ base: "100%", md: "350px" }} bg="none" overflow="hidden">
-                    <Skeleton
-                        loading={isBookLoading}
-                        shadow="xl"
-                        w={{ base: "90%", md: "350px" }}
-                        borderRadius="md"
-                        flexShrink={0}
-                        overflow="hidden"
-                    >
+                    <Skeleton loading={isBookLoading} w={"100%"}>
                         <BookImageCard book={book} />
                     </Skeleton>
                 </Flex>
@@ -213,11 +209,7 @@ export default function BookDetails() {
                                 {book?.authors.map((bookAuthor) => {
                                     return (
                                         <HStack key={`author#${bookAuthor.author.id}`}>
-                                            {bookAuthor.author.is_spirit ? (
-                                                <LuStar size="16" />
-                                            ) : (
-                                                <LuPenTool size="16" />
-                                            )}
+                                            {bookAuthor.author.is_spirit ? <LuStar size="16" /> : <LuPen size="16" />}
                                             <Text fontWeight={"bold"}>{bookAuthor.description || t("author")}: </Text>
                                             <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
                                                 {bookAuthor.author.name}{" "}
@@ -239,7 +231,7 @@ export default function BookDetails() {
 
                                 {book?.edition && (
                                     <HStack>
-                                        <LuBadgeInfo size="16" />
+                                        <LuBookCopy size="16" />
                                         <Text fontWeight={"bold"}>{t("edition")}: </Text>
                                         <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
                                             {`${book?.edition}ª`}{" "}
@@ -282,7 +274,8 @@ export default function BookDetails() {
                         <Skeleton loading={isBookLoading} w={"100%"}>
                             <VStack align="start" gap="1">
                                 <HStack>
-                                    <LuCalendar size="16" />
+                                    {book?.loans?.length > 0 ? <LuBookX size="16" /> : <LuBookCheck size="16" />}
+
                                     <Text fontWeight={"bold"}>{t("availability")}: </Text>
                                     <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
                                         <LoanBadge bookLoan={book?.loans?.[0]} />
@@ -324,7 +317,7 @@ export default function BookDetails() {
                                 {book?.tags.length > 0 && (
                                     <Box>
                                         <Box as="span" display="inline-flex" alignItems="center" mr="2">
-                                            <LuTag size="16" style={{ marginRight: "6px" }} />
+                                            <LuListTodo size="16" style={{ marginRight: "6px" }} />
                                             <Text as="span" fontWeight="bold">
                                                 {t("tags")}:{" "}
                                             </Text>
@@ -352,7 +345,7 @@ export default function BookDetails() {
                     {book?.description && (
                         <Skeleton loading={isBookLoading} w="100%">
                             <Box as="span" display="inline-flex" alignItems="center" mr="2">
-                                <LuGlasses size="16" style={{ marginRight: "6px" }} />
+                                <LuText size="16" style={{ marginRight: "6px" }} />
                                 <Text as="span" fontWeight="bold">
                                     {t("description")}:{" "}
                                 </Text>
@@ -369,7 +362,7 @@ export default function BookDetails() {
                     {book?.keywords.length > 0 && (
                         <Skeleton loading={isBookLoading} w="100%">
                             <Box as="span" display="inline-flex" alignItems="center" mr="2">
-                                <LuText size="16" style={{ marginRight: "6px" }} />
+                                <LuTextSearch size="16" style={{ marginRight: "6px" }} />
                                 <Text as="span" fontWeight="bold">
                                     {t("keywords")}:{" "}
                                 </Text>
@@ -406,25 +399,26 @@ export default function BookDetails() {
 
             {/* ToDo: Quando o livro aberto nao estiver disponível seria interessante adicionar aqui uma seção com outros volumes do memso livro */}
 
-            {books.elements.length > 0 ? (
+            {seeAlsoBooks.elements.length > 0 ? (
                 <>
                     <Spacer pt={"24px"} />
 
-                    <Skeleton loading={isBooksLoading}>
+                    <Skeleton loading={isSeeAlsoBooksLoading}>
                         <SectionHeading header={t("seeAlso")} />
                     </Skeleton>
 
                     <Spacer pt={"24px"} />
-
-                    <BookGrid loadingFailed={isBooksLoadFailed} eWidth={"200px"}>
-                        {books.elements.map((obj: Book) => {
-                            return (
-                                <Skeleton key={`bookCard#${obj.id}`} loading={isBooksLoading}>
-                                    <BookGridCard book={obj} />
-                                </Skeleton>
-                            );
-                        })}
-                    </BookGrid>
+                    <Box>
+                        <BookGrid variant="scroll" loadingFailed={isSeeAlsoBooksLoadFailed} eWidth={"180px"}>
+                            {seeAlsoBooks.elements.map((obj: Book) => {
+                                return (
+                                    <Skeleton key={`bookCard#${obj.id}`} loading={isSeeAlsoBooksLoading}>
+                                        <BookGridCard book={obj} />
+                                    </Skeleton>
+                                );
+                            })}
+                        </BookGrid>
+                    </Box>
                 </>
             ) : (
                 <></>
@@ -432,7 +426,7 @@ export default function BookDetails() {
 
             <Spacer pt={"24px"} />
 
-            <Skeleton loading={isBooksLoading}>
+            <Skeleton loading={isBookLoading}>
                 <VStack flex={1} align={{ base: "center", md: "start" }}>
                     <SectionHeading header={t("didntFindWhatYouWereLookingFor")} description={t("weAreWorkingOnIt")} />
                 </VStack>

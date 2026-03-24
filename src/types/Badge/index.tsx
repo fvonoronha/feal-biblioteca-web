@@ -24,3 +24,7 @@ export interface IdBadgeProps extends BadgeProps {
 export interface LoanBadgeProps extends BadgeProps {
     bookLoan: BookLoan;
 }
+
+export interface MultipleImagesBadgeProps extends BadgeProps {
+    images?: string[];
+}

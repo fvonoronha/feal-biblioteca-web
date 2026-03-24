@@ -1,9 +1,12 @@
+"use client";
+
 import { memo } from "react";
 import { Badge } from "@chakra-ui/react";
 import { SimpleTooltip } from "components";
 import type { LoanBadgeProps } from "types";
 import { parseDateFullText } from "utils";
 import { useTranslations } from "next-intl";
+import { LuCalendarX, LuCheck } from "react-icons/lu";
 
 const LoanBadge = (props: LoanBadgeProps) => {
     const t = useTranslations("Utils");
@@ -31,6 +34,7 @@ const LoanBadge = (props: LoanBadgeProps) => {
                     {...props}
                 >
                     {!loan ? t("available") : t("loaned")}
+                    {!loan ? <LuCheck /> : <LuCalendarX />}
                 </Badge>
             </SimpleTooltip>
         </>

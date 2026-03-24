@@ -4,11 +4,11 @@ import { memo, useEffect, useState, useRef } from "react";
 import { Card, VStack, Image, Text, Box, Flex } from "@chakra-ui/react";
 import { BookCardProps } from "types";
 import { useRouter } from "next/navigation";
-import { LoanBadge } from "components";
+import { LoanBadge, MultipleImagesBadge } from "components";
 import { bookCover } from "assets";
 
 const FIRST_IMAGE_SLIDE_TIME_IN_MS = 500;
-const IMAGE_SLIDE_TIME_IN_MS = 1200;
+const IMAGE_SLIDE_TIME_IN_MS = 3600;
 
 const BookGridCardV2 = (props: BookCardProps) => {
     const { book } = props;
@@ -93,6 +93,16 @@ const BookGridCardV2 = (props: BookCardProps) => {
 
                 {book.loans?.length > 0 && (
                     <LoanBadge bookLoan={book.loans[0]} position="absolute" bottom="6px" left="6px" zIndex="1" />
+                )}
+
+                {images?.length > 1 && (
+                    <MultipleImagesBadge
+                        images={(images || []) as string[]}
+                        position="absolute"
+                        top="6px"
+                        right="6px"
+                        zIndex="1"
+                    />
                 )}
             </Box>
 
