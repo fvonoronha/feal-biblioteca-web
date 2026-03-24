@@ -27,7 +27,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                         align={{ base: "center", md: "start" }}
                         gap="6"
                     >
-                        <VStack bg="yellow" flex={10} align={{ base: "center", md: "start" }}>
+                        <VStack flex={10} align={{ base: "center", md: "start" }}>
                             <Image
                                 src={
                                     colorMode.colorMode === "dark"
@@ -58,7 +58,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             </HStack>
                         </VStack>
 
-                        <VStack bg="yellow" flex={8} align={{ base: "center", md: "start" }}>
+                        <VStack flex={8} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
                                 {t("socialNetwork")}
                             </Text>
@@ -128,7 +128,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                             </Link>
                         </VStack>
 
-                        <VStack bg="yellow" flex={10} align={{ base: "center", md: "start" }}>
+                        <VStack flex={10} align={{ base: "center", md: "start" }}>
                             <Text fontWeight="bold" color="fg">
                                 {t("donateTitle")}
                             </Text>
