@@ -3,8 +3,9 @@ export const USER_JWT_TOKEN_NAME = "usrtkn";
 export const PUBLIC_ROUTES = [
     { path: "/", whenAuthenticated: "next" },
     { path: "/login", whenAuthenticated: "redirect" },
-    { path: "/register", whenAuthenticated: "redirect" },
+    // { path: "/register", whenAuthenticated: "redirect" },
     { path: "/b/[book-slug]", whenAuthenticated: "next" }
+    // { path: "/a/[author-slug]", whenAuthenticated: "next" }
 ] as const;
 
 export const APP_MAX_WIDTH_IN_PX = 1600;
