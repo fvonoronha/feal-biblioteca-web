@@ -77,6 +77,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         checkToken();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

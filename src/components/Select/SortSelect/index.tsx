@@ -1,6 +1,6 @@
 "use client";
 
-import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import { HStack, Portal, Select, createListCollection, Text, Field } from "@chakra-ui/react";
 import { SortSelectProps, SortOption, SORT_OPTIONS } from "types";
 import { useTranslations } from "next-intl";
 
@@ -13,7 +13,7 @@ function getSortOptionByValue(value: string): SortOption {
     return SORT_OPTIONS()[0];
 }
 
-export default function SortSelect({ value, label, onChange }: SortSelectProps) {
+export default function SortSelect({ value, label, labelPosition = "top", onChange }: SortSelectProps) {
     const collection = createListCollection({
         items: SORT_OPTIONS()
     });
@@ -21,41 +21,49 @@ export default function SortSelect({ value, label, onChange }: SortSelectProps) 
     const t = useTranslations("Collection");
 
     return (
-        <Select.Root
-            collection={collection}
-            value={[value.value]}
-            onValueChange={(e) => onChange(getSortOptionByValue(e.value[0]) as SortOption)}
-            size="sm"
-            width="100%"
-            positioning={{ placement: "bottom-start" }}
-        >
-            {label && <Select.Label pb={"0"}>{label}</Select.Label>}
+        <HStack w="100%">
+            {label && labelPosition === "left" && <Text whiteSpace="nowrap">{label}</Text>}
 
-            <Select.Trigger
-                border="none"
-                borderBottom="2px solid"
-                borderColor="gray.300"
-                borderRadius="0"
-                px="0"
-                _focus={{ boxShadow: "none", borderColor: "fealRed" }}
-                _hover={{ borderColor: "gray.500" }}
+            <Select.Root
+                collection={collection}
+                value={[value.value]}
+                onValueChange={(e) => onChange(getSortOptionByValue(e.value[0]) as SortOption)}
+                size="sm"
+                width="100%"
+                positioning={{ placement: "bottom-start" }}
             >
-                <Select.ValueText>{t(value.value)}</Select.ValueText>
-                <Select.Indicator />
-            </Select.Trigger>
+                {label && labelPosition === "top" && (
+                    <Field.Root>
+                        <Field.Label fontWeight="bold">{label}</Field.Label>
+                    </Field.Root>
+                )}
 
-            <Portal>
-                <Select.Positioner>
-                    <Select.Content>
-                        {collection.items.map((item) => (
-                            <Select.Item key={item.value} item={item}>
-                                {t(item.label)}
-                                <Select.ItemIndicator />
-                            </Select.Item>
-                        ))}
-                    </Select.Content>
-                </Select.Positioner>
-            </Portal>
-        </Select.Root>
+                <Select.Trigger
+                    border="none"
+                    borderBottom="2px solid"
+                    borderColor="gray.emphasized"
+                    borderRadius="0"
+                    px="0"
+                    _focus={{ boxShadow: "none", borderColor: "fealRed" }}
+                    _hover={{ borderColor: "gray.fg" }}
+                >
+                    <Select.ValueText fontSize={"md"}>{t(value.value)}</Select.ValueText>
+                    <Select.Indicator />
+                </Select.Trigger>
+
+                <Portal>
+                    <Select.Positioner>
+                        <Select.Content>
+                            {collection.items.map((item) => (
+                                <Select.Item key={item.value} item={item}>
+                                    {t(item.label)}
+                                    <Select.ItemIndicator />
+                                </Select.Item>
+                            ))}
+                        </Select.Content>
+                    </Select.Positioner>
+                </Portal>
+            </Select.Root>
+        </HStack>
     );
 }

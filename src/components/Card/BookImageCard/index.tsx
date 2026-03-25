@@ -20,12 +20,12 @@ const BookImageCard = (props: BookCardProps) => {
     const [zoomPos, setZoomPos] = useState({ x: "50%", y: "50%" });
     const [isHovering, setIsHovering] = useState(false);
 
-    // Sincroniza a imagem inicial se o livro mudar
     useEffect(() => {
         setMainImage(images[0]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [book.cover_url, book.images_url]);
 
-    // Lógica para encontrar o índice e navegar
     const currentIndex = images.indexOf(mainImage);
 
     const handleNavigation = (direction: "prev" | "next") => {
@@ -40,11 +40,10 @@ const BookImageCard = (props: BookCardProps) => {
         const newImage = images[newIndex];
         setMainImage(newImage);
 
-        // Scroll automático da miniatura para manter a imagem ativa visível
         if (scrollRef.current) {
             const thumbnailWidth = 83; // 75px largura + 8px gap
             scrollRef.current.scrollTo({
-                left: newIndex * thumbnailWidth - 75, // Centraliza um pouco a miniatura
+                left: newIndex * thumbnailWidth - 75,
                 behavior: "smooth"
             });
         }
@@ -59,7 +58,6 @@ const BookImageCard = (props: BookCardProps) => {
 
     return (
         <VStack gap={2} w="100%" align="stretch">
-            {/* Imagem Principal */}
             <Box
                 aspectRatio={8 / 11}
                 position="relative"
@@ -87,10 +85,8 @@ const BookImageCard = (props: BookCardProps) => {
                 />
             </Box>
 
-            {/* Navegação de Miniaturas */}
             {images.length > 1 && (
                 <HStack position="relative" w="100%" gap={0}>
-                    {/* Seta Esquerda - Agora altera a imagem */}
                     <Box
                         p={1}
                         color={"fealRed"}

@@ -10,7 +10,8 @@
     },
 
     "NavBar": {
-        "title": "Biblioteca Francisco Cândido Xavier"
+        "title": "Biblioteca Francisco Cândido Xavier",
+        "titleMobile": "Biblioteca da FEAL"
     },
     "Footer": {
         "feal": "Fraternidade Espírita Amor e Luz - FEAL",

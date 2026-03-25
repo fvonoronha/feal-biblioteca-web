@@ -1,5 +1,3 @@
-
-
 export type SortOption = {
     value: string;
     label: string;
@@ -41,6 +39,7 @@ export function SORT_OPTIONS() {
 
 export type SortSelectProps = {
     value: SortOption;
-    label: string;
+    label?: string;
+    labelPosition?: "top" | "left";
     onChange: (value: SortOption) => void;
 };

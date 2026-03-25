@@ -19,7 +19,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
     return (
         <>
             {children}
-            <Box as="footer" bg="bg.subtle" mt="auto" borderTopWidth="1px">
+            <Box as="footer" bg={{ base: "white", _dark: "gray.800" }} borderTop="1px solid" borderColor={"gray.muted"}>
                 <Container maxW={`${APP_MAX_WIDTH_IN_PX}px`} pt="10">
                     <Flex
                         direction={{ base: "column", md: "row" }}
@@ -168,7 +168,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                     <Text fontSize="xs" textAlign="center">
                         &copy;{` ${new Date().getFullYear()} ${t("feal")} — ${t("allRightsReserved")}`}
                     </Text>
-                    <Spacer mb="5" />
+                    <Spacer pb="5" />
                 </Container>
             </Box>
         </>

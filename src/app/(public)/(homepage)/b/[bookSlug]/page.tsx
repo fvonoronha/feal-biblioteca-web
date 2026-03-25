@@ -152,6 +152,8 @@ export default function BookDetails() {
 
     useEffect(() => {
         if (bookSlug) loadBook();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookSlug]);
 
     if (isBookLoadFailed) {

@@ -60,7 +60,8 @@
         "youtube": "YouTube"
     },
     "NavBar": {
-        "title": "Library Francisco Cândido Xavier"
+        "title": "Library Francisco Cândido Xavier",
+        "titleMobile": "Library of FEAL"
     },
     "Utils": {
         "available": "Available",
