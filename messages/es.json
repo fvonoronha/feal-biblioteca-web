@@ -60,7 +60,8 @@
         "youtube": "YouTube"
     },
     "NavBar": {
-        "title": "Biblioteca Francisco Cândido Xavier"
+        "title": "Biblioteca Francisco Cândido Xavier",
+        "titleMobile": "Biblioteca de la FEAL"
     },
     "Utils": {
         "available": "Disponible",

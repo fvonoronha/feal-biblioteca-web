@@ -67,8 +67,8 @@ const BookGridCardV2 = (props: BookCardProps) => {
             onMouseLeave={stopCarousel}
             transition="all .2s"
             _hover={{
-                filter: "saturate(1.2) brightness(1.1)",
-                transform: "scale(1.02)"
+                filter: "saturate(1.1) brightness(1.1)",
+                transform: "scale(1.04)"
             }}
         >
             <Box aspectRatio={8 / 11} position="relative" overflow="hidden">

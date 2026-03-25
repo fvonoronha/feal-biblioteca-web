@@ -7,7 +7,7 @@ export const PUBLIC_ROUTES = [
     { path: "/b/[book-slug]", whenAuthenticated: "next" }
 ] as const;
 
-export const APP_MAX_WIDTH_IN_PX = "1600";
+export const APP_MAX_WIDTH_IN_PX = 1600;
 
 export const NEXT_LOCALE_TOKEN_NAME = "NEXT_LOCALE";
 
@@ -32,8 +32,8 @@ export const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     pages: 1,
     summary: "",
     pdf_url: "",
-    cover_url: "",
-    images_url: [""],
+    cover_url: "https://...",
+    images_url: ["https://...0", "https://...1", "https://...2", "https://...3", "https://...4"],
     label: "label",
     shelf: "shelf",
     description:

@@ -4,12 +4,12 @@ import { useState, useEffect, useRef } from "react";
 import { listBooks, listAuthors, listTags, listPublishers } from "endpoints";
 import { APIPaginatedResponse, Book, Author, Tag, Publisher, SortOption } from "types";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import {
     Body,
     BookGrid,
     BookGridCard,
     SimpleIconButton,
-    FormInput,
     SimpleCheckBoxGroup,
     SortSelect,
     GhostButton,
@@ -32,24 +32,27 @@ import {
     Wrap,
     WrapItem,
     Skeleton,
-    Image
+    Image,
+    Flex
 } from "@chakra-ui/react";
 
 import { LuSlidersHorizontal } from "react-icons/lu";
 import {
     PAGINATION_DEFAULT_BOOKS_PER_PAGE,
     PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
-    FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS,
     DEFAULT_EXAMPLE_BOOK_FOR_SKELETON
 } from "utils";
 
 const RESET_BOOKS_PAGINATION = true;
+const INTERSECTION_ROOT_MARGIN_IN_PX = 200;
 
-export default function Buckets() {
+export default function Collection() {
     const t = useTranslations("Collection");
 
     const isMobile = useBreakpointValue({ base: true, md: false });
     const { open, onOpen, onClose } = useDisclosure();
+    const searchParams = useSearchParams();
+    const queryFromUrl = searchParams.get("q") || "";
 
     const pageRef = useRef(1);
     const [hasNext, setHasNext] = useState(true);
@@ -296,11 +299,6 @@ export default function Buckets() {
     };
 
     const changedFilters = async () => {
-        // setBooks((prev) => ({
-        //     ...prev,
-        //     elements: []
-        // }));
-
         setIsBooksLoadingFirstFilter(true);
 
         loadBooks(RESET_BOOKS_PAGINATION);
@@ -311,16 +309,18 @@ export default function Buckets() {
 
     const clearFilters = async () => {
         setIsBooksLoadingFirstTime(true);
-        setSearch("");
         setSelectedAuthors([]);
         setSelectedSpiritAuthors([]);
         setSelectedTags([]);
         setSelectedPublishers([]);
+        setSearch("");
     };
 
     useEffect(() => {
         changedFilters();
-    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedPublishers, sort]);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedPublishers, sort, search]);
 
     useEffect(() => {
         const el = loadMoreBooksRef.current;
@@ -335,23 +335,21 @@ export default function Buckets() {
                     loadBooks();
                 }
             },
-            { rootMargin: "200px" }
+            { rootMargin: `${INTERSECTION_ROOT_MARGIN_IN_PX}px` }
         );
 
         observer.observe(el);
 
         return () => observer.disconnect();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasNext, isBooksLoading]);
 
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            changedFilters();
-        }, FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS);
+        setSearch(queryFromUrl);
+    }, [queryFromUrl]);
 
-        return () => clearTimeout(timeout);
-    }, [search]);
-
-    // ToDo: talvez componentizar esses pedaços de layout
+    // ToDo: Componentizar esses pedaços de layout
     const activeFiltersBadges = (
         <Wrap>
             {search !== "" && (
@@ -431,7 +429,7 @@ export default function Buckets() {
     // componentizar esse pedaço de layout
     const filtersContent = (
         <Skeleton loading={isBooksLoadingFirstTime}>
-            <VStack align="start" gap="6" w="100%">
+            <VStack align="start" w="100%">
                 <HStack w="100%">
                     <Heading fontSize={"xl"}>{t("filter")}</Heading>
                     <Spacer />
@@ -440,15 +438,7 @@ export default function Buckets() {
 
                 {activeFiltersBadges}
 
-                <FormInput
-                    label={t("filterSearchLabel")}
-                    placeholder={t("filterSearchPlaceholder")}
-                    w="100%"
-                    value={search}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-                />
-
-                <SortSelect label={t("sortBy")} value={sort} onChange={setSort} />
+                {isMobile && <SortSelect label={t("sortBy")} labelPosition="top" value={sort} onChange={setSort} />}
 
                 <SimpleCheckBoxGroup
                     label={t("tag")}
@@ -505,11 +495,10 @@ export default function Buckets() {
     return (
         <>
             <Body>
-                <VStack>
+                <VStack pb={"24px"}>
                     <PageHeading header={t("title")} description={t("description")} />
+                    {/* <PageHeading header={t("title")} description={t("description")} /> */}
                 </VStack>
-
-                {/* <Spacer py={"12px"} /> */}
 
                 {isMobile && (
                     <>
@@ -541,10 +530,6 @@ export default function Buckets() {
                                 <Drawer.Backdrop />
                                 <Drawer.Positioner>
                                     <Drawer.Content>
-                                        {/* <Drawer.Header>
-                                            <Drawer.Title>{t("filterAndSort")}</Drawer.Title>
-                                        </Drawer.Header> */}
-
                                         <Drawer.Body pt={"12px"}>{filtersContent}</Drawer.Body>
                                     </Drawer.Content>
                                 </Drawer.Positioner>
@@ -555,15 +540,19 @@ export default function Buckets() {
 
                 <HStack align="start" gap="0">
                     {!isMobile && (
-                        <Box w="400px" py="4" pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
+                        <Box w="360px" py={1} pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
                             {filtersContent}
                         </Box>
                     )}
 
                     <Box flex="1">
                         {!isMobile && (
-                            <HStack>
-                                <Spacer />
+                            <Flex
+                                direction={{ base: "column", md: "row" }}
+                                justify="space-between"
+                                align={{ base: "center", md: "center" }}
+                                gap="6"
+                            >
                                 <Skeleton loading={isBooksLoading}>
                                     <Text>
                                         {books.elements.length > 0 &&
@@ -572,7 +561,20 @@ export default function Buckets() {
                                             })}
                                     </Text>
                                 </Skeleton>
-                            </HStack>
+                                <Spacer flex={1} />
+
+                                <Skeleton loading={isBooksLoadingFirstTime}>
+                                    {/* Todo: Eu não gosto de colocar tamanho fixo em nada, mas por hora vai ficar assim mesmo */}
+                                    <HStack minW="230px">
+                                        <SortSelect
+                                            label={`${t("sortBy")}:`}
+                                            labelPosition="left"
+                                            value={sort}
+                                            onChange={setSort}
+                                        />
+                                    </HStack>
+                                </Skeleton>
+                            </Flex>
                         )}
 
                         {books.elements.length == 0 && !isBooksLoading && !isBooksLoadingFirstTime ? (

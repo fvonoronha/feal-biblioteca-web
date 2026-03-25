@@ -11,7 +11,10 @@ const config = defineConfig({
                 fealRed: { value: "#9a2721" },
                 fealLightBlue: { value: "#0b94db" },
                 fealBlue: { value: "#545caa" },
-                fealPurple: { value: "#84449a" }
+                fealPurple: { value: "#84449a" },
+
+                lightGrayBorder: { value: "gray.200" },
+                darkGrayBorder: { value: "gray.600" }
             }
         }
     }

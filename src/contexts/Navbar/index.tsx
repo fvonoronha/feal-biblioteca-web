@@ -1,7 +1,7 @@
 "use client";
 
-import { Flex, HStack, Box } from "@chakra-ui/react";
-import { FealLogo, UserNavbarMenu } from "components";
+import { Flex, HStack, Box, useBreakpointValue } from "@chakra-ui/react";
+import { FealLogo, UserNavbarMenu, SearchInput } from "components";
 import { ColorModeButton } from "components/ui/color-mode";
 import { APP_MAX_WIDTH_IN_PX } from "utils";
 import { createContext, ReactNode, useContext } from "react";
@@ -17,6 +17,8 @@ const defaultValues = {
 export const NavbarContext = createContext<NavbarContextType>(defaultValues);
 
 export function NavbarProvider({ children }: { children: ReactNode }) {
+    const isMobile = useBreakpointValue({ base: true, md: false });
+
     const { user } = useAuthContext();
     const router = useRouter();
     const t = useTranslations("NavBar");
@@ -26,7 +28,6 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
 
     return (
         <>
-            {/* Wrapper fixo que ocupa toda a largura da tela */}
             <Box
                 as="nav"
                 position="fixed"
@@ -35,12 +36,11 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                 right="0"
                 w="full"
                 h="50px"
-                zIndex="sticky" // Garante que fique acima de tudo
-                bg={{ base: "white", _dark: "gray.900" }} // Fundo sólido para não ver o scroll atrás
+                zIndex="sticky"
+                bg={{ base: "white", _dark: "gray.800" }}
                 borderBottom="1px solid"
-                borderColor={{ base: "gray.200", _dark: "gray.700" }}
+                borderColor={"gray.muted"}
             >
-                {/* Conteúdo centralizado em 1600px */}
                 <Flex
                     h="full"
                     w="full"
@@ -54,19 +54,27 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                         e.stopPropagation();
                     }}
                 >
-                    <FealLogo size="sm" name={t("title")} onClick={clickMainLogo} cursor={"pointer"} />
+                    <FealLogo
+                        size="sm"
+                        name={isMobile ? t("titleMobile") : t("title")}
+                        onClick={clickMainLogo}
+                        cursor={"pointer"}
+                    />
 
                     <HStack gap={1}>
-                        {/* <LocaleSelect /> */}
+                        <Flex align="center" gap={0}>
+                            <SearchInput />
+                        </Flex>
+
                         <Flex align="center" gap={0}>
                             <ColorModeButton />
                         </Flex>
+
                         <UserNavbarMenu user={user} />
                     </HStack>
                 </Flex>
             </Box>
 
-            {/* COMPENSAÇÃO: Como o Navbar sumiu do fluxo, empurramos o conteúdo 50px para baixo */}
             <Box pt="50px">{children}</Box>
         </>
     );
