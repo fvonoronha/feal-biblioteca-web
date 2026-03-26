@@ -7,11 +7,11 @@ import { fealIdentity } from "assets";
 
 const FealLogo = (props: FealLogoProps) => {
     const sz = props.size || "big";
-    const name = props.name || "Biblioteca";
+    const name = props.name || null;
     return sz === "big" ? (
         <VStack align={"center"} {...props}>
             <HStack align={"center"} {...props}>
-                <Image w="70px" src={fealIdentity.logo.src} alt={name} />
+                <Image w="70px" src={fealIdentity.logo.src} alt={name || "Feal"} />
 
                 <Heading ml={"10px"} fontSize={60} color={{ base: "black", _dark: "white" }} mt={"-3"}>
                     {name}
@@ -21,7 +21,7 @@ const FealLogo = (props: FealLogoProps) => {
     ) : (
         <VStack align={"center"} {...props}>
             <HStack align={"center"} {...props}>
-                <Image w="30px" src={fealIdentity.logo.src} alt={name} />
+                <Image w="30px" src={fealIdentity.logo.src} alt={name || "Feal"} />
 
                 <Heading ml={"5px"} color={{ base: "fealLightBlue", _dark: "white" }}>
                     {name}

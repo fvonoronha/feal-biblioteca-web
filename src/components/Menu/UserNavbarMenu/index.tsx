@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Menu, Portal, Avatar, defineStyle, Text } from "@chakra-ui/react";
+import { Menu, Portal, Text, Flex } from "@chakra-ui/react";
 import { UserNavbarMenuProps } from "types";
 import { useAuthContext } from "contexts";
 import { useRouter } from "next/navigation";
@@ -9,12 +9,12 @@ import { LuLogOut, LuUser, LuServer } from "react-icons/lu";
 
 import { useTranslations } from "next-intl";
 
-const ringCss = defineStyle({
-    outlineWidth: "2px",
-    outlineColor: "colorPalette.500",
-    outlineOffset: "2px",
-    outlineStyle: "solid"
-});
+// const ringCss = defineStyle({
+//     outlineWidth: "2px",
+//     outlineColor: "colorPalette.500",
+//     outlineOffset: "2px",
+//     outlineStyle: "solid"
+// });
 
 const UserNavbarMenu = (props: UserNavbarMenuProps) => {
     const user = props.user;
@@ -33,10 +33,14 @@ const UserNavbarMenu = (props: UserNavbarMenuProps) => {
                 }}
             >
                 <Menu.Trigger asChild cursor="pointer" ml="10px">
-                    <Avatar.Root css={ringCss} size={"xs"}>
+                    <Flex align="center" gap={0}>
+                        <LuUser />
+                    </Flex>
+                    {/* <LuUser /> */}
+                    {/* <Avatar.Root css={ringCss} size={"xs"}>
                         <Avatar.Fallback name={user.name} />
-                        {/* <Avatar.Image src="https://bit.ly/sage-adebayo" /> */}
-                    </Avatar.Root>
+                        <Avatar.Image src="https://bit.ly/sage-adebayo" />
+                    </Avatar.Root> */}
                 </Menu.Trigger>
 
                 <Portal>
