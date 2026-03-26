@@ -63,10 +63,10 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
             const loggedUser = await checkAuthToken(`${jwt}`);
 
-            if (!loggedUser) {
-                logout();
+            if (loggedUser?.user) {
+                setUser(loggedUser.user);
             } else {
-                setUser(loggedUser);
+                logout();
             }
         } catch {
             logout();

@@ -13,6 +13,25 @@
         "title": "Biblioteca Francisco Cândido Xavier",
         "titleMobile": "Biblioteca da FEAL"
     },
+
+    "Login": {
+        "title": "Entrar",
+        "username": "Nome de usuário",
+        "password": "Senha",
+        "forgotPassword": "Esqueceu a senha?",
+        "saveSession": "Lembrar de mim",
+        "login": "Entrar",
+        "newAccount": "Nova conta?",
+        "createAccount": "Registrar-se",
+        "usernamePlaceholder": "Digite seu nome de usuário",
+        "passwordPlaceholder": "Digite sua senha",
+        "emptyUsernameError": "O nome de usuário não pode estar vazio",
+        "invalidUsernameError": "Nome de usuário inválido",
+        "incorrectUsernamePasswordError": "Nome de usuário e/ou senha inválidos",
+        "emptyPasswordError": "A senha não pode estar vazia",
+        "tooShortPasswordError": "A senha deve ter pelo menos {minSizePassword} caracteres"
+    },
+
     "Footer": {
         "feal": "Fraternidade Espírita Amor e Luz - FEAL",
         "address": "Av. Princesa Isabel, 1570, jardim Floresta - Boa Vista, RR",
