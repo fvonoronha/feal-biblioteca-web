@@ -42,7 +42,8 @@ import {
     LuCheck,
     LuArrowLeft,
     LuBookCheck,
-    LuBookX
+    LuBookX,
+    LuBlocks
 } from "react-icons/lu";
 
 export default function BookDetails() {
@@ -115,8 +116,7 @@ export default function BookDetails() {
 
             const response = await listRelatedBooks(bookId, pagination);
             setSeeAlsoBooks(response);
-        } catch (err) {
-            console.log(err);
+        } catch {
             setIsSeeAlsoBooksLoadFailed(true);
         } finally {
             setIsSeeAlsoBooksLoading(false);
@@ -281,6 +281,16 @@ export default function BookDetails() {
                                           })
                                         : t("availableTooltip")}
                                 </Text> */}
+
+                                {book?.category && (
+                                    <HStack>
+                                        <LuBlocks size="16" />
+                                        <Text fontWeight={"bold"}>{t("category")}: </Text>
+                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                            {book?.category.name}{" "}
+                                        </Text>
+                                    </HStack>
+                                )}
 
                                 {book?.shelf && (
                                     <HStack>

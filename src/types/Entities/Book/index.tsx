@@ -1,4 +1,4 @@
-import { Tag, Author } from "types";
+import { Tag, Author, Category } from "types";
 export interface Book {
     id: number;
     slug: string;
@@ -16,6 +16,7 @@ export interface Book {
     label: string;
     shelf: string;
     description: string;
+    category?: Category;
 
     keywords: string[];
     loans: BookLoan[];

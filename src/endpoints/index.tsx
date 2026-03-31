@@ -3,3 +3,4 @@ export * from "./Register";
 export * from "./Books";
 export * from "./Authors";
 export * from "./Tags";
+export * from "./Category";

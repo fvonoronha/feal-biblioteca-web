@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { listBooks, listAuthors, listTags, listPublishers } from "endpoints";
-import { APIPaginatedResponse, Book, Author, Tag, Publisher, SortOption } from "types";
+import { listBooks, listAuthors, listTags, listPublishers, listCategories } from "endpoints";
+import { APIPaginatedResponse, Book, Author, Tag, Publisher, SortOption, Category } from "types";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import {
@@ -139,6 +139,20 @@ export default function Collection() {
         }
     });
 
+    const [, setIsCategoriesLoading] = useState(false);
+    const [isCategoriesLoadFailed, setIsCategoriesLoadFailed] = useState(false);
+    const [filterCategories, setFilterCategories] = useState<APIPaginatedResponse<Category>>({
+        elements: [],
+        pagination: {
+            page: 1,
+            limit: 10,
+            total_elements: 0,
+            total_pages: 0,
+            has_next: false,
+            has_previous: false
+        }
+    });
+
     const [, setIsPublishersLoading] = useState(false);
     const [isPublishersLoadFailed, setIsPublishersLoadFailed] = useState(false);
     const [filterPublishers, setFilterPublishers] = useState<APIPaginatedResponse<Publisher>>({
@@ -164,7 +178,18 @@ export default function Collection() {
     const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
     const [selectedSpiritAuthors, setSelectedSpiritAuthors] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedPublishers, setSelectedPublishers] = useState<string[]>([]);
+
+    const getCombinedFilters = () => {
+        return {
+            search: search,
+            authors: [...selectedAuthors, ...selectedSpiritAuthors],
+            publishers: selectedPublishers,
+            tags: selectedTags,
+            category_id: selectedCategories
+        };
+    };
 
     const loadBooks = async (reset: boolean = false) => {
         if (abortControllerRef.current) {
@@ -190,14 +215,7 @@ export default function Collection() {
                 }
             };
 
-            const filter = {
-                search: search,
-                authors: [...selectedAuthors, ...selectedSpiritAuthors],
-                publishers: selectedPublishers,
-                tags: selectedTags
-            };
-
-            const response = await listBooks(filter, pagination, { signal: controller.signal });
+            const response = await listBooks(getCombinedFilters(), pagination, { signal: controller.signal });
 
             setBooks((prev) => ({
                 elements: reset ? response.elements : [...prev.elements, ...response.elements],
@@ -224,12 +242,7 @@ export default function Collection() {
         setIsAuthorsLoadFailed(false);
 
         try {
-            const filter = {
-                search: search,
-                authors: [...selectedAuthors, ...selectedSpiritAuthors],
-                publishers: selectedPublishers,
-                tags: selectedTags
-            };
+            const filter = getCombinedFilters();
 
             const pagination = {
                 limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
@@ -251,12 +264,7 @@ export default function Collection() {
         setIsTagsLoadFailed(false);
 
         try {
-            const filter = {
-                search: search,
-                authors: [...selectedAuthors, ...selectedSpiritAuthors],
-                publishers: selectedPublishers,
-                tags: selectedTags
-            };
+            const filter = getCombinedFilters();
 
             const pagination = {
                 limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
@@ -272,17 +280,33 @@ export default function Collection() {
         }
     };
 
+    const loadCategories = async () => {
+        setIsCategoriesLoading(true);
+        setIsCategoriesLoadFailed(false);
+
+        try {
+            const filter = getCombinedFilters();
+
+            const pagination = {
+                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
+                page: 1
+            };
+
+            const objs = await listCategories(filter, pagination);
+            setFilterCategories(objs || { elements: [], totalElements: 0 });
+        } catch {
+            setIsCategoriesLoadFailed(true);
+        } finally {
+            setIsCategoriesLoading(false);
+        }
+    };
+
     const loadPublishers = async () => {
         setIsPublishersLoading(true);
         setIsPublishersLoadFailed(false);
 
         try {
-            const filter = {
-                search: search,
-                authors: [...selectedAuthors, ...selectedSpiritAuthors],
-                publishers: selectedPublishers,
-                tags: selectedTags
-            };
+            const filter = getCombinedFilters();
 
             const pagination = {
                 limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
@@ -304,6 +328,7 @@ export default function Collection() {
         loadBooks(RESET_BOOKS_PAGINATION);
         loadAuthors();
         loadTags();
+        loadCategories();
         loadPublishers();
     };
 
@@ -312,6 +337,7 @@ export default function Collection() {
         setSelectedAuthors([]);
         setSelectedSpiritAuthors([]);
         setSelectedTags([]);
+        setSelectedCategories([]);
         setSelectedPublishers([]);
         setSearch("");
     };
@@ -320,7 +346,7 @@ export default function Collection() {
         changedFilters();
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedPublishers, sort, search]);
+    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedCategories, selectedPublishers, sort, search]);
 
     useEffect(() => {
         const el = loadMoreBooksRef.current;
@@ -439,6 +465,17 @@ export default function Collection() {
                 {activeFiltersBadges}
 
                 {isMobile && <SortSelect label={t("sortBy")} labelPosition="top" value={sort} onChange={setSort} />}
+
+                <SimpleCheckBoxGroup
+                    label={t("category")}
+                    hide={isCategoriesLoadFailed}
+                    options={filterCategories.elements.map((a) => ({
+                        label: `${a.name} (${a._count?.books || "0"})`,
+                        value: `${a.id}`
+                    }))}
+                    values={selectedCategories}
+                    setValues={setSelectedCategories}
+                />
 
                 <SimpleCheckBoxGroup
                     label={t("tag")}

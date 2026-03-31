@@ -18,6 +18,7 @@
         "share": "Share",
         "shelf": "Shelf",
         "tags": "Subjects",
+        "category": "Category",
         "weAreWorkingOnIt": "We’re cataloging new books for you every day."
     },
     "Collection": {
@@ -41,6 +42,7 @@
         "sortByTitleAsc": "Title, A→Z",
         "sortByTitleDesc": "Title, Z→A",
         "tag": "Topic",
+        "category": "Category",
         "title": "Entire Collection"
     },
     "Footer": {
