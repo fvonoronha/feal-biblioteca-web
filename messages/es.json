@@ -18,6 +18,7 @@
         "share": "Compartir",
         "shelf": "Estante",
         "tags": "Temas",
+        "category": "Categoría",
         "weAreWorkingOnIt": "A diario trabajamos para catalogar nuevos volúmenes para ti"
     },
     "Collection": {
@@ -41,6 +42,7 @@
         "sortByTitleAsc": "Título, A→Z",
         "sortByTitleDesc": "Título, Z→A",
         "tag": "Tema",
+        "category": "Categoría",
         "title": "Todo el fondo"
     },
     "Footer": {

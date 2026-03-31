@@ -53,6 +53,7 @@ const BookGrid = (props: ExtendedBookGridProps) => {
             ) : (
                 <HStack gap="15px" align="stretch" {...scrollStyles}>
                     {/* <HStack gap="15px" align="stretch" {...scrollStyles} {...rest}> */}
+                    {/* ToDo: Implementar algum Scrol hint */}
                     {/* No modo scroll, garantimos que os filhos mantenham a largura definida */}
                     {Array.isArray(children)
                         ? children.map((child, index) => (
