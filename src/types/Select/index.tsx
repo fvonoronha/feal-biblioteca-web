@@ -31,6 +31,18 @@ export function SORT_OPTIONS() {
             label: "sortByCreationAsc",
             field: "id",
             direction: "asc"
+        },
+        {
+            value: "sortByPopularityDesc",
+            label: "sortByPopularityDesc",
+            field: "last_month_access_count",
+            direction: "desc"
+        },
+        {
+            value: "sortByPopularityAllTimeDesc",
+            label: "sortByPopularityAllTimeDesc",
+            field: "all_time_access_count",
+            direction: "desc"
         }
     ];
 

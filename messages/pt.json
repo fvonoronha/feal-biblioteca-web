@@ -71,6 +71,8 @@
         "sortByTitleDesc": "Título, Z→A",
         "sortByCreationAsc": "Mais antigos",
         "sortByCreationDesc": "Mais recentes",
+        "sortByPopularityAllTimeDesc": "Mais acessados (Geral)",
+        "sortByPopularityDesc": "Mais acessados (Recentemente)",
 
         "booksNotFound": "Nenhum volume encontrado com os filtros atuais"
     },

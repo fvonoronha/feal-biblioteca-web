@@ -41,6 +41,8 @@
         "sortByCreationDesc": "Más recientes",
         "sortByTitleAsc": "Título, A→Z",
         "sortByTitleDesc": "Título, Z→A",
+        "sortByPopularityAllTimeDesc": "Más vistos (Todo el tiempo)",
+        "sortByPopularityDesc": "Más vistos (Recientemente)",
         "tag": "Tema",
         "category": "Categoría",
         "title": "Todo el fondo"
