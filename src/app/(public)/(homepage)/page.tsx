@@ -45,6 +45,7 @@ import {
 
 const RESET_BOOKS_PAGINATION = true;
 const INTERSECTION_ROOT_MARGIN_IN_PX = 200;
+const CATEGORY_FILTERS_MAX_ELEMENTS_BEFORE_COLLAPSE = 15;
 
 export default function Collection() {
     const t = useTranslations("Collection");
@@ -390,6 +391,23 @@ export default function Collection() {
                 </WrapItem>
             )}
 
+            {filterCategories.elements
+                .filter((category) => selectedCategories.includes(`${category.id}`))
+                .map((category) => {
+                    return (
+                        <WrapItem key={`category#${category.id}`}>
+                            <ActiveFilterBadge
+                                key={`category#${category.id}`}
+                                label={`${t("category")}: ${category.name}`}
+                                value={`${category.id}`}
+                                cancelFilter={(value) => {
+                                    setSelectedCategories(selectedCategories.filter((id) => id != value));
+                                }}
+                            />
+                        </WrapItem>
+                    );
+                })}
+
             {filterAuthors.elements
                 .filter(
                     (author) =>
@@ -467,6 +485,7 @@ export default function Collection() {
                 {isMobile && <SortSelect label={t("sortBy")} labelPosition="top" value={sort} onChange={setSort} />}
 
                 <SimpleCheckBoxGroup
+                    maxElementsBeforeCollapse={CATEGORY_FILTERS_MAX_ELEMENTS_BEFORE_COLLAPSE}
                     label={t("category")}
                     hide={isCategoriesLoadFailed}
                     options={filterCategories.elements.map((a) => ({

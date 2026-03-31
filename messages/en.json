@@ -41,6 +41,8 @@
         "sortByCreationDesc": "Most recent",
         "sortByTitleAsc": "Title, A→Z",
         "sortByTitleDesc": "Title, Z→A",
+        "sortByPopularityAllTimeDesc": "Most viewed (All Time)",
+        "sortByPopularityDesc": "Most viewed (Recently)",
         "tag": "Topic",
         "category": "Category",
         "title": "Entire Collection"

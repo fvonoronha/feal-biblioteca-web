@@ -10,6 +10,7 @@ type Option = {
 };
 
 type SimpleCheckBoxGroupProps = {
+    maxElementsBeforeCollapse?: number;
     isLoading?: boolean;
     hide?: boolean;
     label: string;
@@ -21,6 +22,7 @@ type SimpleCheckBoxGroupProps = {
 const CHECK_BOX_LIMIT_ITEMS_BEFORE_COLLAPSE = 7;
 
 const SimpleCheckBoxGroup = ({
+    maxElementsBeforeCollapse,
     label,
     hide = false,
     // isLoading = false,
@@ -35,17 +37,19 @@ const SimpleCheckBoxGroup = ({
     if (hide || options.length === 0) return <></>;
 
     // Lógica para limitar a exibição
-    const limit = CHECK_BOX_LIMIT_ITEMS_BEFORE_COLLAPSE;
+    const limit = maxElementsBeforeCollapse ?? CHECK_BOX_LIMIT_ITEMS_BEFORE_COLLAPSE;
     const shouldShowToggle = options.length > limit;
     const visibleOptions = isExpanded ? options : options.slice(0, limit);
 
     return (
         <Box>
             <Field.Root>
-                <Field.Label fontWeight="bold">{label}</Field.Label>
+                <Field.Label fontWeight="bold" fontSize={"md"}>
+                    {label}
+                </Field.Label>
             </Field.Root>
 
-            <Checkbox.Group value={values} onValueChange={setValues} p="4">
+            <Checkbox.Group value={values} onValueChange={setValues} py="4" px="0">
                 <VStack align="start" gap="2">
                     {visibleOptions.map((opt) => (
                         <Checkbox.Root key={opt.value} value={opt.value} cursor={"pointer"}>
