@@ -15,7 +15,15 @@ interface ExtendedBookGridProps extends BookGridProps {
 const BookGrid = (props: ExtendedBookGridProps) => {
     const t = useTranslations("Utils");
 
-    const { variant = "grid", eWidth = "150px", isLoading = false, loadingFailed = false, children, ...rest } = props;
+    const {
+        variant = "grid",
+        eWidth = "150px",
+        // isLoading = false,
+        isLoadingMore = false,
+        loadingFailed = false,
+        children,
+        ...rest
+    } = props;
 
     const hasLoadingFailed = !!loadingFailed;
 
@@ -65,10 +73,10 @@ const BookGrid = (props: ExtendedBookGridProps) => {
                 </HStack>
             )}
 
-            {isLoading && (
+            {isLoadingMore && (
                 <HStack justify="center" align="center" pt="50px">
                     <Spinner size="lg" color="fealRed" />
-                    <Heading size="md">{t("loading")}...</Heading>
+                    <Heading size="md">{t("loadingMore")}</Heading>
                 </HStack>
             )}
         </Box>

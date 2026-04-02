@@ -32,6 +32,19 @@ export function SORT_OPTIONS() {
             field: "id",
             direction: "asc"
         },
+
+        {
+            value: "sortByPublishingDateDesc",
+            label: "sortByPublishingDateDesc",
+            field: "year",
+            direction: "desc"
+        },
+        {
+            value: "sortByPublishingDateAsc",
+            label: "sortByPublishingDateAsc",
+            field: "year",
+            direction: "asc"
+        },
         {
             value: "sortByPopularityDesc",
             label: "sortByPopularityDesc",

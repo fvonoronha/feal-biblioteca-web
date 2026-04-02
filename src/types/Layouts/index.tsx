@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 
 export interface BookGridProps extends GridProps {
     isLoading?: boolean;
+    isLoadingMore?: boolean;
     isEmpty?: boolean;
     loadingFailed: boolean;
     eWidth: string;

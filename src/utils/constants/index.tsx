@@ -20,6 +20,12 @@ export const PAGINATION_UNLIMITED_BOOKS_PER_PAGE = 1000000;
 export const FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS = 1000;
 export const SHARE_BUTTON_ICON_CHANGE_DELAY_IN_MS = 3000;
 
+export const QUERY_PARAMS_FOR_AUTHOR = "a";
+export const QUERY_PARAMS_FOR_CATEGORY = "c";
+export const QUERY_PARAMS_FOR_TAG = "t";
+export const QUERY_PARAMS_FOR_SEARCH = "q";
+export const QUERY_PARAMS_FOR_PUBLISHER = "p";
+
 // ToDo: crir um MockerData service depois e transformar isso em uma função. Por hora vai ficar aqui mesmo
 export const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     id: 1,

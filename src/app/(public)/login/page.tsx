@@ -169,7 +169,7 @@ export default function Login() {
                                                 ref={loginInput}
                                                 required={true}
                                                 id="login"
-                                                _hover={{ borderColor: "fealRed" }}
+                                                _hover={{ borderColor: "fealRedHover" }}
                                                 _focus={{ borderColor: "fealRed" }}
                                                 px="10px"
                                                 type="text"
@@ -221,7 +221,7 @@ export default function Login() {
                                                 required={true}
                                                 px="10px"
                                                 fontSize={"md"}
-                                                _hover={{ borderColor: "fealRed" }}
+                                                _hover={{ borderColor: "fealRedHover" }}
                                                 _focus={{ borderColor: "fealRed" }}
                                                 id="password"
                                                 type="password"

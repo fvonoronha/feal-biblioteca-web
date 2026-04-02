@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ bookSlug:
         openGraph: {
             title: book.title,
             description: book.subtitle || book.description?.slice(0, 160),
-            url: `https://${process.env.NEXT_PUBLIC_APP_DOMAIN}/${slug}`,
+            url: `https://${process.env.NEXT_PUBLIC_APP_DOMAIN}/b/${slug}`,
             siteName: "Biblioteca Francisco Cândido Xavier - FEAL",
             images: [
                 {

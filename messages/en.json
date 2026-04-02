@@ -39,6 +39,8 @@
         "sortBy": "Sort by",
         "sortByCreationAsc": "Oldest",
         "sortByCreationDesc": "Most recent",
+        "sortByPublishingDateAsc": "Publishing Year (Oldest)",
+        "sortByPublishingDateDesc": "Publishing Year (Most Recent)",
         "sortByTitleAsc": "Title, A→Z",
         "sortByTitleDesc": "Title, Z→A",
         "sortByPopularityAllTimeDesc": "Most viewed (All Time)",
@@ -70,7 +72,8 @@
     "Utils": {
         "available": "Available",
         "availableTooltip": "This copy is available for checkout.",
-        "loading": "Loading",
+        "loading": "Loading...",
+        "loadingMore": "Loading more...",
         "loaned": "Checked out",
         "loanedTooltip": "This item is due to be returned by the current user on {due_date}.",
         "somethingIsWrong": "Something went wrong. Check your internet connection and refresh the page.",

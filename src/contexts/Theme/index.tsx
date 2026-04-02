@@ -16,6 +16,17 @@ const config = defineConfig({
                 lightGrayBorder: { value: "gray.200" },
                 darkGrayBorder: { value: "gray.600" }
             }
+        },
+
+        semanticTokens: {
+            colors: {
+                fealRedHover: {
+                    value: {
+                        _light: "#7a1e1a",
+                        _dark: "#fc8181"
+                    }
+                }
+            }
         }
     }
 });

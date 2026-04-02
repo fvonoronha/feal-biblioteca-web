@@ -17,6 +17,7 @@ import { LuSearch } from "react-icons/lu";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { SimpleButton } from "components/Button";
+import { QUERY_PARAMS_FOR_SEARCH } from "utils";
 
 const SearchInput = () => {
     const [query, setQuery] = useState("");
@@ -28,7 +29,7 @@ const SearchInput = () => {
         e?.preventDefault();
 
         if (query.trim()) {
-            router.push(`/?q=${encodeURIComponent(query)}`);
+            router.push(`/?${QUERY_PARAMS_FOR_SEARCH}=${encodeURIComponent(query)}`);
             setOpen(false);
             setQuery("");
         }

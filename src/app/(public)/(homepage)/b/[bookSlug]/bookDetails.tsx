@@ -8,7 +8,12 @@ import { useTranslations } from "next-intl";
 import {
     DEFAULT_EXAMPLE_BOOK_FOR_SKELETON,
     SHARE_BUTTON_ICON_CHANGE_DELAY_IN_MS,
-    PAGINATION_DEFAULT_RELATED_BOOKS_PER_PAGE
+    PAGINATION_DEFAULT_RELATED_BOOKS_PER_PAGE,
+    QUERY_PARAMS_FOR_AUTHOR,
+    QUERY_PARAMS_FOR_CATEGORY,
+    QUERY_PARAMS_FOR_TAG,
+    QUERY_PARAMS_FOR_SEARCH,
+    QUERY_PARAMS_FOR_PUBLISHER
 } from "utils";
 
 import {
@@ -193,25 +198,36 @@ export default function BookDetails() {
                     <SimpleGrid columns={{ base: 1, sm: 2 }} gap="6" w="100%">
                         <Skeleton loading={isBookLoading} w={"100%"}>
                             <VStack align="start" gap="1">
-                                {/* ToDO: Tornar cada autor clicável e encaminhar para uma página com livros desse autor */}
                                 {book?.authors.map((bookAuthor) => {
                                     return (
-                                        <HStack key={`author#${bookAuthor.author.id}`}>
+                                        <HStack
+                                            key={`author#${bookAuthor.author.id}`}
+                                            onClick={() => {
+                                                router.push(
+                                                    `/?${QUERY_PARAMS_FOR_AUTHOR}=${encodeURIComponent(bookAuthor.author.slug)}`
+                                                );
+                                            }}
+                                        >
                                             {bookAuthor.author.is_spirit ? <LuStar size="16" /> : <LuPen size="16" />}
                                             <Text fontWeight={"bold"}>{bookAuthor.description || t("author")}: </Text>
-                                            <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                            <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                                 {bookAuthor.author.name}{" "}
                                             </Text>
                                         </HStack>
                                     );
                                 })}
 
-                                {/* ToDO: Tornar a editora clicável e encaminhar para uma página com livros dessa editora */}
                                 {book?.publisher && (
-                                    <HStack>
+                                    <HStack
+                                        onClick={() => {
+                                            router.push(
+                                                `/?${QUERY_PARAMS_FOR_PUBLISHER}=${encodeURIComponent(book?.publisher || "")}`
+                                            );
+                                        }}
+                                    >
                                         <LuBuilding2 size="16" />
                                         <Text fontWeight={"bold"}>{t("publisher")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {book?.publisher}{" "}
                                         </Text>
                                     </HStack>
@@ -221,7 +237,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuBookCopy size="16" />
                                         <Text fontWeight={"bold"}>{t("edition")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {`${book?.edition}ª`}{" "}
                                         </Text>
                                     </HStack>
@@ -231,7 +247,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuCalendar size="16" />
                                         <Text fontWeight={"bold"}>{t("publishedAt")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {book?.year}{" "}
                                         </Text>
                                     </HStack>
@@ -241,7 +257,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuBookOpen size="16" />
                                         <Text fontWeight={"bold"}>{t("pages")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {`${book?.pages}`}{" "}
                                         </Text>
                                     </HStack>
@@ -251,7 +267,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuBook size="16" />
                                         <Text fontWeight={"bold"}>{t("isbn")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {`${book?.isbn}`}{" "}
                                         </Text>
                                     </HStack>
@@ -265,7 +281,7 @@ export default function BookDetails() {
                                     {book?.loans?.length > 0 ? <LuBookX size="16" /> : <LuBookCheck size="16" />}
 
                                     <Text fontWeight={"bold"}>{t("availability")}: </Text>
-                                    <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                    <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                         <LoanBadge bookLoan={book?.loans?.[0]} />
                                     </Text>
                                 </HStack>
@@ -283,10 +299,16 @@ export default function BookDetails() {
                                 </Text> */}
 
                                 {book?.category && (
-                                    <HStack>
+                                    <HStack
+                                        onClick={() => {
+                                            router.push(
+                                                `/?${QUERY_PARAMS_FOR_CATEGORY}=${encodeURIComponent(book?.category?.slug || "")}`
+                                            );
+                                        }}
+                                    >
                                         <LuBlocks size="16" />
                                         <Text fontWeight={"bold"}>{t("category")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {book?.category.name}{" "}
                                         </Text>
                                     </HStack>
@@ -296,7 +318,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuLibraryBig size="16" />
                                         <Text fontWeight={"bold"}>{t("shelf")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {book?.shelf}{" "}
                                         </Text>
                                     </HStack>
@@ -306,7 +328,7 @@ export default function BookDetails() {
                                     <HStack>
                                         <LuBarcode size="16" />
                                         <Text fontWeight={"bold"}>{t("label")}: </Text>
-                                        <Text _hover={{ color: "fealRed" }} cursor={"pointer"}>
+                                        <Text _hover={{ color: "fealRedHover" }} cursor={"pointer"}>
                                             {book?.label}{" "}
                                         </Text>
                                     </HStack>
@@ -325,9 +347,14 @@ export default function BookDetails() {
                                                 <Text
                                                     key={tag.tag.id}
                                                     as="span"
-                                                    _hover={{ color: "fealRed" }}
+                                                    _hover={{ color: "fealRedHover" }}
                                                     cursor="pointer"
                                                     transition="color 0.2s"
+                                                    onClick={() => {
+                                                        router.push(
+                                                            `/?${QUERY_PARAMS_FOR_TAG}=${encodeURIComponent(tag.tag.slug.toString())}`
+                                                        );
+                                                    }}
                                                 >
                                                     {tag.tag.name}
                                                     {index === book.tags.length - 1 ? "" : ", "}
@@ -368,9 +395,12 @@ export default function BookDetails() {
                             <Box as="span" lineHeight="tall">
                                 {book?.keywords.map((key, index) => (
                                     <Text
+                                        onClick={() => {
+                                            router.push(`/?${QUERY_PARAMS_FOR_SEARCH}=${encodeURIComponent(key)}`);
+                                        }}
                                         key={key}
                                         as="span"
-                                        _hover={{ color: "fealRed" }}
+                                        _hover={{ color: "fealRedHover" }}
                                         cursor="pointer"
                                         transition="color 0.2s"
                                     >
