@@ -163,7 +163,7 @@ export default function PublicLayout({ children }: Readonly<{ children: React.Re
                         </VStack>
                     </Flex>
 
-                    <Separator mt="10" mb="5" />
+                    <Separator borderColor={{ base: "gray.muted", _dark: "gray.600" }} mt="10" mb="5" />
 
                     <Text fontSize="xs" textAlign="center">
                         &copy;{` ${new Date().getFullYear()} ${t("feal")} — ${t("allRightsReserved")}`}

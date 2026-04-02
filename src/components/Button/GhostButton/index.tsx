@@ -13,7 +13,7 @@ const SimpleButton = (props: SimpleButtonProps) => {
                 fontSize={"md"}
                 bg={"none"}
                 color={{ base: `black`, _dark: "white" }}
-                _hover={{ color: { base: `fealRed`, _dark: `fealRed` } }}
+                _hover={{ color: { base: `fealRedHover`, _dark: `fealRed` } }}
                 {...props}
             >
                 {props.children}

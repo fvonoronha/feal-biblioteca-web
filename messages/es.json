@@ -39,6 +39,8 @@
         "sortBy": "Ordenar por",
         "sortByCreationAsc": "Más antiguos",
         "sortByCreationDesc": "Más recientes",
+        "sortByPublishingDateAsc": "Año de publicación (más antiguos)",
+        "sortByPublishingDateDesc": "Año de publicación (más recientes)",
         "sortByTitleAsc": "Título, A→Z",
         "sortByTitleDesc": "Título, Z→A",
         "sortByPopularityAllTimeDesc": "Más vistos (Todo el tiempo)",
@@ -70,7 +72,8 @@
     "Utils": {
         "available": "Disponible",
         "availableTooltip": "Este ejemplar está disponible para préstamos.",
-        "loading": "Cargando",
+        "loading": "Cargando...",
+        "loadingMore": "Cargando más...",
         "loaned": "Prestado",
         "loanedTooltip": "Está previsto que el usuario actual devuelva este volumen el día {due_date}.",
         "somethingIsWrong": "Algo ha salido mal. Comprueba tu conexión a Internet y actualiza la página.",

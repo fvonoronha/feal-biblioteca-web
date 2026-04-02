@@ -1,6 +1,7 @@
 {
     "Utils": {
-        "loading": "Carregando",
+        "loading": "Carregando...",
+        "loadingMore": "Carregando mais...",
         "somethingIsWrong": "Algo deu errado. Verifique sua conexão e atualize a página.",
         "somethingIsWrongRefresh": "Recarregar Página",
         "loaned": "Emprestado",
@@ -71,6 +72,8 @@
         "sortByTitleDesc": "Título, Z→A",
         "sortByCreationAsc": "Mais antigos",
         "sortByCreationDesc": "Mais recentes",
+        "sortByPublishingDateAsc": "Ano de publicação (mais antigos)",
+        "sortByPublishingDateDesc": "Ano de publicação (mais recentes)",
         "sortByPopularityAllTimeDesc": "Mais acessados (Geral)",
         "sortByPopularityDesc": "Mais acessados (Recentemente)",
 
