@@ -21,6 +21,18 @@ export function SORT_OPTIONS() {
             direction: "desc"
         },
         {
+            value: "sortByLabelDesc",
+            label: "sortByLabelDesc",
+            field: "label",
+            direction: "desc"
+        },
+        {
+            value: "sortByLabelAsc",
+            label: "sortByLabelAsc",
+            field: "label",
+            direction: "asc"
+        },
+        {
             value: "sortByCreationDesc",
             label: "sortByCreationDesc",
             field: "id",
@@ -43,6 +55,18 @@ export function SORT_OPTIONS() {
             value: "sortByPublishingDateAsc",
             label: "sortByPublishingDateAsc",
             field: "year",
+            direction: "asc"
+        },
+        {
+            value: "sortByPagesDesc",
+            label: "sortByPagesDesc",
+            field: "pages",
+            direction: "desc"
+        },
+        {
+            value: "sortByPagesAsc",
+            label: "sortByPagesAsc",
+            field: "pages",
             direction: "asc"
         },
         {
