@@ -317,9 +317,9 @@ import { memo, useState } from "react";
 import { Card, VStack, Image, Text, Box, HStack } from "@chakra-ui/react";
 import { BookCardProps } from "types";
 import { useRouter } from "next/navigation";
-import { LoanBadge } from "components";
+import { LoanBadge, LabelBadge } from "components";
 import { bookCover } from "assets";
-import { LuLibraryBig } from "react-icons/lu";
+import { LuLibraryBig, LuBookOpen, LuCalendar } from "react-icons/lu";
 
 const BookGridCardV2 = (props: BookCardProps) => {
     const { book } = props;
@@ -404,8 +404,14 @@ const BookGridCardV2 = (props: BookCardProps) => {
 
                 {/* Badge de Empréstimo (Sempre visível e acima de tudo) */}
                 {book.loans?.length > 0 && (
-                    <Box position="absolute" top="6px" left="6px" zIndex="10" transform="translateZ(10px)">
+                    <Box position="absolute" top="6px" right="6px" zIndex="10" transform="translateZ(10px)">
                         <LoanBadge bookLoan={book.loans[0]} />
+                    </Box>
+                )}
+
+                {book.label && !isHovered && (
+                    <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
+                        <LabelBadge label={book.label} />
                     </Box>
                 )}
             </Box>
@@ -413,7 +419,7 @@ const BookGridCardV2 = (props: BookCardProps) => {
             {/* Corpo do Card com as descrições devolvidas */}
             <Card.Body py="3" px="0">
                 <VStack align="start" gap="1">
-                    <HStack justifyContent="space-between" width="100%">
+                    {/* <HStack justifyContent="space-between" width="100%">
                         <HStack alignItems="center" gap="1">
                             {book.label && (
                                 <Text fontSize="xs" color="gray.500" lineClamp="1">
@@ -429,6 +435,27 @@ const BookGridCardV2 = (props: BookCardProps) => {
                                 <LuLibraryBig size="12" color="gray" />
                             </HStack>
                         )}
+                    </HStack> */}
+
+                    <HStack justifyContent="space-between" width="100%">
+                        <HStack alignItems="center" gap="1">
+                            {book.year && (
+                                <>
+                                    <LuCalendar size="12" color="gray" />
+                                    <Text fontSize="xs" color="gray.500" lineClamp="1">
+                                        {book.year}
+                                    </Text>
+                                </>
+                            )}
+                        </HStack>
+                        {book.pages && (
+                            <HStack alignItems="center" gap="1">
+                                <Text fontSize="xs" color="gray.500" lineClamp="1">
+                                    {book.pages}
+                                </Text>
+                                <LuBookOpen size="12" color="gray" />
+                            </HStack>
+                        )}
                     </HStack>
 
                     <Text fontWeight="bold" fontSize="sm" lineHeight="tight" lineClamp="2">
@@ -437,7 +464,7 @@ const BookGridCardV2 = (props: BookCardProps) => {
 
                     {/* Descrição/Editora devolvida aqui */}
                     {(book.subtitle || book.description || book.publisher) && (
-                        <Text fontSize="xs" color="gray.600" opacity={0.8} lineClamp="2">
+                        <Text fontSize="xs" color="gray.600" opacity={0.8} lineClamp="3">
                             {book.subtitle || book.description || book.publisher}
                         </Text>
                     )}

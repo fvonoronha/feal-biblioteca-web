@@ -3,7 +3,7 @@
 import { memo, useState, useRef, useEffect } from "react";
 import { Image, Box, VStack, HStack } from "@chakra-ui/react";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
-
+import { LabelBadge } from "components";
 import { BookCardProps } from "types";
 import { bookCover } from "assets";
 
@@ -83,6 +83,12 @@ const BookImageCard = (props: BookCardProps) => {
                     transform={isHovering ? `scale(${HOVER_SCALE_FACTOR})` : "scale(1)"}
                     transformOrigin={`${zoomPos.x} ${zoomPos.y}`}
                 />
+
+                {book.label && !isHovering && (
+                    <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
+                        <LabelBadge label={book.label} size={"lg"} />
+                    </Box>
+                )}
             </Box>
 
             {images.length > 1 && (

@@ -185,9 +185,9 @@ export default function Collection() {
 
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<SortOption>({
-        value: "sortByCreationDesc",
-        label: "sortByCreationDesc",
-        field: "id",
+        value: "sortByLabelDesc",
+        label: "sortByLabelDesc",
+        field: "label",
         direction: "desc"
     });
 
@@ -665,7 +665,7 @@ export default function Collection() {
 
                 <HStack align="start" gap="0">
                     {!isMobile && (
-                        <Box w="360px" py={1} pr="6" position="sticky" top="0" maxH="100vh" overflowY="auto">
+                        <Box w="320px" py={1} position="sticky" top="0" maxH="100vh" overflowY="auto">
                             {filtersContent}
                         </Box>
                     )}
@@ -673,6 +673,7 @@ export default function Collection() {
                     <Box flex="1">
                         {!isMobile && (
                             <Flex
+                                pl={4}
                                 direction={{ base: "column", md: "row" }}
                                 justify="space-between"
                                 align={{ base: "center", md: "center" }}
@@ -720,12 +721,13 @@ export default function Collection() {
                             </VStack>
                         ) : (
                             <BookGrid
+                                pl={4}
                                 variant="grid"
                                 loadingFailed={isBooksLoadFailed}
                                 isLoadingMore={isBooksLoading}
                                 isEmpty={books.elements.length == 0}
                                 eWidth={"180px"}
-                                pt={"12px"}
+                                pt={2}
                             >
                                 {books.elements.map((obj: Book) => {
                                     return (

@@ -26,6 +26,7 @@ export interface LoanBadgeProps extends BadgeProps {
 }
 export interface LabelBadgeProps extends BadgeProps {
     label?: string;
+    size?: "sm" | "md" | "lg";
 }
 
 export interface ShelfBadgeProps extends BadgeProps {
