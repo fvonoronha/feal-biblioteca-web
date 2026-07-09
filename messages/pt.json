@@ -56,7 +56,14 @@
         "filter": "Filtrar",
         "filterAndSort": "Filtrar e Ordenar",
         "filterSearchLabel": "Pesquisar",
-        "filterSearchPlaceholder": "Título, Autor, Tema, etc...",
+        "filterSearchPlaceholder": "Pesquise por Título, Autor, Tema, Categoria, Etiqueta, etc...",
+        "filterSearchExploreCategories": "Explorar Categorias",
+        "filterSearchExploreAuthors": "Principais Autores",
+        "filterSearchExploreTags": "Explorar Temas",
+        "filterSearchFastSearch": "Busca Rápida",
+        "filterSearchFastSearchedBookResult": "Encontrados {total} volumes",
+        "filterSearchFastSearchedAuthorResult": "Encontrados {total} autores",
+        "filterSearchFastSearchSeeAll": "Ver todos",
         "filterCheckBoxSeeMore": "Ver mais ({total} extras)",
         "filterCheckBoxSeeLess": "Ver menos",
         "removeFilters": "Limpar filtros",
@@ -81,7 +88,8 @@
         "sortByPopularityAllTimeDesc": "Mais acessados (Geral)",
         "sortByPopularityDesc": "Mais acessados (Recentemente)",
 
-        "booksNotFound": "Nenhum volume encontrado com os filtros atuais"
+        "booksNotFound": "Nenhum volume encontrado com os filtros atuais",
+        "authorsNotFound": "Nenhum autor encontrado com os filtros atuais"
     },
 
     "BookDetails": {

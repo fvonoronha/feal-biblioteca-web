@@ -317,20 +317,25 @@ import { memo, useState } from "react";
 import { Card, VStack, Image, Text, Box, HStack } from "@chakra-ui/react";
 import { BookCardProps } from "types";
 import { useRouter } from "next/navigation";
-import { LoanBadge, LabelBadge } from "components";
+import { LoanBadge, LabelBadge, SimpleButton } from "components";
 import { bookCover } from "assets";
-import { LuLibraryBig, LuBookOpen, LuCalendar } from "react-icons/lu";
+import {  LuBookOpen, LuCalendar } from "react-icons/lu";
 
 const BookGridCardV2 = (props: BookCardProps) => {
-    const { book } = props;
+    const { book, isSeeMorePlaceHolder, isSeeMore } = props;
     const router = useRouter();
     const [isHovered, setIsHovered] = useState(false);
+
 
     // Usamos apenas a imagem principal agora
     const coverImg = book.cover_url || bookCover.default.src;
 
     const clickBook = () => {
-        router.push(`/b/${book.slug}`);
+        if (props.onClick) {
+            props.onClick?.();
+        } else {
+            router.push(`/b/${book.slug}`);
+        }
     };
 
     return (
@@ -341,8 +346,8 @@ const BookGridCardV2 = (props: BookCardProps) => {
             w="100%"
             cursor="pointer"
             onClick={clickBook}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={() => !isSeeMore && setIsHovered(true)}
+            onMouseLeave={() => !isSeeMore && setIsHovered(false)}
             position="relative"
         >
             {/* Container 3D principal */}
@@ -403,7 +408,7 @@ const BookGridCardV2 = (props: BookCardProps) => {
                 </Box>
 
                 {/* Badge de Empréstimo (Sempre visível e acima de tudo) */}
-                {book.loans?.length > 0 && (
+                {book.loans?.length > 0 && !isHovered && (
                     <Box position="absolute" top="6px" right="6px" zIndex="10" transform="translateZ(10px)">
                         <LoanBadge bookLoan={book.loans[0]} />
                     </Box>
@@ -442,7 +447,7 @@ const BookGridCardV2 = (props: BookCardProps) => {
                             {book.year && (
                                 <>
                                     <LuCalendar size="12" color="gray" />
-                                    <Text fontSize="xs" color="gray.500" lineClamp="1">
+                                    <Text fontSize="xs" color={{ base: "gray.600", _dark: "gray.400" }} lineClamp="1">
                                         {book.year}
                                     </Text>
                                 </>
@@ -450,7 +455,7 @@ const BookGridCardV2 = (props: BookCardProps) => {
                         </HStack>
                         {book.pages && (
                             <HStack alignItems="center" gap="1">
-                                <Text fontSize="xs" color="gray.500" lineClamp="1">
+                                <Text fontSize="xs" color={{ base: "gray.600", _dark: "gray.400" }} lineClamp="1">
                                     {book.pages}
                                 </Text>
                                 <LuBookOpen size="12" color="gray" />
@@ -464,12 +469,36 @@ const BookGridCardV2 = (props: BookCardProps) => {
 
                     {/* Descrição/Editora devolvida aqui */}
                     {(book.subtitle || book.description || book.publisher) && (
-                        <Text fontSize="xs" color="gray.600" opacity={0.8} lineClamp="3">
+                        <Text fontSize="xs" color={{ base: "gray.600", _dark: "gray.400" }} opacity={0.8} lineClamp="3">
                             {book.subtitle || book.description || book.publisher}
                         </Text>
                     )}
                 </VStack>
             </Card.Body>
+
+            {/* Overlay que aparece quando isPreview é true */}
+            {isSeeMore && (
+                <Box
+                    position="absolute"
+                    top="-3"
+                    left="-3"
+                    right="-3"
+                    bottom="-3"
+                    // bg="#9a272120"
+                    backdropFilter="blur(3px)"
+                    borderRadius="sm"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    zIndex="1000"
+                    cursor="pointer"
+                    onClick={clickBook}
+                >
+                    <HStack pb='32'>
+                        <SimpleButton onClick={clickBook}>{isSeeMorePlaceHolder}</SimpleButton>
+                    </HStack>
+                </Box>
+            )}
         </Card.Root>
     );
 };
