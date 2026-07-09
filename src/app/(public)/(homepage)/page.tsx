@@ -1,4 +1,4 @@
-import { default as HomePage } from "./HomePage";
+import { default as HomePage } from "./homePage";
 
 export async function generateMetadata() {
     const domain = `https://${process.env.NEXT_PUBLIC_APP_DOMAIN}` || "https://biblioteca.feal.espirita.casa";
