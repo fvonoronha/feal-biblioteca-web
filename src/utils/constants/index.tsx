@@ -8,6 +8,8 @@ export const PUBLIC_ROUTES = [
     // { path: "/a/[author-slug]", whenAuthenticated: "next" }
 ] as const;
 
+export const TOP_BAR_DEFAULT_ICON_SIZE = 20;
+
 export const APP_MAX_WIDTH_IN_PX = 1600;
 
 export const NEXT_LOCALE_TOKEN_NAME = "NEXT_LOCALE";
@@ -16,6 +18,12 @@ export const PAGINATION_DEFAULT_RELATED_BOOKS_PER_PAGE = 12;
 
 export const PAGINATION_DEFAULT_BOOKS_PER_PAGE = 24;
 export const PAGINATION_UNLIMITED_BOOKS_PER_PAGE = 1000000;
+
+// ToDo: Adjust this value to a more appropriate one, for now it's just a placeholder
+export const PAGINATION_DEFAULT_CATEGORIES_TO_EXPLORE = 24;
+export const PAGINATION_DEFAULT_TAGS_TO_EXPLORE = 22;
+export const PAGINATION_DEFAULT_AUTHORS_TO_EXPLORE = 12;
+export const PAGINATION_DEFAULT_BOOKS_TO_EXPLORE = 6;
 
 export const FILTER_ACTIVATE_SEARCH_AFTER_DELAY_IN_MS = 1000;
 export const SHARE_BUTTON_ICON_CHANGE_DELAY_IN_MS = 3000;
@@ -49,4 +57,27 @@ export const DEFAULT_EXAMPLE_BOOK_FOR_SKELETON = {
     keywords: ["a", "b", "c"],
     tags: [{ tag: { id: 1, slug: "slug1", name: "tag" } }],
     authors: [{ author: { id: 1, slug: "slug1", name: "author", is_spirit: false } }]
+};
+
+export const DEFAULT_EXAMPLE_AUTHOR_FOR_SKELETON = {
+    id: 1,
+    slug: "slug",
+    name: "name",
+    description:
+        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
+    avatar_url: "https://...",
+    is_spirit: true,
+    _count: {
+        books: 10
+    }
+};
+export const DEFAULT_EXAMPLE_CATEGORY_FOR_SKELETON = {
+    id: 1,
+    slug: "slug",
+    name: "name",
+    description:
+        "Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável. Aqui uma descrição suuuper longa para que o skeleton fique visualmente mais agradável.",
+    _count: {
+        books: 10
+    }
 };
