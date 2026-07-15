@@ -6,10 +6,10 @@ import { AuthorCardProps } from "types";
 import { useRouter } from "next/navigation";
 import { SimpleButton, TextHighlight } from "components";
 import { authorCover } from "assets";
-import { LuBook, LuSparkles } from "react-icons/lu";
+import { LuSparkles, LuPen, LuStar } from "react-icons/lu";
 import { useTranslations } from "next-intl";
 
-const AuthorGridCard = (props: AuthorCardProps) => {
+const AuthorSimpleCard = (props: AuthorCardProps) => {
     const { author, search, isSeeMorePlaceHolder, isSeeMore } = props;
     const router = useRouter();
     const [isHovered, setIsHovered] = useState(false);
@@ -69,11 +69,10 @@ const AuthorGridCard = (props: AuthorCardProps) => {
                 <VStack align="start" gap="1">
                     <HStack justifyContent="space-between" width="100%">
                         <HStack alignItems="center" gap="1">
-                            <LuBook size="12" color="gray" />
+                            {author.is_spirit ? <LuStar size="12" color="gray" /> : <LuPen size="12" color="gray" />}
+
                             <Text fontSize="xs" color={{ base: "gray.600", _dark: "gray.400" }} lineClamp="1">
-                                {(author.volumes_count || 0) > 1
-                                    ? t("totalVolumes", { total: author.volumes_count || 0 })
-                                    : t("totalVolume")}
+                                {author.role ? author.role : author.is_spirit ? t("authorSpiritRole") : t("authorRole")}
                             </Text>
                         </HStack>
                         {author.is_spirit && (
@@ -126,4 +125,4 @@ const AuthorGridCard = (props: AuthorCardProps) => {
     );
 };
 
-export default memo(AuthorGridCard);
+export default memo(AuthorSimpleCard);

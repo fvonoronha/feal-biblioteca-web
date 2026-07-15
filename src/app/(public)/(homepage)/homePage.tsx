@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { listBooks, listAuthors, listTags, listPublishers, listCategories } from "endpoints";
-import { APIPaginatedResponse, Book, Author, Tag, Publisher, SortOption, Category } from "types";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { listVolumes, listAuthors, listTags, listPublishers, listCategories } from "endpoints";
+import { APIPaginatedResponse, Volume, Author, Tag, Publisher, SortOption, Category } from "types";
 import { useTranslations } from "next-intl";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
     Body,
-    BookGrid,
-    BookGridCard,
+    EntityGrid,
+    VolumeGridCard,
     SimpleIconButton,
     SimpleCheckBoxGroup,
     SortSelect,
@@ -38,14 +38,17 @@ import {
 
 import { LuSlidersHorizontal } from "react-icons/lu";
 import {
-    PAGINATION_DEFAULT_BOOKS_PER_PAGE,
-    PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
-    DEFAULT_EXAMPLE_BOOK_FOR_SKELETON,
+    PAGINATION_DEFAULT_VOLUMES_PER_PAGE,
+    PAGINATION_UNLIMITED_PER_PAGE,
+    DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON,
     QUERY_PARAMS_FOR_AUTHOR,
+    QUERY_PARAMS_FOR_SPIRIT_AUTHOR,
     QUERY_PARAMS_FOR_CATEGORY,
     QUERY_PARAMS_FOR_TAG,
     QUERY_PARAMS_FOR_SEARCH,
-    QUERY_PARAMS_FOR_PUBLISHER
+    QUERY_PARAMS_FOR_PUBLISHER,
+    DEFAULT_VOLUME_SORT_OPTION,
+    RELEVANCE_VOLUME_SORT_OPTION
 } from "utils";
 
 const RESET_BOOKS_PAGINATION = true;
@@ -56,71 +59,88 @@ export default function Collection() {
     const t = useTranslations("Collection");
 
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     const isMobile = useBreakpointValue({ base: true, md: false });
     const { open, onOpen, onClose } = useDisclosure();
-    const searchParams = useSearchParams();
-    const queryFromUrl = searchParams.get(QUERY_PARAMS_FOR_SEARCH) || "";
-    const categoryFromUrl = searchParams.get(QUERY_PARAMS_FOR_CATEGORY) || "";
-    const [forceCategoryFromUrl, setForceCategoryFromUrl] = useState(true);
-    const authorFromUrl = searchParams.get(QUERY_PARAMS_FOR_AUTHOR) || "";
-    const [forceAuthorFromUrl, setForceAuthorFromUrl] = useState(true);
-    const tagFromUrl = searchParams.get(QUERY_PARAMS_FOR_TAG) || "";
-    const [forceTagFromUrl, setForceTagFromUrl] = useState(true);
-    const publisherFromUrl = searchParams.get(QUERY_PARAMS_FOR_PUBLISHER) || "";
-    const [forcePublisherFromUrl, setForcePublisherFromUrl] = useState(true);
 
+    // Helper central para atualizar a URL
+    const updateUrlParams = (updates: Record<string, string | string[] | null>) => {
+        const current = new URLSearchParams(Array.from(searchParams.entries()));
+
+        Object.entries(updates).forEach(([key, values]) => {
+            if (
+                values === null ||
+                values === undefined ||
+                (Array.isArray(values) && values.length === 0) ||
+                values === ""
+            ) {
+                current.delete(key);
+            } else if (Array.isArray(values)) {
+                current.set(key, values.join(","));
+            } else {
+                current.set(key, values);
+            }
+        });
+
+        const searchString = current.toString();
+        const query = searchString ? `?${searchString}` : "";
+        router.push(`${pathname}${query}`, { scroll: false });
+    };
+
+    const search = searchParams.get(QUERY_PARAMS_FOR_SEARCH) || "";
+    const setSearch = (val: string) => updateUrlParams({ [QUERY_PARAMS_FOR_SEARCH]: val });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const categoriesSlugs = searchParams.get(QUERY_PARAMS_FOR_CATEGORY)?.split(",").filter(Boolean) || [];
+    const setCategoriesSlugs = (val: string[] | ((prev: string[]) => string[])) => {
+        updateUrlParams({ [QUERY_PARAMS_FOR_CATEGORY]: typeof val === "function" ? val(categoriesSlugs) : val });
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const tagsSlugs = searchParams.get(QUERY_PARAMS_FOR_TAG)?.split(",").filter(Boolean) || [];
+    const setTagsSlugs = (val: string[] | ((prev: string[]) => string[])) => {
+        updateUrlParams({ [QUERY_PARAMS_FOR_TAG]: typeof val === "function" ? val(tagsSlugs) : val });
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const authorsSlugs = searchParams.get(QUERY_PARAMS_FOR_AUTHOR)?.split(",").filter(Boolean) || [];
+    const setAuthorsSlugs = (val: string[] | ((prev: string[]) => string[])) => {
+        updateUrlParams({ [QUERY_PARAMS_FOR_AUTHOR]: typeof val === "function" ? val(authorsSlugs) : val });
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const spiritAuthorsSlugs = searchParams.get(QUERY_PARAMS_FOR_SPIRIT_AUTHOR)?.split(",").filter(Boolean) || [];
+    const setSpiritAuthorsSlugs = (val: string[] | ((prev: string[]) => string[])) => {
+        updateUrlParams({
+            [QUERY_PARAMS_FOR_SPIRIT_AUTHOR]: typeof val === "function" ? val(spiritAuthorsSlugs) : val
+        });
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const publishersSlugs = searchParams.get(QUERY_PARAMS_FOR_PUBLISHER)?.split(",").filter(Boolean) || [];
+    const setPublishersSlugs = (val: string[] | ((prev: string[]) => string[])) => {
+        updateUrlParams({ [QUERY_PARAMS_FOR_PUBLISHER]: typeof val === "function" ? val(publishersSlugs) : val });
+    };
+
+    // STATES ORIGINAIS MANTIDOS PARA O LAYOUT/PAGINAÇÃO
     const pageRef = useRef(1);
     const [hasNext, setHasNext] = useState(true);
-    const loadMoreBooksRef = useRef<HTMLDivElement | null>(null);
+    const loadMoreVolumesRef = useRef<HTMLDivElement | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
-    const [isBooksLoadingFirstFilter, setIsBooksLoadingFirstFilter] = useState(true);
-    const [isBooksLoadingFirstTime, setIsBooksLoadingFirstTime] = useState(true);
-    const [isBooksLoading, setIsBooksLoading] = useState(true);
-    const [isBooksLoadFailed, setIsBooksLoadFailed] = useState(false);
-    const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
-        elements: [
-            // Isso aqui deveria ser uma função de algum service específico pra Mocker Data.
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
+    const [isVolumesLoadingFirstFilter, setIsVolumesLoadingFirstFilter] = useState(true);
+    const [isVolumesLoadingFirstTime, setIsVolumesLoadingFirstTime] = useState(true);
+    const [isVolumesLoading, setIsVolumesLoading] = useState(true);
+    const [isVolumesLoadingFailed, setIsVolumesLoadingFailed] = useState(false);
 
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
-        ],
+    const [volumes, setVolumes] = useState<APIPaginatedResponse<Volume>>({
+        elements: Array.from({ length: 29 }, () => ({ ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() })),
         pagination: {
             page: 1,
-            limit: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
-            total_elements: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
+            limit: PAGINATION_DEFAULT_VOLUMES_PER_PAGE,
+            total_elements: PAGINATION_DEFAULT_VOLUMES_PER_PAGE,
             total_pages: 0,
             has_next: false,
             has_previous: false
@@ -131,109 +151,129 @@ export default function Collection() {
     const [isAuthorsLoadFailed, setIsAuthorsLoadFailed] = useState(false);
     const [filterAuthors, setFilterAuthors] = useState<APIPaginatedResponse<Author>>({
         elements: [],
-        pagination: {
-            page: 1,
-            limit: 10,
-            total_elements: 0,
-            total_pages: 0,
-            has_next: false,
-            has_previous: false
-        }
+        pagination: { page: 1, limit: 10, total_elements: 0, total_pages: 0, has_next: false, has_previous: false }
     });
 
     const [, setIsTagsLoading] = useState(false);
     const [isTagsLoadFailed, setIsTagsLoadFailed] = useState(false);
     const [filterTags, setFilterTags] = useState<APIPaginatedResponse<Tag>>({
         elements: [],
-        pagination: {
-            page: 1,
-            limit: 10,
-            total_elements: 0,
-            total_pages: 0,
-            has_next: false,
-            has_previous: false
-        }
+        pagination: { page: 1, limit: 10, total_elements: 0, total_pages: 0, has_next: false, has_previous: false }
     });
 
     const [, setIsCategoriesLoading] = useState(false);
     const [isCategoriesLoadFailed, setIsCategoriesLoadFailed] = useState(false);
     const [filterCategories, setFilterCategories] = useState<APIPaginatedResponse<Category>>({
         elements: [],
-        pagination: {
-            page: 1,
-            limit: 10,
-            total_elements: 0,
-            total_pages: 0,
-            has_next: false,
-            has_previous: false
-        }
+        pagination: { page: 1, limit: 10, total_elements: 0, total_pages: 0, has_next: false, has_previous: false }
     });
 
     const [, setIsPublishersLoading] = useState(false);
     const [isPublishersLoadFailed, setIsPublishersLoadFailed] = useState(false);
     const [filterPublishers, setFilterPublishers] = useState<APIPaginatedResponse<Publisher>>({
         elements: [],
-        pagination: {
-            page: 1,
-            limit: 10,
-            total_elements: 0,
-            total_pages: 0,
-            has_next: false,
-            has_previous: false
-        }
+        pagination: { page: 1, limit: 10, total_elements: 0, total_pages: 0, has_next: false, has_previous: false }
     });
 
-    const [search, setSearch] = useState("");
-    const [sort, setSort] = useState<SortOption>({
-        value: "sortByLabelDesc",
-        label: "sortByLabelDesc",
-        field: "label",
-        direction: "desc"
-    });
+    const [sort, setSort] = useState<SortOption>(DEFAULT_VOLUME_SORT_OPTION);
 
-    const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
-    const [selectedSpiritAuthors, setSelectedSpiritAuthors] = useState<string[]>([]);
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedPublishers, setSelectedPublishers] = useState<string[]>([]);
+    // 2. TRADUÇÃO DE SLUGS PARA IDs PARA A API
+    // Isso garante que se a URL tem `?category=espiritismo`, a API vai receber `{ category_id: ['123'] }`
+    const categoryIds = useMemo(
+        () =>
+            categoriesSlugs
+                .map((slug) => filterCategories.elements.find((c) => c.slug === slug)?.id.toString())
+                .filter(Boolean) as string[],
+        [categoriesSlugs, filterCategories.elements]
+    );
+    const publishersIds = useMemo(
+        () =>
+            publishersSlugs
+                .map((slug) => filterPublishers.elements.find((p) => p.slug === slug)?.id.toString())
+                .filter(Boolean) as string[],
+        [publishersSlugs, filterPublishers.elements]
+    );
+    const tagIds = useMemo(
+        () =>
+            tagsSlugs
+                .map((slug) => filterTags.elements.find((t) => t.slug === slug)?.id.toString())
+                .filter(Boolean) as string[],
+        [tagsSlugs, filterTags.elements]
+    );
+    const authorIds = useMemo(
+        () =>
+            authorsSlugs
+                .map((slug) => filterAuthors.elements.find((a) => a.slug === slug)?.id.toString())
+                .filter(Boolean) as string[],
+        [authorsSlugs, filterAuthors.elements]
+    );
+    const spiritAuthorIds = useMemo(
+        () =>
+            spiritAuthorsSlugs
+                .map((slug) => filterAuthors.elements.find((a) => a.slug === slug)?.id.toString())
+                .filter(Boolean) as string[],
+        [spiritAuthorsSlugs, filterAuthors.elements]
+    );
 
     const getCombinedFilters = () => {
         return {
             search: search,
-            authors: [...selectedAuthors, ...selectedSpiritAuthors],
-            publishers: selectedPublishers,
-            tags: selectedTags,
-            category_id: selectedCategories
+            author: [...authorIds, ...spiritAuthorIds],
+            publisher: publishersIds,
+            tag: tagIds,
+            category: categoryIds
         };
     };
 
-    const loadBooks = async (reset: boolean = false) => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-        }
+    // 3. SEPARAÇÃO INTELIGENTE DE AUTORES (Tratamento de URL legada)
+    // Se entrar um link antigo com um autor espiritual na chave comum de autores, movemos para a chave correta
+    useEffect(() => {
+        if (filterAuthors.elements.length === 0) return;
+        let needsUrlUpdate = false;
+        const newAuthorSlugs = [...authorsSlugs];
+        const newSpiritAuthorSlugs = [...spiritAuthorsSlugs];
 
+        authorsSlugs.forEach((slug) => {
+            const author = filterAuthors.elements.find((a) => a.slug === slug);
+            if (author && author.is_spirit) {
+                newAuthorSlugs.splice(newAuthorSlugs.indexOf(slug), 1);
+                if (!newSpiritAuthorSlugs.includes(slug)) newSpiritAuthorSlugs.push(slug);
+                needsUrlUpdate = true;
+            }
+        });
+
+        if (needsUrlUpdate) {
+            updateUrlParams({ [QUERY_PARAMS_FOR_AUTHOR]: newAuthorSlugs, spirit_author: newSpiritAuthorSlugs });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filterAuthors.elements, authorsSlugs, spiritAuthorsSlugs]);
+
+    const loadVolumes = async (reset: boolean = false) => {
+        if (abortControllerRef.current) abortControllerRef.current.abort();
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
-        setIsBooksLoading(true);
-        setIsBooksLoadFailed(false);
+        setIsVolumesLoading(true);
+        setIsVolumesLoadingFailed(false);
 
         try {
-            if (reset) {
-                pageRef.current = 1;
+            if (reset) pageRef.current = 1;
+
+            if (search.trim() !== "") {
+                setSort(RELEVANCE_VOLUME_SORT_OPTION);
             }
 
             const pagination = {
-                limit: PAGINATION_DEFAULT_BOOKS_PER_PAGE,
+                limit: PAGINATION_DEFAULT_VOLUMES_PER_PAGE,
                 page: pageRef.current,
-                orderBy: {
-                    [sort.field]: sort.direction
-                }
+                sort: [
+                    { by: sort.field, order: sort.direction },
+                    { by: DEFAULT_VOLUME_SORT_OPTION.field, order: DEFAULT_VOLUME_SORT_OPTION.direction }
+                ]
             };
+            const response = await listVolumes(getCombinedFilters(), pagination, { signal: controller.signal });
 
-            const response = await listBooks(getCombinedFilters(), pagination, { signal: controller.signal });
-
-            setBooks((prev) => ({
+            setVolumes((prev) => ({
                 elements: reset ? response.elements : [...prev.elements, ...response.elements],
                 pagination: response.pagination
             }));
@@ -243,30 +283,23 @@ export default function Collection() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             if (err.name === "CanceledError" || err.name === "AbortError") return;
-            setIsBooksLoadFailed(true);
+            setIsVolumesLoadingFailed(true);
         } finally {
             if (abortControllerRef.current === controller) {
-                setIsBooksLoading(false);
-                setIsBooksLoadingFirstTime(false);
-                setIsBooksLoadingFirstFilter(false);
+                setIsVolumesLoading(false);
+                setIsVolumesLoadingFirstTime(false);
+                setIsVolumesLoadingFirstFilter(false);
             }
         }
     };
 
     const loadAuthors = async () => {
         setIsAuthorsLoading(true);
-        setIsAuthorsLoadFailed(false);
-
         try {
-            const filter = getCombinedFilters();
-
-            const pagination = {
-                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
+            const objs = await listAuthors(getCombinedFilters(), {
+                limit: PAGINATION_UNLIMITED_PER_PAGE,
                 page: 1
-            };
-
-            const objs = await listAuthors(filter, pagination);
-
+            });
             setFilterAuthors(objs || { elements: [], totalElements: 0 });
         } catch {
             setIsAuthorsLoadFailed(true);
@@ -277,17 +310,8 @@ export default function Collection() {
 
     const loadTags = async () => {
         setIsTagsLoading(true);
-        setIsTagsLoadFailed(false);
-
         try {
-            const filter = getCombinedFilters();
-
-            const pagination = {
-                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
-                page: 1
-            };
-
-            const objs = await listTags(filter, pagination);
+            const objs = await listTags(getCombinedFilters(), { limit: PAGINATION_UNLIMITED_PER_PAGE, page: 1 });
             setFilterTags(objs || { elements: [], totalElements: 0 });
         } catch {
             setIsTagsLoadFailed(true);
@@ -298,17 +322,11 @@ export default function Collection() {
 
     const loadCategories = async () => {
         setIsCategoriesLoading(true);
-        setIsCategoriesLoadFailed(false);
-
         try {
-            const filter = getCombinedFilters();
-
-            const pagination = {
-                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
+            const objs = await listCategories(getCombinedFilters(), {
+                limit: PAGINATION_UNLIMITED_PER_PAGE,
                 page: 1
-            };
-
-            const objs = await listCategories(filter, pagination);
+            });
             setFilterCategories(objs || { elements: [], totalElements: 0 });
         } catch {
             setIsCategoriesLoadFailed(true);
@@ -319,17 +337,11 @@ export default function Collection() {
 
     const loadPublishers = async () => {
         setIsPublishersLoading(true);
-        setIsPublishersLoadFailed(false);
-
         try {
-            const filter = getCombinedFilters();
-
-            const pagination = {
-                limit: PAGINATION_UNLIMITED_BOOKS_PER_PAGE,
+            const objs = await listPublishers(getCombinedFilters(), {
+                limit: PAGINATION_UNLIMITED_PER_PAGE,
                 page: 1
-            };
-
-            const objs = await listPublishers(filter, pagination);
+            });
             setFilterPublishers(objs || { elements: [], totalElements: 0 });
         } catch {
             setIsPublishersLoadFailed(true);
@@ -339,9 +351,8 @@ export default function Collection() {
     };
 
     const changedFilters = async () => {
-        setIsBooksLoadingFirstFilter(true);
-
-        loadBooks(RESET_BOOKS_PAGINATION);
+        setIsVolumesLoadingFirstFilter(true);
+        loadVolumes(RESET_BOOKS_PAGINATION);
         loadAuthors();
         loadTags();
         loadCategories();
@@ -349,102 +360,48 @@ export default function Collection() {
     };
 
     const clearFilters = async () => {
-        router.push("/");
-        setIsBooksLoadingFirstTime(true);
-        setSelectedAuthors([]);
-        setSelectedSpiritAuthors([]);
-        setSelectedTags([]);
-        setSelectedCategories([]);
-        setSelectedPublishers([]);
-        setSearch("");
+        router.push(pathname, { scroll: false });
+        setIsVolumesLoadingFirstTime(true);
     };
 
+    // Observa os IDs já traduzidos para garantir que as buscas ocorram na ordem certa
     useEffect(() => {
         changedFilters();
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedAuthors, selectedSpiritAuthors, selectedTags, selectedCategories, selectedPublishers, sort, search]);
+    }, [
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        categoryIds.join(","),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        tagIds.join(","),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        authorIds.join(","),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        spiritAuthorIds.join(","),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        publishersIds.join(","),
+        sort.value,
+        search
+    ]);
 
     useEffect(() => {
-        const el = loadMoreBooksRef.current;
-
+        const el = loadMoreVolumesRef.current;
         if (!el) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                const entry = entries[0];
-
-                if (entry.isIntersecting && hasNext && !isBooksLoading) {
-                    loadBooks();
+                if (entries[0].isIntersecting && hasNext && !isVolumesLoading) {
+                    loadVolumes();
                 }
             },
             { rootMargin: `${INTERSECTION_ROOT_MARGIN_IN_PX}px` }
         );
 
         observer.observe(el);
-
         return () => observer.disconnect();
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hasNext, isBooksLoading]);
+    }, [hasNext, isVolumesLoading]);
 
-    useEffect(() => {
-        setSearch(queryFromUrl);
-    }, [queryFromUrl]);
-
-    useEffect(() => {
-        if (forceCategoryFromUrl) {
-            const validcategoryFromUrl = filterCategories.elements.find(
-                (category) => category.slug === categoryFromUrl
-            );
-            if (validcategoryFromUrl) {
-                setSelectedCategories([validcategoryFromUrl.id.toString()]);
-                setForceCategoryFromUrl(false);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterCategories]);
-
-    useEffect(() => {
-        if (forceTagFromUrl) {
-            const validtagFromUrl = filterTags.elements.find((tag) => tag.slug === tagFromUrl);
-            if (validtagFromUrl) {
-                setSelectedTags([validtagFromUrl.id.toString()]);
-                setForceTagFromUrl(false);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterTags]);
-
-    useEffect(() => {
-        if (forceAuthorFromUrl) {
-            const validauthorFromUrl = filterAuthors.elements.find((author) => author.slug === authorFromUrl);
-            if (validauthorFromUrl) {
-                if (validauthorFromUrl.is_spirit) {
-                    setSelectedSpiritAuthors([validauthorFromUrl.id.toString()]);
-                } else {
-                    setSelectedAuthors([validauthorFromUrl.id.toString()]);
-                }
-                setForceAuthorFromUrl(false);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterAuthors]);
-
-    useEffect(() => {
-        if (forcePublisherFromUrl) {
-            const validpublisherFromUrl = filterPublishers.elements.find(
-                (publisher) => publisher.name === publisherFromUrl
-            );
-            if (validpublisherFromUrl) {
-                setSelectedPublishers([validpublisherFromUrl.name]);
-                setForcePublisherFromUrl(false);
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filterPublishers]);
-
-    // ToDo: Componentizar esses pedaços de layout
+    // RENDERIZAÇÃO DOS BADGES
     const activeFiltersBadges = (
         <Wrap>
             {search !== "" && (
@@ -452,96 +409,74 @@ export default function Collection() {
                     <ActiveFilterBadge
                         label={`${t("search")}: ${search}`}
                         value={search}
-                        cancelFilter={() => {
-                            setSearch("");
-                        }}
+                        cancelFilter={() => setSearch("")}
                     />
                 </WrapItem>
             )}
 
+            {/* Agora filtramos usando o Slug para exibir as badges ativas */}
             {filterCategories.elements
-                .filter((category) => selectedCategories.includes(`${category.id}`))
-                .map((category) => {
-                    return (
-                        <WrapItem key={`category#${category.id}`}>
-                            <ActiveFilterBadge
-                                key={`category#${category.id}`}
-                                label={`${t("category")}: ${category.name}`}
-                                value={`${category.id}`}
-                                cancelFilter={(value) => {
-                                    setSelectedCategories(selectedCategories.filter((id) => id != value));
-                                }}
-                            />
-                        </WrapItem>
-                    );
-                })}
+                .filter((c) => categoriesSlugs.includes(c.slug))
+                .map((category) => (
+                    <WrapItem key={`category#${category.id}`}>
+                        <ActiveFilterBadge
+                            label={`${t("category")}: ${category.name}`}
+                            value={category.slug}
+                            cancelFilter={(val) => setCategoriesSlugs(categoriesSlugs.filter((s) => s !== val))}
+                        />
+                    </WrapItem>
+                ))}
 
             {filterAuthors.elements
-                .filter(
-                    (author) =>
-                        selectedAuthors.includes(`${author.id}`) || selectedSpiritAuthors.includes(`${author.id}`)
-                )
-                .map((author) => {
-                    return (
-                        <WrapItem key={`author#${author.id}`}>
-                            <ActiveFilterBadge
-                                label={`${t("author")}: ${author.name}`}
-                                value={`${author.id}`}
-                                cancelFilter={(value) => {
-                                    setSelectedAuthors(selectedAuthors.filter((id) => id != value));
-                                    setSelectedSpiritAuthors(selectedSpiritAuthors.filter((id) => id != value));
-                                }}
-                            />
-                        </WrapItem>
-                    );
-                })}
+                .filter((a) => authorsSlugs.includes(a.slug) || spiritAuthorsSlugs.includes(a.slug))
+                .map((author) => (
+                    <WrapItem key={`author#${author.id}`}>
+                        <ActiveFilterBadge
+                            label={`${t("author")}: ${author.name}`}
+                            value={author.slug}
+                            cancelFilter={(val) => {
+                                setAuthorsSlugs(authorsSlugs.filter((s) => s !== val));
+                                setSpiritAuthorsSlugs(spiritAuthorsSlugs.filter((s) => s !== val));
+                            }}
+                        />
+                    </WrapItem>
+                ))}
 
             {filterTags.elements
-                .filter((tag) => selectedTags.includes(`${tag.id}`))
-                .map((tag) => {
-                    return (
-                        <WrapItem key={`tag#${tag.id}`}>
-                            <ActiveFilterBadge
-                                key={`tag#${tag.id}`}
-                                label={`${t("tag")}: ${tag.name}`}
-                                value={`${tag.id}`}
-                                cancelFilter={(value) => {
-                                    setSelectedTags(selectedTags.filter((id) => id != value));
-                                }}
-                            />
-                        </WrapItem>
-                    );
-                })}
+                .filter((t) => tagsSlugs.includes(t.slug))
+                .map((tag) => (
+                    <WrapItem key={`tag#${tag.id}`}>
+                        <ActiveFilterBadge
+                            label={`${t("tag")}: ${tag.name}`}
+                            value={tag.slug}
+                            cancelFilter={(val) => setTagsSlugs(tagsSlugs.filter((s) => s !== val))}
+                        />
+                    </WrapItem>
+                ))}
 
             {filterPublishers.elements
-                .filter((publisher) => selectedPublishers.includes(publisher.name))
-                .map((publisher) => {
-                    return (
-                        <WrapItem key={`publisher#${publisher.name}`}>
-                            <ActiveFilterBadge
-                                key={`publisher#${publisher.name}`}
-                                label={`${t("publisher")}: ${publisher.name}`}
-                                value={publisher.name}
-                                cancelFilter={(value) => {
-                                    setSelectedPublishers(selectedPublishers.filter((name) => name != value));
-                                }}
-                            />
-                        </WrapItem>
-                    );
-                })}
+                .filter((p) => publishersSlugs.includes(p.slug))
+                .map((publisher) => (
+                    <WrapItem key={`publisher#${publisher.name}`}>
+                        <ActiveFilterBadge
+                            label={`${t("publisher")}: ${publisher.abbreviation ? publisher.abbreviation : publisher.name}`}
+                            value={publisher.name}
+                            cancelFilter={(val) => setPublishersSlugs(publishersSlugs.filter((n) => n !== val))}
+                        />
+                    </WrapItem>
+                ))}
         </Wrap>
     );
 
     const clearFiltersContent = (search !== "" ||
-        selectedCategories.length > 0 ||
-        selectedAuthors.length > 0 ||
-        selectedSpiritAuthors.length > 0 ||
-        selectedTags.length > 0 ||
-        selectedPublishers.length > 0) && <GhostButton onClick={clearFilters}>{t("removeFilters")}</GhostButton>;
+        categoriesSlugs.length > 0 ||
+        authorsSlugs.length > 0 ||
+        spiritAuthorsSlugs.length > 0 ||
+        tagsSlugs.length > 0 ||
+        publishersSlugs.length > 0) && <GhostButton onClick={clearFilters}>{t("removeFilters")}</GhostButton>;
 
-    // componentizar esse pedaço de layout
     const filtersContent = (
-        <Skeleton loading={isBooksLoadingFirstTime}>
+        <Skeleton loading={isVolumesLoadingFirstTime}>
             <VStack align="start" w="100%">
                 <HStack w="100%">
                     <Heading fontSize={"xl"}>{t("filter")}</Heading>
@@ -553,27 +488,28 @@ export default function Collection() {
 
                 {isMobile && <SortSelect label={t("sortBy")} labelPosition="top" value={sort} onChange={setSort} />}
 
+                {/* Mudança chave: values agora recebem o array de slugs, e 'value' nas options é a.slug */}
                 <SimpleCheckBoxGroup
                     maxElementsBeforeCollapse={CATEGORY_FILTERS_MAX_ELEMENTS_BEFORE_COLLAPSE}
                     label={t("category")}
                     hide={isCategoriesLoadFailed}
-                    options={filterCategories.elements.map((a) => ({
-                        label: `${a.name} (${a._count?.books || "0"})`,
-                        value: `${a.id}`
+                    options={filterCategories.elements.map((category) => ({
+                        label: `${category.name} (${category.volumes_count || "0"})`,
+                        value: category.slug
                     }))}
-                    values={selectedCategories}
-                    setValues={setSelectedCategories}
+                    values={categoriesSlugs}
+                    setValues={setCategoriesSlugs}
                 />
 
                 <SimpleCheckBoxGroup
                     label={t("tag")}
                     hide={isTagsLoadFailed}
-                    options={filterTags.elements.map((a) => ({
-                        label: `${a.name} (${a._count?.books || "0"})`,
-                        value: `${a.id}`
+                    options={filterTags.elements.map((tag) => ({
+                        label: `${tag.name} (${tag.volumes_count || "0"})`,
+                        value: tag.slug
                     }))}
-                    values={selectedTags}
-                    setValues={setSelectedTags}
+                    values={tagsSlugs}
+                    setValues={setTagsSlugs}
                 />
 
                 <SimpleCheckBoxGroup
@@ -581,37 +517,37 @@ export default function Collection() {
                     isLoading={isAuthorsLoading}
                     hide={isAuthorsLoadFailed}
                     options={filterAuthors.elements
-                        .filter((a) => !a.is_spirit)
-                        .map((a) => ({
-                            label: `${a.name} (${a._count?.books || "0"})`,
-                            value: `${a.id}`
+                        .filter((author) => !author.is_spirit)
+                        .map((author) => ({
+                            label: `${author.name} (${author.volumes_count || "0"})`,
+                            value: author.slug
                         }))}
-                    values={selectedAuthors}
-                    setValues={setSelectedAuthors}
+                    values={authorsSlugs}
+                    setValues={setAuthorsSlugs}
                 />
 
                 <SimpleCheckBoxGroup
                     label={t("spiritAuthor")}
                     hide={isAuthorsLoadFailed}
                     options={filterAuthors.elements
-                        .filter((a) => a.is_spirit)
-                        .map((a) => ({
-                            label: `${a.name} (${a._count?.books || "0"})`,
-                            value: `${a.id}`
+                        .filter((author) => author.is_spirit)
+                        .map((author) => ({
+                            label: `${author.name} (${author.volumes_count || "0"})`,
+                            value: author.slug
                         }))}
-                    values={selectedSpiritAuthors}
-                    setValues={setSelectedSpiritAuthors}
+                    values={spiritAuthorsSlugs}
+                    setValues={setSpiritAuthorsSlugs}
                 />
 
                 <SimpleCheckBoxGroup
                     label={t("publisher")}
                     hide={isPublishersLoadFailed}
-                    options={filterPublishers.elements.map((a) => ({
-                        label: `${a.name} (${a._count.books})`,
-                        value: `${a.name}`
+                    options={filterPublishers.elements.map((publisher) => ({
+                        label: `${publisher.abbreviation ? publisher.abbreviation : publisher.name} (${publisher.volumes_count || "0"})`,
+                        value: publisher.slug
                     }))}
-                    values={selectedPublishers}
-                    setValues={setSelectedPublishers}
+                    values={publishersSlugs}
+                    setValues={setPublishersSlugs}
                 />
             </VStack>
         </Skeleton>
@@ -622,7 +558,6 @@ export default function Collection() {
             <Body>
                 <VStack pb={"24px"}>
                     <PageHeading header={t("title")} description={t("description")} />
-                    {/* <PageHeading header={t("title")} description={t("description")} /> */}
                 </VStack>
 
                 {isMobile && (
@@ -632,21 +567,18 @@ export default function Collection() {
                                 <LuSlidersHorizontal />
                             </SimpleIconButton>
                             <Text>{t("filterAndSort")}</Text>
-
                             <Spacer />
-
                             <Text>
-                                {books.elements.length > 0 &&
-                                    t("showingXFromYBooks", {
-                                        count: books.elements.length,
-                                        total: books.pagination.total_elements
+                                {volumes.elements.length > 0 &&
+                                    t("showingXFromYVolumes", {
+                                        count: volumes.elements.length,
+                                        total: volumes.pagination.total_elements
                                     })}
                             </Text>
                         </HStack>
 
                         <HStack>
                             {activeFiltersBadges}
-
                             {clearFiltersContent}
                         </HStack>
 
@@ -679,18 +611,14 @@ export default function Collection() {
                                 align={{ base: "center", md: "center" }}
                                 gap="6"
                             >
-                                <Skeleton loading={isBooksLoading}>
+                                <Skeleton loading={isVolumesLoading}>
                                     <Text>
-                                        {books.elements.length > 0 &&
-                                            t("showingXFromYBooks", {
-                                                total: books.pagination.total_elements
-                                            })}
+                                        {volumes.elements.length > 0 &&
+                                            t("showingXFromYVolumes", { total: volumes.pagination.total_elements })}
                                     </Text>
                                 </Skeleton>
                                 <Spacer flex={1} />
-
-                                <Skeleton loading={isBooksLoadingFirstTime}>
-                                    {/* Todo: Eu não gosto de colocar tamanho fixo em nada, mas por hora vai ficar assim mesmo */}
+                                <Skeleton loading={isVolumesLoadingFirstTime}>
                                     <HStack minW="230px">
                                         <SortSelect
                                             label={`${t("sortBy")}:`}
@@ -703,46 +631,38 @@ export default function Collection() {
                             </Flex>
                         )}
 
-                        {books.elements.length == 0 && !isBooksLoading && !isBooksLoadingFirstTime ? (
+                        {volumes.elements.length == 0 && !isVolumesLoading && !isVolumesLoadingFirstTime ? (
                             <VStack align={"center"}>
                                 <HStack align={"center"} pt="50px">
                                     <VStack align={"center"}>
                                         <Image w="300px" src={LoadingIcons.empty.src} alt={t("somethingIsWrong")} />
-                                        <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
-                                        <SimpleButton
-                                            // ToDO: Remover isso daqui. Não deve ser responsabilidade do componente recarregar a página.
-                                            /// Essa é apenas uma solução temporária e preguiçosa
-                                            onClick={clearFilters}
-                                        >
-                                            {t("removeFilters")}
-                                        </SimpleButton>
+                                        <Heading textAlign={"center"}>{t("nothingFound")}</Heading>
+                                        <SimpleButton onClick={clearFilters}>{t("removeFilters")}</SimpleButton>
                                     </VStack>
                                 </HStack>
                             </VStack>
                         ) : (
-                            <BookGrid
+                            <EntityGrid
                                 pl={4}
                                 variant="grid"
-                                loadingFailed={isBooksLoadFailed}
-                                isLoadingMore={isBooksLoading}
-                                isEmpty={books.elements.length == 0}
+                                loadingFailed={isVolumesLoadingFailed}
+                                isLoadingMore={isVolumesLoading}
+                                isEmpty={volumes.elements.length == 0}
                                 eWidth={"180px"}
                                 pt={2}
                             >
-                                {books.elements.map((obj: Book) => {
-                                    return (
-                                        <Skeleton
-                                            key={`bookCard#${obj.id}`}
-                                            loading={isBooksLoadingFirstTime || isBooksLoadingFirstFilter}
-                                        >
-                                            <BookGridCard book={obj} />
-                                        </Skeleton>
-                                    );
-                                })}
-                            </BookGrid>
+                                {volumes.elements.map((obj: Volume) => (
+                                    <Skeleton
+                                        key={`volumeCard#${obj.id}`}
+                                        loading={isVolumesLoadingFirstTime || isVolumesLoadingFirstFilter}
+                                    >
+                                        <VolumeGridCard volume={obj} search={search} />
+                                    </Skeleton>
+                                ))}
+                            </EntityGrid>
                         )}
 
-                        <Box ref={loadMoreBooksRef} h="40px" />
+                        <Box ref={loadMoreVolumesRef} h="40px" />
                     </Box>
                 </HStack>
             </Body>

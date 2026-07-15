@@ -13,3 +13,4 @@ export * from "./Input";
 export * from "./Textarea";
 export * from "./Select";
 export * from "./CheckBox";
+export * from "./Highlight";

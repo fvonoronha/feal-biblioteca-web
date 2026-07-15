@@ -9,6 +9,12 @@ export type SortOption = {
 export function SORT_OPTIONS() {
     const SORT_OPTIONS: SortOption[] = [
         {
+            value: "sortByQuery",
+            label: "sortByQuery",
+            field: "search_score",
+            direction: "desc"
+        },
+        {
             value: "sortByTitleAsc",
             label: "sortByTitleAsc",
             field: "title",
@@ -32,18 +38,18 @@ export function SORT_OPTIONS() {
             field: "label",
             direction: "asc"
         },
-        {
-            value: "sortByCreationDesc",
-            label: "sortByCreationDesc",
-            field: "id",
-            direction: "desc"
-        },
-        {
-            value: "sortByCreationAsc",
-            label: "sortByCreationAsc",
-            field: "id",
-            direction: "asc"
-        },
+        // {
+        //     value: "sortByCreationDesc",
+        //     label: "sortByCreationDesc",
+        //     field: "id",
+        //     direction: "desc"
+        // },
+        // {
+        //     value: "sortByCreationAsc",
+        //     label: "sortByCreationAsc",
+        //     field: "id",
+        //     direction: "asc"
+        // },
 
         {
             value: "sortByPublishingDateDesc",

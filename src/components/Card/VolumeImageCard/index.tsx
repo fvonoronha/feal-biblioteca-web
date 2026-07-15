@@ -4,16 +4,16 @@ import { memo, useState, useRef, useEffect } from "react";
 import { Image, Box, VStack, HStack } from "@chakra-ui/react";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import { LabelBadge } from "components";
-import { BookCardProps } from "types";
+import { VolumeCardProps } from "types";
 import { bookCover } from "assets";
 
-const BookImageCard = (props: BookCardProps) => {
-    const { book } = props;
+const VolumeImageCard = (props: VolumeCardProps) => {
+    const { volume } = props;
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const HOVER_SCALE_FACTOR = "2.2";
 
-    const allImages = [book.cover_url, ...(book.images_url || [])].filter(Boolean);
+    const allImages = [volume.cover_url, ...(volume.images_url || [])].filter(Boolean);
     const images = allImages.length > 0 ? allImages : [bookCover.default.src];
 
     const [mainImage, setMainImage] = useState(images[0]);
@@ -24,7 +24,7 @@ const BookImageCard = (props: BookCardProps) => {
         setMainImage(images[0]);
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [book.cover_url, book.images_url]);
+    }, [volume.cover_url, volume.images_url]);
 
     const currentIndex = images.indexOf(mainImage);
 
@@ -75,7 +75,7 @@ const BookImageCard = (props: BookCardProps) => {
             >
                 <Image
                     src={mainImage}
-                    alt={book.title}
+                    alt={volume.book?.title}
                     objectFit="cover"
                     w="100%"
                     h="100%"
@@ -84,9 +84,9 @@ const BookImageCard = (props: BookCardProps) => {
                     transformOrigin={`${zoomPos.x} ${zoomPos.y}`}
                 />
 
-                {book.label && !isHovering && (
+                {volume.label && !isHovering && (
                     <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
-                        <LabelBadge label={book.label} size={"lg"} />
+                        <LabelBadge label={volume.label} size={"lg"} />
                     </Box>
                 )}
             </Box>
@@ -131,7 +131,7 @@ const BookImageCard = (props: BookCardProps) => {
                                 transition="all .2s"
                                 _hover={{ transform: "translateY(-4px)" }}
                             >
-                                <Image alt={book.title} src={img} w="100%" h="100%" objectFit="cover" />
+                                <Image alt={volume.book?.title} src={img} w="100%" h="100%" objectFit="cover" />
                             </Box>
                         ))}
                     </HStack>
@@ -152,4 +152,4 @@ const BookImageCard = (props: BookCardProps) => {
     );
 };
 
-export default memo(BookImageCard);
+export default memo(VolumeImageCard);

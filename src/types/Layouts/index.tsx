@@ -9,6 +9,15 @@ export interface BookGridProps extends GridProps {
     eWidth: string;
 }
 
+export interface EntityGridProps extends GridProps {
+    isLoading?: boolean;
+    isLoadingMore?: boolean;
+    isEmpty?: boolean;
+    loadingFailed: boolean;
+    eWidth: string;
+    variant?: "grid" | "scroll";
+}
+
 export interface NavBarProps extends FlexProps {
     decoyProp?: string;
 }

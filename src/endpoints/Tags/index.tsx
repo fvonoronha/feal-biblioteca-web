@@ -7,7 +7,7 @@ export const listTags = async (
 ): Promise<APIPaginatedResponse<Tag>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/public/tags`,
+        url: `tags`,
         data: { filter: filter, pagination: pagination }
     });
 
@@ -32,7 +32,7 @@ export const listTagsToExplore = async (
 ): Promise<APIPaginatedResponse<Tag>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/public/explore-tags`,
+        url: `/tags-to-explore`,
         data: { filter: filter, pagination: pagination }
     });
 

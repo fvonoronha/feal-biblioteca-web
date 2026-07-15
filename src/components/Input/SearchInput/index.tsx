@@ -19,21 +19,26 @@ import {
 import { LuSearch } from "react-icons/lu";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { SimpleButton, BookGridCard } from "components";
-import { listCategoriesToExplore, listAuthorsToExplore, listTagsToExplore, listBooks, listAuthors } from "endpoints";
-import { APIPaginatedResponse, Category, Author, Tag, Book } from "types";
+import { SimpleButton, VolumeGridCard } from "components";
+import { listCategoriesToExplore, listAuthorsToExplore, listTagsToExplore, listVolumes, listAuthors } from "endpoints";
+import { APIPaginatedResponse, Category, Author, Tag, Volume } from "types";
 import {
     TOP_BAR_DEFAULT_ICON_SIZE,
     QUERY_PARAMS_FOR_SEARCH,
     PAGINATION_DEFAULT_CATEGORIES_TO_EXPLORE,
     PAGINATION_DEFAULT_TAGS_TO_EXPLORE,
     PAGINATION_DEFAULT_AUTHORS_TO_EXPLORE,
-    PAGINATION_DEFAULT_BOOKS_TO_EXPLORE,
+    PAGINATION_DEFAULT_VOLUMES_TO_EXPLORE,
     DEFAULT_EXAMPLE_AUTHOR_FOR_SKELETON,
     DEFAULT_EXAMPLE_CATEGORY_FOR_SKELETON,
-    DEFAULT_EXAMPLE_BOOK_FOR_SKELETON
+    DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON,
+    QUERY_PARAMS_FOR_AUTHOR,
+    QUERY_PARAMS_FOR_CATEGORY,
+    // QUERY_PARAMS_FOR_PUBLISHER,
+    QUERY_PARAMS_FOR_SPIRIT_AUTHOR,
+    QUERY_PARAMS_FOR_TAG
 } from "utils";
-import { AuthorGridCard, BookGrid } from "components";
+import { AuthorGridCard, EntityGrid } from "components";
 import { useDebounce } from "hooks";
 
 const SearchInput = () => {
@@ -108,17 +113,17 @@ const SearchInput = () => {
         }
     });
 
-    const [isFirstBookDownload, setIsFirstBookDownload] = useState(true);
-    const [isMainBooksLoading, setIsMainBooksLoading] = useState(false);
-    const [isMainBooksLoadFailed, setIsMainBooksLoadFailed] = useState(false);
-    const [books, setBooks] = useState<APIPaginatedResponse<Book>>({
+    const [isFirstVolumeDownload, setIsFirstVolumeDownload] = useState(true);
+    const [isMainVolumesLoading, setIsMainVolumesLoading] = useState(false);
+    const [isMainVolumesLoadFailed, setIsMainVolumesLoadFailed] = useState(false);
+    const [volumes, setVolumes] = useState<APIPaginatedResponse<Volume>>({
         elements: [
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-            { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+            { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() }
         ],
         pagination: {
             page: 1,
@@ -228,7 +233,11 @@ const SearchInput = () => {
 
             const pagination = {
                 limit: PAGINATION_DEFAULT_AUTHORS_TO_EXPLORE,
-                page: 1
+                page: 1,
+                sort: {
+                    by: "volumes_count",
+                    order: "desc"
+                }
             };
 
             const objs = await listAuthorsToExplore({}, pagination);
@@ -248,29 +257,33 @@ const SearchInput = () => {
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
-        setIsMainBooksLoading(true);
-        setIsMainBooksLoadFailed(false);
+        setIsMainVolumesLoading(true);
+        setIsMainVolumesLoadFailed(false);
 
         try {
             // const filter = getCombinedFilters();
 
             const pagination = {
-                limit: PAGINATION_DEFAULT_BOOKS_TO_EXPLORE,
-                page: 1
+                limit: PAGINATION_DEFAULT_VOLUMES_TO_EXPLORE,
+                page: 1,
+                sort: {
+                    by: "search_score",
+                    order: "desc"
+                }
             };
 
-            const objs = await listBooks(
+            const objs = await listVolumes(
                 {
                     search: query
                 },
                 pagination,
                 { signal: controller.signal }
             );
-            setBooks(objs || { elements: [], totalElements: 0 });
+            setVolumes(objs || { elements: [], totalElements: 0 });
         } catch {
-            setIsMainBooksLoadFailed(true);
+            setIsMainVolumesLoadFailed(true);
         } finally {
-            setIsMainBooksLoading(false);
+            setIsMainVolumesLoading(false);
         }
     };
 
@@ -289,14 +302,17 @@ const SearchInput = () => {
             // const filter = getCombinedFilters();
 
             const pagination = {
-                limit: PAGINATION_DEFAULT_BOOKS_TO_EXPLORE,
-                page: 1
+                limit: PAGINATION_DEFAULT_VOLUMES_TO_EXPLORE,
+                page: 1,
+                sort: {
+                    by: "search_score",
+                    order: "desc"
+                }
             };
 
             const objs = await listAuthors(
                 {
-                    search: query,
-                    trim: true
+                    search: query
                 },
                 pagination,
                 { signal: controller.signal }
@@ -312,16 +328,16 @@ const SearchInput = () => {
     useEffect(() => {
         // Se a query estiver vazia, não faz nada
         if (debouncedQuery.trim() === "") {
-            setIsFirstBookDownload(true);
+            setIsFirstVolumeDownload(true);
             setIsFirstSearchedAuthorDownload(true);
-            setBooks({
+            setVolumes({
                 elements: [
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                    { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                    { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() }
                 ],
                 pagination: {
                     page: 1,
@@ -353,15 +369,14 @@ const SearchInput = () => {
             return;
         }
 
-        
-        setBooks({
+        setVolumes({
             elements: [
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() },
-                { ...DEFAULT_EXAMPLE_BOOK_FOR_SKELETON, id: Math.random() }
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() },
+                { ...DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON, id: Math.random() }
             ],
             pagination: {
                 page: 1,
@@ -372,7 +387,7 @@ const SearchInput = () => {
                 has_previous: false
             }
         });
-    
+
         setAuthors({
             elements: [
                 { ...DEFAULT_EXAMPLE_AUTHOR_FOR_SKELETON, id: Math.random() },
@@ -391,13 +406,12 @@ const SearchInput = () => {
                 has_previous: false
             }
         });
-        
 
         // Se tem texto, chama loadBooks
         searchBooks();
         searchAuthors();
 
-        setIsFirstBookDownload(false);
+        setIsFirstVolumeDownload(false);
         setIsFirstSearchedAuthorDownload(false);
     }, [debouncedQuery]);
 
@@ -453,7 +467,6 @@ const SearchInput = () => {
                 width={{ base: "90vw", md: "1500px" }}
                 margin="0"
             >
-                {/* <DialogBody py={4} px={4} maxHeight="80vh" overflowY="auto"> */}
                 <Box pt={4} px={4}>
                     <form onSubmit={handleSearch}>
                         <Group w="full" attached>
@@ -473,7 +486,7 @@ const SearchInput = () => {
                                 _focus={{ borderColor: "fealRed" }}
                                 _hover={{ borderColor: "fealRed" }}
                                 autoFocus
-                                // disabled={isMainBooksLoading}
+                                // disabled={isMainVolumesLoading}
                             />
 
                             <HStack gap="2" display={{ base: "none", md: "flex" }} pl="4">
@@ -522,7 +535,7 @@ const SearchInput = () => {
                                                         cursor: "pointer"
                                                     }}
                                                     onClick={() => {
-                                                        router.push(`/?c=${category.slug}`);
+                                                        router.push(`/?${QUERY_PARAMS_FOR_CATEGORY}=${category.slug}`);
                                                         setOpen(false);
                                                     }}
                                                 >
@@ -549,7 +562,7 @@ const SearchInput = () => {
                                     </Text>
 
                                     {/* ToDo: Create a Generic Grid, maybe? */}
-                                    <BookGrid
+                                    <EntityGrid
                                         variant="grid"
                                         loadingFailed={isMainAuthorsLoadFailed}
                                         // isLoadingMore={isMainAuthorsLoading}
@@ -564,13 +577,15 @@ const SearchInput = () => {
                                                 <AuthorGridCard
                                                     author={author}
                                                     onClick={() => {
-                                                        router.push(`/?a=${author.slug}`);
+                                                        router.push(
+                                                            `/?${author.is_spirit ? QUERY_PARAMS_FOR_SPIRIT_AUTHOR : QUERY_PARAMS_FOR_AUTHOR}=${author.slug}`
+                                                        );
                                                         setOpen(false);
                                                     }}
                                                 />
                                             </Skeleton>
                                         ))}
-                                    </BookGrid>
+                                    </EntityGrid>
                                 </Stack>
                             )}
 
@@ -606,7 +621,7 @@ const SearchInput = () => {
                                                     transition="all 0.2s"
                                                     _hover={{ bg: "fealRed", color: "white", cursor: "pointer" }}
                                                     onClick={() => {
-                                                        router.push(`/?t=${tag.slug}`);
+                                                        router.push(`/?${QUERY_PARAMS_FOR_TAG}=${tag.slug}`);
                                                         setOpen(false);
                                                     }}
                                                 >
@@ -633,186 +648,134 @@ const SearchInput = () => {
                                 >
                                     {t("filterSearchFastSearch").toUpperCase()}
                                 </Text>
-
                                 {/* Books */}
-                                <Skeleton loading={isMainBooksLoading || isFirstBookDownload}>
-                                    <Text>
-                                        {t("filterSearchFastSearchedBookResult", {
-                                            total: books.pagination.total_elements
-                                        })}
-                                    </Text>
-                                </Skeleton>
-
-                                {(books.elements.length == 0 || isMainBooksLoadFailed) && !isMainBooksLoading ? (
-                                    // <VStack align={"center"}>
-                                    //     <HStack align={"center"} py="20px">
-                                    //         <VStack align={"center"}>
-                                    //             <Image
-                                    //                 w="300px"
-                                    //                 src={LoadingIcons.empty.src}
-                                    //                 alt={t("somethingIsWrong")}
-                                    //             />
-                                    //             <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
-                                    //             <SimpleButton
-                                    //                 // ToDO: Remover isso daqui. Não deve ser responsabilidade do componente recarregar a página.
-                                    //                 /// Essa é apenas uma solução temporária e preguiçosa
-                                    //                 onClick={() => {
-                                    //                     setQuery("");
-                                    //                 }}
-                                    //             >
-                                    //                 {t("removeFilters")}
-                                    //             </SimpleButton>
-                                    //         </VStack>
-                                    //     </HStack>
-                                    // </VStack>
-
-                                    <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
+                                {(volumes.elements.length == 0 || isMainVolumesLoadFailed) && !isMainVolumesLoading ? (
+                                    // ToDo: Adicionar uma mensagem específica sobre autores não encontrados?
+                                    // <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
+                                    <></>
                                 ) : (
-                                    <BookGrid
-                                        variant="grid"
-                                        loadingFailed={false}
-                                        // isLoadingMore={isMainAuthorsLoading}
-                                        // isEmpty={filterAuthors.elements.length == 0}
-                                        eWidth={"120px"}
-                                    >
-                                        {books.elements.map((book: Book) => (
-                                            <Skeleton
-                                                key={`bookCard#${book.id}`}
-                                                loading={isMainBooksLoading || isFirstBookDownload}
-                                            >
-                                                <BookGridCard
-                                                    book={book}
-                                                    isSeeMore={
-                                                        books.pagination.total_elements > 6 &&
-                                                        books.elements[5].id == book.id
-                                                    }
-                                                    isSeeMorePlaceHolder={t("filterSearchFastSearchSeeAll")}
-                                                    onClick={() => {
-                                                        if (
-                                                            books.pagination.total_elements > 6 &&
-                                                            books.elements[5].id == book.id
-                                                        ) {
-                                                            handleSearch();
-                                                        } else {
-                                                            router.push(`/b/${book.slug}`);
-                                                            setOpen(false);
+                                    <>
+                                        <Skeleton loading={isMainVolumesLoading || isFirstVolumeDownload}>
+                                            <Text>
+                                                {volumes.pagination.total_elements > 1
+                                                    ? t("filterSearchFastSearchedBooksResult", {
+                                                          total: volumes.pagination.total_elements
+                                                      })
+                                                    : t("filterSearchFastSearchedBookResult")}
+                                            </Text>
+                                        </Skeleton>
+
+                                        <EntityGrid
+                                            variant="grid"
+                                            loadingFailed={false}
+                                            // isLoadingMore={isMainAuthorsLoading}
+                                            // isEmpty={filterAuthors.elements.length == 0}
+                                            eWidth={"120px"}
+                                        >
+                                            {volumes.elements.map((volume: Volume) => (
+                                                <Skeleton
+                                                    key={`volumeCard#${volume.id}`}
+                                                    loading={isMainVolumesLoading || isFirstVolumeDownload}
+                                                >
+                                                    <VolumeGridCard
+                                                        volume={volume}
+                                                        search={query}
+                                                        isSeeMore={
+                                                            volumes.pagination.total_elements > 6 &&
+                                                            volumes.elements[5].id == volume.id
                                                         }
-                                                    }}
-                                                />
-                                            </Skeleton>
-                                        ))}
-                                    </BookGrid>
+                                                        isSeeMorePlaceHolder={t("filterSearchFastSearchSeeAll")}
+                                                        onClick={() => {
+                                                            if (
+                                                                volumes.pagination.total_elements > 6 &&
+                                                                volumes.elements[5].id == volume.id
+                                                            ) {
+                                                                handleSearch();
+                                                            } else {
+                                                                router.push(`/v/${volume.slug}`);
+                                                                setOpen(false);
+                                                            }
+                                                        }}
+                                                    />
+                                                </Skeleton>
+                                            ))}
+                                        </EntityGrid>
+                                    </>
                                 )}
-
                                 {/* Authors */}
-
-                                <Skeleton loading={isMainSearchedAuthorsLoading || isFirstSearchedAuthorDownload}>
-                                    <Text>
-                                        {t("filterSearchFastSearchedAuthorResult", {
-                                            total: authors.pagination.total_elements
-                                        })}
-                                    </Text>
-                                </Skeleton>
-
-                                {(books.elements.length == 0 || isMainSearchedAuthorsLoadFailed) &&
+                                {(authors.elements.length == 0 || isMainSearchedAuthorsLoadFailed) &&
                                 !isMainSearchedAuthorsLoading ? (
-                                    // <VStack align={"center"}>
-                                    //     <HStack align={"center"} py="20px">
-                                    //         <VStack align={"center"}>
-                                    //             <Image
-                                    //                 w="300px"
-                                    //                 src={LoadingIcons.empty.src}
-                                    //                 alt={t("somethingIsWrong")}
-                                    //             />
-                                    //             <Heading textAlign={"center"}>{t("booksNotFound")}</Heading>
-                                    //             <SimpleButton
-                                    //                 // ToDO: Remover isso daqui. Não deve ser responsabilidade do componente recarregar a página.
-                                    //                 /// Essa é apenas uma solução temporária e preguiçosa
-                                    //                 onClick={() => {
-                                    //                     setQuery("");
-                                    //                 }}
-                                    //             >
-                                    //                 {t("removeFilters")}
-                                    //             </SimpleButton>
-                                    //         </VStack>
-                                    //     </HStack>
-                                    // </VStack>
-
-                                    <Heading textAlign={"center"}>{t("authorsNotFound")}</Heading>
+                                    // ToDo: Adicionar uma mensagem específica sobre autores não encontrados?
+                                    // <Heading textAlign={"center"}>{t("authorsNotFound")}</Heading>
+                                    <></>
                                 ) : (
-                                    <BookGrid
-                                        variant="grid"
-                                        loadingFailed={false}
-                                        // isLoadingMore={isMainAuthorsLoading}
-                                        // isEmpty={filterAuthors.elements.length == 0}
-                                        eWidth={"120px"}
-                                    >
-                                        {authors.elements.map((author: Author) => (
-                                            <Skeleton
-                                                key={`searchAuthorCard#${author.id}`}
-                                                loading={isMainSearchedAuthorsLoading || isFirstSearchedAuthorDownload}
-                                            >
-                                                <AuthorGridCard
-                                                    author={author}
-                                                    isSeeMore={
-                                                        authors.pagination.total_elements > 6 &&
-                                                        authors.elements[5].id == author.id
+                                    <>
+                                        <Skeleton
+                                            loading={isMainSearchedAuthorsLoading || isFirstSearchedAuthorDownload}
+                                        >
+                                            <Text>
+                                                {authors.pagination.total_elements > 1
+                                                    ? t("filterSearchFastSearchedAuthorsResult", {
+                                                          total: authors.pagination.total_elements
+                                                      })
+                                                    : t("filterSearchFastSearchedAuthorResult")}
+                                            </Text>
+                                        </Skeleton>
+
+                                        <EntityGrid
+                                            variant="grid"
+                                            loadingFailed={false}
+                                            // isLoadingMore={isMainAuthorsLoading}
+                                            // isEmpty={filterAuthors.elements.length == 0}
+                                            eWidth={"120px"}
+                                        >
+                                            {authors.elements.map((author: Author) => (
+                                                <Skeleton
+                                                    key={`searchAuthorCard#${author.id}`}
+                                                    loading={
+                                                        isMainSearchedAuthorsLoading || isFirstSearchedAuthorDownload
                                                     }
-                                                    isSeeMorePlaceHolder={t("filterSearchFastSearchSeeAll")}
-                                                    onClick={() => {
-                                                        if (
+                                                >
+                                                    <AuthorGridCard
+                                                        author={author}
+                                                        search={query}
+                                                        isSeeMore={
                                                             authors.pagination.total_elements > 6 &&
                                                             authors.elements[5].id == author.id
-                                                        ) {
-                                                            handleSearch();
-                                                        } else {
-                                                            router.push(`/a/${author.slug}`);
-                                                            setOpen(false);
                                                         }
-                                                    }}
-                                                />
-                                            </Skeleton>
-                                        ))}
-                                    </BookGrid>
+                                                        isSeeMorePlaceHolder={t("filterSearchFastSearchSeeAll")}
+                                                        onClick={() => {
+                                                            if (
+                                                                authors.pagination.total_elements > 6 &&
+                                                                authors.elements[5].id == author.id
+                                                            ) {
+                                                                handleSearch();
+                                                            } else {
+                                                                router.push(
+                                                                    `/?${author.is_spirit ? QUERY_PARAMS_FOR_SPIRIT_AUTHOR : QUERY_PARAMS_FOR_AUTHOR}=${author.slug}`
+                                                                );
+                                                                setOpen(false);
+                                                            }
+                                                        }}
+                                                    />
+                                                </Skeleton>
+                                            ))}
+                                        </EntityGrid>
+                                    </>
+                                )}
+                                {/* Nothing found */}
+                                {volumes.elements.length == 0 && authors.elements.length == 0 && (
+                                    <>
+                                        <Heading textAlign={"center"}>{t("nothingFound")}</Heading>
+                                    </>
                                 )}
                             </Stack>
                         </>
                     )}
                 </Box>
-                {/* </DialogBody> */}
             </DialogContent>
         </DialogRoot>
     );
 };
 
 export default SearchInput;
-// // Apenas salvanod pra olhar depois
-//  {query.length === 0 && (
-//                     <Stack gap="3" mt="4" px="4" pb="4">
-//                         <Text fontSize="xs" fontWeight="bold" color="gray.400" letterSpacing="wider">
-//                             EXPLORAR CATEGORIAS
-//                         </Text>
-//                         <HStack gap="2" wrap="wrap">
-//                             {["Ficção", "Tecnologia", "Design", "História"].map((tag) => (
-//                                 <Box
-//                                     key={tag}
-//                                     as="button"
-//                                     px="4"
-//                                     py="1.5"
-//                                     bg="gray.50"
-//                                     borderRadius="full"
-//                                     fontSize="sm"
-//                                     fontWeight="medium"
-//                                     transition="all 0.2s"
-//                                     _hover={{ bg: "blue.600", color: "white" }}
-//                                     onClick={() => {
-//                                         router.push(`/search?q=${tag}`);
-//                                         setOpen(false);
-//                                     }}
-//                                 >
-//                                     {tag}
-//                                 </Box>
-//                             ))}
-//                         </HStack>
-//                     </Stack>
-//                 )}
