@@ -7,7 +7,7 @@ export const listCategories = async (
 ): Promise<APIPaginatedResponse<Category>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/public/categories`,
+        url: `/categories`,
         data: { filter: filter, pagination: pagination }
     });
 
@@ -32,7 +32,7 @@ export const listCategoriesToExplore = async (
 ): Promise<APIPaginatedResponse<Category>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/public/explore-categories`,
+        url: `/categories-to-explore`,
         data: { filter: filter, pagination: pagination }
     });
 

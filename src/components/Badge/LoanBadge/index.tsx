@@ -12,6 +12,8 @@ const LoanBadge = (props: LoanBadgeProps) => {
     const t = useTranslations("Utils");
 
     const loan = props.bookLoan || null;
+
+    return <></>;
     return (
         <>
             <SimpleTooltip

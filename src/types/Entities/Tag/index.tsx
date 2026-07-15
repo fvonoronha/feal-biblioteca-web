@@ -1,12 +1,11 @@
-interface TagCount {
-    books: number;
-}
 export interface Tag {
     id: number;
     slug: string;
     name: string;
     description?: string;
-    _count?: TagCount;
+
+    books_count?: number;
+    volumes_count?: number;
 }
 
 // export interface BookContextType {

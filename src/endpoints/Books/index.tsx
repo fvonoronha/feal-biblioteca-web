@@ -69,7 +69,7 @@ export const listPublishers = async (
 ): Promise<APIPaginatedResponse<Publisher>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/public/publishers`,
+        url: `/publishers`,
         data: { filter: filter, pagination: pagination }
     });
 

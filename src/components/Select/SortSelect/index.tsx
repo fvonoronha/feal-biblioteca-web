@@ -39,6 +39,8 @@ export default function SortSelect({ value, label, labelPosition = "top", onChan
                 )}
 
                 <Select.Trigger
+                    w="100%" // <-- Adicionado: força o trigger a ocupar toda a largura do Root
+                    justifyContent="space-between" // <-- Adicionado: joga o ícone para a ponta direita
                     border="none"
                     borderBottom="2px solid"
                     borderColor="gray.emphasized"
@@ -47,7 +49,14 @@ export default function SortSelect({ value, label, labelPosition = "top", onChan
                     _focus={{ boxShadow: "none", borderColor: "fealRed" }}
                     _hover={{ borderColor: "gray.fg" }}
                 >
-                    <Select.ValueText fontSize={"md"}>{t(value.value)}</Select.ValueText>
+                    <Select.ValueText
+                        fontSize={"md"}
+                        flex="1" // <-- Adicionado: faz o texto ocupar todo o espaço livre
+                        textAlign="left" // <-- Adicionado: garante que o texto fique alinhado corretamente
+                        // lineClamp="none" // Descomente esta linha se não quiser que corte de jeito nenhum (permitindo quebra de linha)
+                    >
+                        {t(value.value)}
+                    </Select.ValueText>
                     <Select.Indicator />
                 </Select.Trigger>
 

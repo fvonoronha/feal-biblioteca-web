@@ -1,20 +1,20 @@
 import { callAPI } from "utils";
-import { APIPaginatedResponse, Author, APICallOptions } from "types";
+import { APIPaginatedResponse, Volume, APICallOptions } from "types";
 
-export const listAuthors = async (
+export const listVolumes = async (
     filter = {},
     pagination = { limit: 10, page: 1 },
-    options?: APICallOptions
-): Promise<APIPaginatedResponse<Author>> => {
+    options: APICallOptions
+): Promise<APIPaginatedResponse<Volume>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/authors`,
+        url: `/volumes`,
         data: { filter: filter, pagination: pagination },
-        signal: options?.signal
+        signal: options.signal
     });
 
     return (
-        response?.body?.author || {
+        response?.body?.volume || {
             elements: [],
             pagination: {
                 page: 1,
@@ -28,18 +28,29 @@ export const listAuthors = async (
     );
 };
 
-export const listAuthorsToExplore = async (
-    filter = {},
-    pagination = { limit: 12, page: 1 }
-): Promise<APIPaginatedResponse<Author>> => {
+export const getVolume = async (slug: string): Promise<Volume> => {
+    console.log("SLUG: ", slug);
+    const response = await callAPI({
+        method: "GET",
+        url: `/volume/${slug}`,
+        data: {}
+    });
+
+    return response?.body?.volume || {};
+};
+
+export const listRelatedVolumes = async (
+    volumeId: number,
+    pagination = { limit: 10, page: 1 }
+): Promise<APIPaginatedResponse<Volume>> => {
     const response = await callAPI({
         method: "POST",
-        url: `/authors-to-explore`,
-        data: { filter: filter, pagination: pagination }
+        url: `/volume/${volumeId}/related-volumes`,
+        data: { pagination: pagination }
     });
 
     return (
-        response?.body?.author || {
+        response?.body?.volume || {
             elements: [],
             pagination: {
                 page: 1,

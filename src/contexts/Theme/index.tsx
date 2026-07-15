@@ -23,7 +23,8 @@ const config = defineConfig({
                 fealRedHover: {
                     value: {
                         _light: "#7a1e1a",
-                        _dark: "#fc8181"
+                        _dark: "#7a1e1a"
+                        // _dark: "#fc8181"
                     }
                 }
             }

@@ -21,7 +21,6 @@ const ActiveFilterBadge = (props: ActiveFilterBadgeProps) => {
                 {...props}
                 _hover={{ bg: "fealRedHover", color: "white" }}
                 onClick={() => {
-                    console.log("removeFrom: ", props.value);
                     props.cancelFilter(props.value);
                 }}
             >

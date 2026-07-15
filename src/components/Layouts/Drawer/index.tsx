@@ -6,11 +6,7 @@ import { DrawerProps } from "types";
 
 const SimpleDrawer = (props: DrawerProps) => {
     const isOpen = !!props.isOpen;
-    const onClose = props.onClose
-        ? props.onClose
-        : () => {
-              console.log("Nao pode ser");
-          };
+    const onClose = props.onClose ? props.onClose : () => {};
 
     return (
         <Drawer.Root open={isOpen} onOpenChange={onClose} size="md" placement="end">
