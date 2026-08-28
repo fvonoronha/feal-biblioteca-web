@@ -130,5 +130,11 @@
         "relatedVolumes": "Títulos relacionados",
         "didntFindWhatYouWereLookingFor": "Não achou o que procurava?",
         "weAreWorkingOnIt": "Diariamente estamos trabalhando para catalogar novos volumes para você"
+    },
+
+    "Loans": {
+        "title": "Empréstimos",
+        "description": "Lista de volumes emprestados",
+        "tableCaption": "Lista de empréstimos"
     }
 }

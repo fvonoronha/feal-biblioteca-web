@@ -4,6 +4,7 @@ export const USER_JWT_TOKEN_NAME = "usrtkn";
 
 export const PUBLIC_ROUTES = [
     { path: "/", whenAuthenticated: "next" },
+    { path: "/emprestimos", whenAuthenticated: "next" },
     { path: "/login", whenAuthenticated: "redirect" },
     // { path: "/register", whenAuthenticated: "redirect" },
     { path: "/v/[volume-slug]", whenAuthenticated: "next" }
@@ -20,12 +21,20 @@ export const NEXT_LOCALE_TOKEN_NAME = "NEXT_LOCALE";
 export const PAGINATION_DEFAULT_RELATED_VOLUMES_PER_PAGE = 12;
 
 export const PAGINATION_DEFAULT_VOLUMES_PER_PAGE = 24;
+export const PAGINATION_DEFAULT_LOANS_PER_PAGE = 24;
 export const PAGINATION_UNLIMITED_PER_PAGE = 1000000;
 
 export const DEFAULT_VOLUME_SORT_OPTION: SortOption = {
     value: "sortByLabelDesc",
     label: "sortByLabelDesc",
     field: "label",
+    direction: "desc"
+};
+
+export const DEFAULT_LOAN_SORT_OPTION: SortOption = {
+    value: "sortByDueDateDesc",
+    label: "sortByDueDateDesc",
+    field: "due_date",
     direction: "desc"
 };
 

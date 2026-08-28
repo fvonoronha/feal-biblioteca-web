@@ -44,7 +44,7 @@ import {
     LuBarcode,
     LuBookCopy,
     LuShare,
-    LuText,
+    LuBookMarked,
     LuCheck,
     LuArrowLeft,
     LuBlocks,
@@ -432,6 +432,22 @@ export default function VolumeDetails() {
                         </Skeleton>
                     </SimpleGrid>
 
+                    {volume.book?.description && (
+                        <Skeleton loading={isVolumeLoading} w="100%">
+                            <Box as="span" display="inline-flex" alignItems="center" mr="2">
+                                <LuBookMarked size="16" style={{ marginRight: "6px" }} />
+                                <Text as="span" fontWeight="bold">
+                                    {t("description")}:{" "}
+                                </Text>
+                            </Box>
+                            <Box as="span" lineHeight="tall">
+                                <Text as="span" color="fg.muted" textAlign={"justify"}>
+                                    {volume.book?.description}
+                                </Text>
+                            </Box>
+                        </Skeleton>
+                    )}
+
                     {volume.book?.summary && (
                         <Skeleton loading={isVolumeLoading} w="100%">
                             <Box as="span" display="inline-flex" alignItems="center" mr="2">
@@ -443,22 +459,6 @@ export default function VolumeDetails() {
                             <Box as="span" lineHeight="tall">
                                 <Text as="span" color="fg.muted" textAlign={"justify"}>
                                     {volume.book?.summary}
-                                </Text>
-                            </Box>
-                        </Skeleton>
-                    )}
-
-                    {volume.book?.description && (
-                        <Skeleton loading={isVolumeLoading} w="100%">
-                            <Box as="span" display="inline-flex" alignItems="center" mr="2">
-                                <LuText size="16" style={{ marginRight: "6px" }} />
-                                <Text as="span" fontWeight="bold">
-                                    {t("description")}:{" "}
-                                </Text>
-                            </Box>
-                            <Box as="span" lineHeight="tall">
-                                <Text as="span" color="fg.muted" textAlign={"justify"}>
-                                    {volume.book?.description}
                                 </Text>
                             </Box>
                         </Skeleton>

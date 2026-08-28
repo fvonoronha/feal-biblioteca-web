@@ -54,6 +54,23 @@ export const parseDateFullText = (date: Date): string => {
     }
 };
 
+export const getDatesDistance = (date1: Date, date2: Date): number => {
+    try {
+        const d1 = new Date(date1);
+        const d2 = new Date(date2);
+
+        // Subtrai as datas e obtém a diferença em milissegundos
+        const diferencaMs = Math.abs(d2.getTime() - d1.getTime());
+
+        // Converte milissegundos para dias
+        const umDiaEmMs = 1000 * 60 * 60 * 24;
+
+        return Math.floor(diferencaMs / umDiaEmMs);
+    } catch {
+        return 0;
+    }
+};
+
 export const parseDateDMY = (date: Date): string => {
     try {
         if (!date) return "--";
@@ -68,6 +85,7 @@ export const parseDateDMY = (date: Date): string => {
         return "--";
     }
 };
+
 export const parseDateYMD = (date: Date): string => {
     try {
         if (!date) return "--";
