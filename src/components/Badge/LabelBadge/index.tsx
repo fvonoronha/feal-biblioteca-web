@@ -5,7 +5,7 @@ import { Badge, Image } from "@chakra-ui/react";
 import type { LabelBadgeProps } from "types";
 import { fealIdentity } from "assets";
 
-const LoanBadge = (props: LabelBadgeProps) => {
+const LabelBadge = (props: LabelBadgeProps) => {
     const label = props.label || null;
     const blue500 = "#0b94db";
     const red500 = "#ef4444";
@@ -30,4 +30,4 @@ const LoanBadge = (props: LabelBadgeProps) => {
     );
 };
 
-export default memo(LoanBadge);
+export default memo(LabelBadge);

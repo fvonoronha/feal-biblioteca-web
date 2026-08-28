@@ -15,7 +15,7 @@ const VolumeGridCard = (props: VolumeCardProps) => {
     const coverImg = volume.cover_url || volumeCover.default.src;
 
     const title = volume.book.title || "";
-    const descLines = 3;
+    const descLines = 6;
     // const descLines = title.length <= maxCharsOneLine ? 4 : 3;
 
     const onClick = () => {
@@ -162,24 +162,30 @@ const VolumeGridCard = (props: VolumeCardProps) => {
                         {search ? <TextHighlight query={search} text={title} /> : title}
                     </Text>
 
-                    {(volume.book.subtitle || volume.book.description || volume.book.summary) && (
-                        <Text
-                            fontSize="xs"
-                            color={{ base: "gray.600", _dark: "gray.400" }}
-                            opacity={0.8}
-                            lineClamp={descLines}
-                        >
-                            {search ? (
-                                <TextHighlight
-                                    query={search}
-                                    text={volume.book.subtitle || volume.book.description || volume.book.summary || ""}
-                                />
-                            ) : (
-                                volume.book.subtitle || volume.book.description || volume.book.summary || ""
-                            )}
-                            {/* {volume.book.subtitle || volume.book.description || volume.book.summary} */}
-                        </Text>
-                    )}
+                    {
+                        /*volume.book.subtitle || */ (volume.book.description || volume.book.summary) && (
+                            <Text
+                                fontSize="xs"
+                                color={{ base: "gray.600", _dark: "gray.400" }}
+                                opacity={0.8}
+                                lineClamp={descLines}
+                            >
+                                {search ? (
+                                    <TextHighlight
+                                        query={search}
+                                        text={
+                                            /*volume.book.subtitle || */
+                                            volume.book.description || volume.book.summary || ""
+                                        }
+                                    />
+                                ) : (
+                                    /*volume.book.subtitle || */
+                                    volume.book.description || volume.book.summary || ""
+                                )}
+                                {/* {volume.book.subtitle || volume.book.description || volume.book.summary} */}
+                            </Text>
+                        )
+                    }
                 </VStack>
             </Card.Body>
 

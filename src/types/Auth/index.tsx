@@ -1,13 +1,14 @@
 export interface User {
     id: bigint;
     slug: string;
-    created_at: Date;
+    created_at?: Date;
     name: string;
     sex?: string;
-    login: string;
-    status: string;
-    email: string;
-    role: string;
+    login?: string;
+    status?: string;
+    email?: string;
+    phone?: string;
+    role?: string;
 }
 
 export interface AuthToken {
