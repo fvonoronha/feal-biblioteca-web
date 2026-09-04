@@ -59,17 +59,25 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
     const checkToken = async () => {
         try {
             setIsLoading(true);
+
             const jwt = getStorage(USER_JWT_TOKEN_NAME);
+
+            if (!jwt) {
+                setUser(null);
+                return;
+            }
 
             const loggedUser = await checkAuthToken(`${jwt}`);
 
             if (loggedUser?.user) {
                 setUser(loggedUser.user);
-            } else {
-                logout();
+                return;
             }
-        } catch {
+
             logout();
+        } catch {
+            setUser(null);
+            return;
         } finally {
             setIsLoading(false);
         }

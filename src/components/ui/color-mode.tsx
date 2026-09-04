@@ -1,11 +1,12 @@
 "use client";
 
 import type { IconButtonProps, SpanProps } from "@chakra-ui/react";
-import {  IconButton, Span } from "@chakra-ui/react";
+import { Span } from "@chakra-ui/react";
 import { ThemeProvider, useTheme } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
+import { NavBarIconMenu } from "components";
 
 export interface ColorModeProviderProps extends ThemeProviderProps {
     algo?: string;
@@ -48,27 +49,13 @@ export function ColorModeIcon() {
 // interface ColorModeButtonProps extends Omit<IconButtonProps, "aria-label"> {}
 
 export const ColorModeButton = React.forwardRef<HTMLButtonElement, Omit<IconButtonProps, "aria-label">>(
-    function ColorModeButton(props, ref) {
+    function ColorModeButton() {
         const { toggleColorMode } = useColorMode();
         return (
-            // <ClientOnly fallback={<Skeleton boxSize="8" />}>
-            <IconButton
-                onClick={toggleColorMode}
-                variant="ghost"
-                aria-label="Toggle color mode"
-                size="sm"
-                ref={ref}
-                {...props}
-                css={{
-                    _icon: {
-                        width: "5",
-                        height: "5"
-                    }
-                }}
-            >
-                <ColorModeIcon />
-            </IconButton>
-            // </ClientOnly>
+            <NavBarIconMenu
+                icon={<ColorModeIcon />}
+                onClick={toggleColorMode} /*aria-label={t("filterSearchLabel")}*/
+            />
         );
     }
 );

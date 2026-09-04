@@ -1,79 +1,62 @@
 "use client";
 
-import { memo } from "react";
-import { Menu, Portal, Text, Flex } from "@chakra-ui/react";
+import { memo, useState } from "react";
+import { Menu, Portal, Text, DialogRoot, DialogTrigger, DialogBackdrop, DialogContent } from "@chakra-ui/react";
+
 import { UserNavbarMenuProps } from "types";
 import { useAuthContext } from "contexts";
-import { useRouter } from "next/navigation";
-import { LuLogOut, LuUser, LuServer } from "react-icons/lu";
-
+import { LuLogOut, LuUser, LuLogIn } from "react-icons/lu";
 import { useTranslations } from "next-intl";
+import { NavBarIconMenu } from "components";
 
-// const ringCss = defineStyle({
-//     outlineWidth: "2px",
-//     outlineColor: "colorPalette.500",
-//     outlineOffset: "2px",
-//     outlineStyle: "solid"
-// });
+import Login from "./LoginPage";
+import CreateAccount from "./RegisterPage";
 
 const UserNavbarMenu = (props: UserNavbarMenuProps) => {
     const user = props.user;
     const { logout } = useAuthContext();
-    const router = useRouter();
 
     const t = useTranslations("NavBar");
 
-    if (user)
+    const [open, setOpen] = useState(false);
+    const [page, setPage] = useState<"login" | "create-account">("login");
+
+    const [justCreatedAccount, setJustCreatedAccount] = useState<boolean>(false);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    if (user) {
         return (
             <Menu.Root
                 positioning={{
-                    placement: "bottom", // abre para baixo, alinhado à direita
-
-                    gutter: 60 // distância entre o trigger e o menu
+                    placement: "bottom-end",
+                    gutter: 8
                 }}
             >
-                <Menu.Trigger asChild cursor="pointer" ml="10px">
-                    <Flex align="center" gap={0}>
-                        <LuUser />
-                    </Flex>
-                    {/* <LuUser /> */}
-                    {/* <Avatar.Root css={ringCss} size={"xs"}>
-                        <Avatar.Fallback name={user.name} />
-                        <Avatar.Image src="https://bit.ly/sage-adebayo" />
-                    </Avatar.Root> */}
+                <Menu.Trigger asChild>
+                    <NavBarIconMenu icon={<LuUser />} aria-label={t("authenticatedMenuLabel")} />
                 </Menu.Trigger>
 
                 <Portal>
-                    <Menu.Positioner left="auto !important" right="10px">
-                        <Menu.Content>
-                            <Menu.ItemGroup>
+                    <Menu.Positioner>
+                        <Menu.Content minW="200px">
+                            {/* <Menu.ItemGroup>
                                 <Menu.Item value="account" cursor="pointer">
                                     <LuUser />
-                                    <Text fontSize={"md"}>{t("myProfile")}</Text>
+
+                                    <Text fontSize="md">{t("myProfile")}</Text>
                                 </Menu.Item>
                             </Menu.ItemGroup>
 
-                            <Menu.Separator />
+                            <Menu.Separator /> */}
 
                             <Menu.ItemGroup>
-                                <Menu.Item
-                                    value="suppliers"
-                                    cursor="pointer"
-                                    onClick={() => {
-                                        router.push("/suppliers");
-                                    }}
-                                >
-                                    <LuServer />
-                                    <Text fontSize={"md"}>{t("credentials")}</Text>
-                                </Menu.Item>
-                            </Menu.ItemGroup>
-
-                            <Menu.Separator />
-
-                            <Menu.ItemGroup>
-                                <Menu.Item value="logout" onClick={logout} cursor="pointer">
+                                <Menu.Item value="logout" cursor="pointer" onClick={logout}>
                                     <LuLogOut />
-                                    <Text fontSize={"md"}>{t("logout")}</Text>
+
+                                    <Text fontSize="md">{t("logout")}</Text>
                                 </Menu.Item>
                             </Menu.ItemGroup>
                         </Menu.Content>
@@ -81,7 +64,55 @@ const UserNavbarMenu = (props: UserNavbarMenuProps) => {
                 </Portal>
             </Menu.Root>
         );
-    else return <></>;
+    } else {
+        return (
+            <DialogRoot
+                lazyMount
+                open={open}
+                onOpenChange={(e) => {
+                    setOpen(e.open);
+                }}
+                size="xl"
+            >
+                <DialogTrigger asChild>
+                    <NavBarIconMenu icon={<LuLogIn />} aria-label={t("unauthenticatedMenuLabel")} />
+                </DialogTrigger>
+
+                <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
+
+                <DialogContent
+                    borderRadius="lg"
+                    bg="gray.subtle"
+                    position="fixed"
+                    top="10%"
+                    left="50%"
+                    transform="translateX(-50%)"
+                    width={{ base: "90vw", md: "500px" }}
+                    maxH="90vh"
+                    overflowY="auto"
+                >
+                    {page === "login" ? (
+                        <Login
+                            justCreatedAccount={justCreatedAccount}
+                            onCreateAccount={() => {
+                                setJustCreatedAccount(false);
+                                setPage("create-account");
+                            }}
+                            onClose={handleClose}
+                        />
+                    ) : (
+                        <CreateAccount
+                            onLogin={(options) => {
+                                setJustCreatedAccount(options.justCreatedAccount);
+                                setPage("login");
+                            }}
+                            onClose={handleClose}
+                        />
+                    )}
+                </DialogContent>
+            </DialogRoot>
+        );
+    }
 };
 
 export default memo(UserNavbarMenu);

@@ -4,7 +4,7 @@ export const USER_JWT_TOKEN_NAME = "usrtkn";
 
 export const PUBLIC_ROUTES = [
     { path: "/", whenAuthenticated: "next" },
-    { path: "/emprestimos", whenAuthenticated: "next" },
+    // { path: "/emprestimos", whenAuthenticated: "next" },
     { path: "/login", whenAuthenticated: "redirect" },
     // { path: "/register", whenAuthenticated: "redirect" },
     { path: "/v/[volume-slug]", whenAuthenticated: "next" }

@@ -10,7 +10,9 @@ export function createCookie({ key, value }: CreateParams): string | null {
 
     setCookie(undefined, key, value, {
         maxAge: 60 * 60 * 24 * 30 * 12,
-        path: "/"
+        path: "/",
+        sameSite: "lax"
+        // secure: true
     });
 
     return value;

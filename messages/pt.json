@@ -12,7 +12,14 @@
 
     "NavBar": {
         "title": "Biblioteca Francisco Cândido Xavier",
-        "titleMobile": "Biblioteca da FEAL"
+        "titleMobile": "Biblioteca da FEAL",
+
+        "unauthenticatedMenuLabel": "Autenticação",
+        "authenticatedMenuLabel": "Meu Perfil",
+
+        "loans": "Empréstimos",
+
+        "logout": "Sair"
     },
 
     "Login": {
@@ -136,5 +143,66 @@
         "title": "Empréstimos",
         "description": "Lista de volumes emprestados",
         "tableCaption": "Lista de empréstimos"
+    },
+
+    "RegisterPage": {
+        "title": "Criar sua conta",
+        "description": "Biblioteca Francisco Cândido Xavier",
+        "fullName": "Nome completo",
+        "fullNamePlaceholder": "Digite seu Nome completo",
+        "fullNameRequired": "O nome completo é obrigatório.",
+        "cpf": "CPF",
+        "cpfPlaceholder": "000.000.000-00",
+        "cpfNotValid": "O CPF informado não é válido.",
+        "cpfRequired": "O CPF é obrigatório.",
+        "email": "E-mail",
+        "emailPlaceholder": "Digite seu E-mail",
+        "emailNotValid": "O e-mail informado não é válido.",
+        "emailRequired": "O e-mail é obrigatório.",
+        "phone": "Telefone",
+        "phonePlaceholder": "(00) 00000-0000",
+        "phoneNotValid": "O telefone informado não é válido.",
+        "phoneRequired": "O telefone é obrigatório.",
+        "password": "Senha",
+        "passwordPlaceholder": "Digite sua Senha",
+        "passwordNotValid": "A senha deve ter pelo menos 8 caracteres.",
+        "passwordRequired": "A senha é obrigatória.",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha",
+        "userAgreementBefore": "Li e aceito os",
+        "userAgreement": "Termos de Uso",
+        "userAgreementAfter": "da Biblioteca FEAL.",
+        "termsNotAccepted": "Você precisa aceitar os termos de uso.",
+        "createAccount": "Criar conta",
+        "creatingAccount": "Quase lá...",
+        "alreadyHaveAccount": "Já tenho uma conta",
+        "accountGenericCreationError": "Não foi possível criar sua conta. Verifique os dados e tente novamente.",
+        "accountCreationDisclaimer": "Ao criar sua conta, você concorda com os termos de uso da Biblioteca FEAL",
+        "accountAlreadyExists": "O CPF Informado já está cadastrado.",
+        "keepWithoutLogin": "Continuar sem login"
+    },
+
+    "LoginPage": {
+        "title": "Entrar",
+        "description": "Biblioteca Francisco Cândido Xavier",
+        "cpf": "CPF",
+        "cpfPlaceholder": "000.000.000-00",
+        "cpfNotValid": "O CPF informado não é válido.",
+        "cpfRequired": "O CPF é obrigatório.",
+        "password": "Senha",
+        "passwordPlaceholder": "Digite sua senha",
+        "passwordNotValid": "A senha deve ter pelo menos 8 caracteres.",
+        "passwordRequired": "A senha é obrigatória.",
+        "showPassword": "Mostrar senha",
+        "hidePassword": "Ocultar senha",
+
+        "forgotPassword": "Esqueceu a senha?",
+        "loginGenericError": "CPF e/ou senha inválidos.",
+        "login": "Entrar",
+        "loggingIn": "Entrando...",
+        "dontHaveAccount": "Não tem uma conta? Crie uma agora!",
+        "accountCreatedMessage": "Conta criada com sucesso! Faça login para continuar.",
+        "LoginDisclaimer": "Ao entrar você recebe acesso a recursos exclusivos para membros.",
+        "keepWithoutLogin": "Continuar sem login"
     }
 }
