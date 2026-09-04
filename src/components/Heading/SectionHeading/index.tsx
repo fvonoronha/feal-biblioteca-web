@@ -8,7 +8,7 @@ import type { SectionHeadingProps } from "types";
 const SectionHeading = (props: SectionHeadingProps) => {
     return (
         <>
-            <VStack w="100%" flex={1} align={{ base: "center", md: "start" }}>
+            <VStack w="100%" flex={1} align={props.align || { base: "center", md: "start" }}>
                 <Heading fontSize={"2xl"} fontWeight={"bold"} textAlign={"justify"}>
                     {props.header}
                 </Heading>

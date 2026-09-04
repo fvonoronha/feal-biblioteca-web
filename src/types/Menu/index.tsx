@@ -18,6 +18,10 @@ interface ContextMenuDivider {
 export interface UserNavbarMenuProps extends PortalProps {
     user?: User | null;
 }
+
+export interface AdminNavbarMenuProps extends PortalProps {
+    user?: User | null;
+}
 export interface ContextMenuProps extends PortalProps {
     menu: ContextMenuType;
     open: boolean;

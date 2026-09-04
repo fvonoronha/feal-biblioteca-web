@@ -14,3 +14,5 @@ export * from "./Textarea";
 export * from "./Select";
 export * from "./CheckBox";
 export * from "./Highlight";
+export * from "./Table";
+export * from "./Banner";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex, HStack, Box, useBreakpointValue } from "@chakra-ui/react";
-import { FealLogo, UserNavbarMenu, SearchInput } from "components";
+import { FealLogo, UserNavbarMenu, SearchInput, AdminNavbarMenu } from "components";
 import { ColorModeButton } from "components/ui/color-mode";
 import { APP_MAX_WIDTH_IN_PX } from "utils";
 import { createContext, ReactNode, useContext } from "react";
@@ -70,7 +70,15 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                             <ColorModeButton />
                         </Flex>
 
-                        <UserNavbarMenu user={user} />
+                        {user?.role == "ADMIN" && (
+                            <Flex align="center" gap={0}>
+                                <AdminNavbarMenu user={user} />
+                            </Flex>
+                        )}
+
+                        <Flex align="center" gap={0}>
+                            <UserNavbarMenu user={user} />
+                        </Flex>
                     </HStack>
                 </Flex>
             </Box>

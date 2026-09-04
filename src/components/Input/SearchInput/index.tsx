@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import {
     Stack,
     Text,
-    IconButton,
     Input,
     Box,
     HStack,
@@ -14,12 +13,13 @@ import {
     DialogBackdrop,
     Group,
     Skeleton,
-    Heading
+    Heading,
+    Button
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { SimpleButton, VolumeGridCard } from "components";
+import { VolumeGridCard, NavBarIconMenu } from "components";
 import { listCategoriesToExplore, listAuthorsToExplore, listTagsToExplore, listVolumes, listAuthors } from "endpoints";
 import { APIPaginatedResponse, Category, Author, Tag, Volume } from "types";
 import {
@@ -443,16 +443,7 @@ const SearchInput = () => {
             size="xl"
         >
             <DialogTrigger asChild>
-                <IconButton
-                    aria-label={t("filterSearchLabel")}
-                    variant="ghost"
-                    size="sm"
-                    css={{
-                        _icon: { width: "5", height: "5" }
-                    }}
-                >
-                    <LuSearch />
-                </IconButton>
+                <NavBarIconMenu icon={<LuSearch />} aria-label={t("filterSearchLabel")} />
             </DialogTrigger>
 
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
@@ -490,7 +481,7 @@ const SearchInput = () => {
                             />
 
                             <HStack gap="2" display={{ base: "none", md: "flex" }} pl="4">
-                                <SimpleButton onClick={() => handleSearch()}>{t("filterSearchLabel")}</SimpleButton>
+                                <Button onClick={() => handleSearch()}>{t("filterSearchLabel")}</Button>
                             </HStack>
                         </Group>
                     </form>

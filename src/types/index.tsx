@@ -14,3 +14,4 @@ export * from "./Select";
 export * from "./Locales";
 export * from "./Input";
 export * from "./Textarea";
+export * from "./Banner";
