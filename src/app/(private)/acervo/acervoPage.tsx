@@ -7,6 +7,7 @@ import {
     Center,
     Collapsible,
     HStack,
+    Icon,
     Input,
     InputGroup,
     Flex,
@@ -16,16 +17,7 @@ import {
     Text,
     VStack
 } from "@chakra-ui/react";
-import {
-    LuSearch,
-    LuBookPlus,
-    LuPencil,
-    LuSparkles,
-    LuLayers,
-    LuChevronDown,
-    LuChevronUp,
-    LuCopyPlus
-} from "react-icons/lu";
+import { LuSearch, LuBookPlus, LuPencil, LuSparkles, LuLayers, LuChevronDown, LuCopyPlus } from "react-icons/lu";
 import {
     Body,
     PageHeading,
@@ -65,6 +57,8 @@ export default function AcervoPage() {
 
         categories,
         publishers,
+        createPublisherQuick,
+        createAuthorQuick,
 
         editingBook,
         openCreateBookForm,
@@ -93,6 +87,11 @@ export default function AcervoPage() {
         selectExistingVolumeImageForOpenForm,
         clearVolumeImageForOpenForm,
         removeAuxImageForOpenForm,
+
+        isLinkingAuthor,
+        authorLinkError,
+        linkAuthorForOpenForm,
+        unlinkAuthorForOpenForm,
 
         geminiBook,
         isLoadingSuggestion,
@@ -215,11 +214,14 @@ export default function AcervoPage() {
                                                     variant="outline"
                                                     onClick={() => toggleBookVolumes(book)}
                                                 >
-                                                    {isExpanded ? (
-                                                        <LuChevronUp size={14} />
-                                                    ) : (
+                                                    <Box
+                                                        as="span"
+                                                        display="inline-flex"
+                                                        transform={isExpanded ? "rotate(180deg)" : "rotate(0deg)"}
+                                                        transition="transform 0.2s ease"
+                                                    >
                                                         <LuChevronDown size={14} />
-                                                    )}
+                                                    </Box>
                                                     {t("manageVolumesButton")}
                                                 </SimpleButton>
                                                 <GhostButton
@@ -240,18 +242,25 @@ export default function AcervoPage() {
                                     <Collapsible.Root open={isExpanded}>
                                         <Collapsible.Content>
                                             <Box
-                                                ml={{ base: 2, md: 6 }}
-                                                mt={1}
-                                                mb={2}
-                                                pl={{ base: 3, md: 5 }}
-                                                py={3}
-                                                borderLeftWidth="2px"
+                                                mt={2}
+                                                mb={3}
+                                                ml={{ base: 0, md: 4 }}
+                                                p={4}
+                                                borderRadius="xl"
+                                                borderWidth="1px"
                                                 borderColor={{ base: "gray.200", _dark: "gray.700" }}
+                                                bg={{ base: "gray.50", _dark: "blackAlpha.300" }}
+                                                boxShadow="xs"
                                             >
                                                 <HStack justify="space-between" mb={3}>
-                                                    <Text fontWeight="bold" fontSize="sm" color="fg.muted">
-                                                        {t("volumesManagerTitle")}
-                                                    </Text>
+                                                    <HStack gap={2}>
+                                                        <Icon color="fealRed.solid">
+                                                            <LuLayers size={14} />
+                                                        </Icon>
+                                                        <Text fontWeight="bold" fontSize="sm" color="fg.muted">
+                                                            {t("volumesManagerTitle")}
+                                                        </Text>
+                                                    </HStack>
                                                     <SimpleButton size="xs" onClick={() => openAddVolumeForm(book)}>
                                                         <LuCopyPlus size={14} /> {t("newEditionButton")}
                                                     </SimpleButton>
@@ -354,7 +363,6 @@ export default function AcervoPage() {
 
             <CatalogVolumeFormDialog
                 target={volumeFormTarget}
-                publishers={publishers}
                 siblingVolumes={
                     volumeFormTarget?.mode === "edit" ? volumesByBookId[volumeFormTarget.volume.book.id] || [] : []
                 }
@@ -362,6 +370,12 @@ export default function AcervoPage() {
                 onSave={saveVolumeForm}
                 isSaving={isSavingVolume}
                 errors={volumeFormErrors}
+                onCreatePublisher={createPublisherQuick}
+                onCreateAuthor={createAuthorQuick}
+                onLinkAuthor={linkAuthorForOpenForm}
+                onUnlinkAuthor={unlinkAuthorForOpenForm}
+                isLinkingAuthor={isLinkingAuthor}
+                authorLinkError={authorLinkError}
                 onUploadVolumeImage={uploadVolumeImageForOpenForm}
                 onSelectExistingVolumeImage={selectExistingVolumeImageForOpenForm}
                 onClearVolumeImage={clearVolumeImageForOpenForm}

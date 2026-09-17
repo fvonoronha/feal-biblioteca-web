@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Field, Input, Spinner } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Field, Input, Spinner } from "@chakra-ui/react";
 import { ErrorBanner, GhostButton, SimpleButton } from "components";
 import { User } from "types";
 import { maskPhone, getOnlyNumbers } from "utils";
@@ -43,6 +43,7 @@ export default function EditUserInfoDialog({ user, onClose, onSave, isSaving, er
 
     return (
         <DialogRoot open={!!user} onOpenChange={(e) => !e.open && onClose()} size="md">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -135,6 +136,7 @@ export default function EditUserInfoDialog({ user, onClose, onSave, isSaving, er
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

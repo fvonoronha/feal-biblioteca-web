@@ -8,6 +8,7 @@ import {
     updateAuthor,
     deleteAuthor,
     suggestAuthorEnhancement,
+    uploadAuthorAvatar,
     AuthorPayload,
     GeminiAuthorSuggestion
 } from "endpoints";
@@ -108,6 +109,65 @@ export const useAdminAuthors = () => {
             );
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    // --- Foto do autor - salva imediatamente no servidor (upload multipart ou PUT simples pra
+    // limpar), independente do botão "Salvar" principal do formulário. Só disponível editando
+    // um autor já existente (o endpoint de upload precisa de um author_id válido).
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarError, setAvatarError] = useState<string | null>(null);
+
+    const patchEditingAuthorAvatar = (authorId: number, avatarUrl?: string) => {
+        setEditingAuthor((prev) => (prev && prev !== "new" && prev.id === authorId ? { ...prev, avatar_url: avatarUrl } : prev));
+        setElements((prev) => prev.map((author) => (author.id === authorId ? { ...author, avatar_url: avatarUrl } : author)));
+    };
+
+    const handleAvatarError = (error: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const apiErrors = (error as any)?.response?.data?.body?.author?.error;
+        setAvatarError(Array.isArray(apiErrors) ? apiErrors[0]?.message : t("avatarImageGenericError"));
+    };
+
+    const uploadAuthorAvatarForOpenForm = async (blob: Blob): Promise<boolean> => {
+        if (!editingAuthor || editingAuthor === "new") return false;
+        const authorId = editingAuthor.id;
+
+        setIsUploadingAvatar(true);
+        setAvatarError(null);
+
+        try {
+            const updated = await uploadAuthorAvatar(authorId, blob);
+            if (!updated) throw new Error("Resposta vazia do servidor.");
+
+            patchEditingAuthorAvatar(authorId, updated.avatar_url);
+            return true;
+        } catch (error) {
+            handleAvatarError(error);
+            return false;
+        } finally {
+            setIsUploadingAvatar(false);
+        }
+    };
+
+    const clearAuthorAvatarForOpenForm = async (): Promise<boolean> => {
+        if (!editingAuthor || editingAuthor === "new") return false;
+        const authorId = editingAuthor.id;
+
+        setIsUploadingAvatar(true);
+        setAvatarError(null);
+
+        try {
+            const updated = await updateAuthor(authorId, { avatar_url: null });
+            if (!updated) throw new Error("Resposta vazia do servidor.");
+
+            patchEditingAuthorAvatar(authorId, updated.avatar_url);
+            return true;
+        } catch (error) {
+            handleAvatarError(error);
+            return false;
+        } finally {
+            setIsUploadingAvatar(false);
         }
     };
 
@@ -225,6 +285,11 @@ export const useAdminAuthors = () => {
         cancelDeleteAuthor,
         isDeleting,
         confirmDeleteAuthor,
+
+        isUploadingAvatar,
+        avatarError,
+        uploadAuthorAvatarForOpenForm,
+        clearAuthorAvatarForOpenForm,
 
         geminiAuthor,
         isLoadingSuggestion,

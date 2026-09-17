@@ -61,7 +61,7 @@ export const getAuthor = async (slug: string, options?: APICallOptions): Promise
 export type AuthorPayload = {
     name: string;
     description?: string;
-    avatar_url?: string;
+    avatar_url?: string | null;
     is_spirit?: boolean;
     birth_date?: string;
     death_date?: string;
@@ -83,6 +83,21 @@ export const updateAuthor = async (authorId: number, payload: Partial<AuthorPayl
         method: "PUT",
         url: `/author/${authorId}`,
         data: payload
+    });
+
+    return response?.body?.author;
+};
+
+// Mesmo padrão de uploadVolumeCover (endpoints/Volume): recebe um Blob já recortado no front
+// (via react-easy-crop + canvas) - o backend só reprocessa pra JPEG 800x800, nunca recorta.
+export const uploadAuthorAvatar = async (authorId: number, image: Blob): Promise<Author | undefined> => {
+    const formData = new FormData();
+    formData.append("image", image, "avatar.jpg");
+
+    const response = await callAPI<{ author?: Author }>({
+        method: "POST",
+        url: `/author/${authorId}/avatar`,
+        data: formData
     });
 
     return response?.body?.author;

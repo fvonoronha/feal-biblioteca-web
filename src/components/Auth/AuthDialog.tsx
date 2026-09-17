@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { DialogRoot, DialogBackdrop, DialogContent } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal } from "@chakra-ui/react";
 import { useModalDialog } from "hooks";
 import AuthViewContent, { AuthView } from "./AuthViewContent";
 
@@ -26,6 +26,7 @@ export default function AuthDialog({ view, onDismiss }: Props) {
 
     return (
         <DialogRoot open={open} onOpenChange={(e) => !e.open && close()} size="xl">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -45,6 +46,7 @@ export default function AuthDialog({ view, onDismiss }: Props) {
             >
                 <AuthViewContent view={view} onClose={close} />
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

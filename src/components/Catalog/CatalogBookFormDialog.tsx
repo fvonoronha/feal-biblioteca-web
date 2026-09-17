@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Field, Input, Textarea, NativeSelect, Spinner } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Field, Input, Textarea, NativeSelect, Spinner } from "@chakra-ui/react";
 import { ErrorBanner, GhostButton, SimpleButton } from "components";
 import { Book, Category } from "types";
 import { BookPayload } from "endpoints";
@@ -70,6 +70,7 @@ export default function CatalogBookFormDialog({ editingBook, categories, onClose
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="lg">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -205,6 +206,7 @@ export default function CatalogBookFormDialog({ editingBook, categories, onClose
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

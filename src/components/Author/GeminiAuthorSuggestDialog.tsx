@@ -13,6 +13,7 @@ import {
     Heading,
     Icon,
     Input,
+    Portal,
     Separator,
     Spinner,
     Text,
@@ -82,6 +83,7 @@ export default function GeminiAuthorSuggestDialog({
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="xl">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -253,6 +255,7 @@ export default function GeminiAuthorSuggestDialog({
                     ) : null}
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

@@ -14,6 +14,7 @@ import {
     Heading,
     Icon,
     Input,
+    Portal,
     Separator,
     Spinner,
     Text,
@@ -105,6 +106,7 @@ export default function GeminiSuggestDialog({ book, suggestion, isLoading, error
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="xl">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -308,6 +310,7 @@ export default function GeminiSuggestDialog({ book, suggestion, isLoading, error
                     ) : null}
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

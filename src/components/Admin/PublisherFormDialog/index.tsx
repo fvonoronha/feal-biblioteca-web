@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Field, Input, Textarea, Image, Spinner } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Field, Input, Textarea, Image, Spinner } from "@chakra-ui/react";
 import { ErrorBanner, GhostButton, SimpleButton } from "components";
 import { Publisher } from "types";
 import { PublisherPayload } from "endpoints";
@@ -48,6 +48,7 @@ export default function PublisherFormDialog({ editingItem, onClose, onSave, isSa
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="md">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -153,6 +154,7 @@ export default function PublisherFormDialog({ editingItem, onClose, onSave, isSa
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

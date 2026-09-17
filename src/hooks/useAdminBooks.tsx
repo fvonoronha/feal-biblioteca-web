@@ -12,7 +12,11 @@ import {
     suggestBookEnhancement,
     setBookTags,
     listCategories,
-    listPublishers,
+    listPublishersAdmin,
+    createPublisher,
+    PublisherPayload,
+    createAuthor,
+    AuthorPayload,
     listVolumes,
     createVolume,
     updateVolume,
@@ -21,13 +25,18 @@ import {
     uploadVolumeBack,
     addVolumeAuxImage,
     removeVolumeAuxImage,
+    linkAuthorToVolume,
+    unlinkAuthorFromVolume,
     VolumePayload
 } from "endpoints";
 import { toaster } from "components";
 import { VolumeFormTarget } from "components/Catalog/CatalogVolumeFormDialog";
-import { APICallOptions, Book, Category, Publisher, Volume } from "types";
+import { APICallOptions, Author, Book, Category, Publisher, Volume } from "types";
 import { usePaginatedResource } from "./usePaginatedResource";
 import { useDebounce } from "./useDebounce";
+
+const sortByName = <T extends { name: string }>(items: T[]): T[] =>
+    [...items].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 
 const SEARCH_DEBOUNCE_DELAY_IN_MS = 400;
 const ADMIN_BOOKS_PER_PAGE = 20;
@@ -82,7 +91,13 @@ export const useAdminBooks = () => {
         setElements
     } = usePaginatedResource(fetchBooksPage, [], AUTO_LOAD_PAGES_BEFORE_MANUAL);
 
-    // Categorias/editoras pra popular os selects dos formulários - carregadas uma vez só.
+    // Categorias/editoras pra popular os selects/filtros dos formulários - carregadas uma vez
+    // só. Usa a listagem ADMIN (não a pública) pra editora: a pública só traz quem já tem algum
+    // volume vinculado, o que esconderia uma editora recém-cadastrada até que ela fosse usada em
+    // algum volume - exatamente o cenário que o atalho de cadastro rápido (createPublisherQuick)
+    // precisa cobrir. Autores NÃO entram aqui: com potencialmente milhares de registros, o
+    // formulário de volume busca autores sob demanda no servidor (ver VolumeAuthorManager),
+    // nunca carregando a lista inteira de uma vez.
     const [categories, setCategories] = useState<Category[]>([]);
     const [publishers, setPublishers] = useState<Publisher[]>([]);
 
@@ -90,10 +105,23 @@ export const useAdminBooks = () => {
         listCategories({}, { limit: TAXONOMY_LIST_LIMIT, page: 1 }).then((response) =>
             setCategories(response.elements)
         );
-        listPublishers({}, { limit: TAXONOMY_LIST_LIMIT, page: 1 }).then((response) =>
-            setPublishers(response.elements)
+        listPublishersAdmin({}, { limit: TAXONOMY_LIST_LIMIT, page: 1 }).then((response) =>
+            setPublishers(sortByName(response.elements))
         );
     }, []);
+
+    // Cadastro rápido de editora/autor, chamado a partir de um atalho dentro do próprio
+    // formulário de volume (ver CatalogVolumeFormDialog) - sem isso, o operador precisava
+    // abandonar o cadastro do volume, ir até a tela de editoras/autores, cadastrar, e voltar.
+    const createPublisherQuick = async (payload: PublisherPayload): Promise<Publisher | undefined> => {
+        const created = await createPublisher(payload);
+        if (created) setPublishers((prev) => sortByName([...prev, created]));
+        return created;
+    };
+
+    const createAuthorQuick = async (payload: AuthorPayload): Promise<Author | undefined> => {
+        return await createAuthor(payload);
+    };
 
     const patchBookInList = useCallback(
         (bookId: number, patch: Partial<Book>) => {
@@ -191,11 +219,12 @@ export const useAdminBooks = () => {
     const [volumesByBookId, setVolumesByBookId] = useState<Record<number, Volume[]>>({});
     const [loadingVolumesBookIds, setLoadingVolumesBookIds] = useState<Set<number>>(new Set());
 
-    const loadVolumesForBook = useCallback(async (book: Book) => {
+    const loadVolumesForBook = useCallback(async (book: Book): Promise<Volume[]> => {
         setLoadingVolumesBookIds((prev) => new Set(prev).add(book.id));
         try {
             const response = await listVolumes({ book_id: book.id }, { limit: 100, page: 1 });
             setVolumesByBookId((prev) => ({ ...prev, [book.id]: response.elements }));
+            return response.elements;
         } finally {
             setLoadingVolumesBookIds((prev) => {
                 const next = new Set(prev);
@@ -248,18 +277,31 @@ export const useAdminBooks = () => {
 
         try {
             if (volumeFormTarget.mode === "create") {
-                await createVolume({ ...payload, book_id: bookId });
+                const created = await createVolume({ ...payload, book_id: bookId });
                 toaster.create({ type: "success", title: t("createEditionSuccessTitle") });
                 const book = books.find((b) => b.id === bookId);
                 if (book) patchBookInList(bookId, { volumes_count: (book.volumes_count || 0) + 1 });
+
+                // Em vez de fechar o diálogo, troca para o modo "edição" do mesmo volume recém-
+                // criado: é assim que autores e imagens passam a poder ser adicionados logo após
+                // o cadastro, sem reabrir nada - esses dois endpoints (link de autor, upload de
+                // imagem) exigem um volume já existente, então só ficam disponíveis a partir daqui.
+                if (created && book) {
+                    const refreshed = await loadVolumesForBook(book);
+                    const fullVolume = refreshed.find((v) => v.id === created.id);
+                    setVolumeFormTarget(
+                        fullVolume ? { mode: "edit", volume: fullVolume, bookTitle: volumeFormTarget.bookTitle } : null
+                    );
+                } else {
+                    setVolumeFormTarget(null);
+                }
             } else {
                 await updateVolume(volumeFormTarget.volume.id, payload);
                 toaster.create({ type: "success", title: t("updateVolumeSuccessTitle") });
+                setVolumeFormTarget(null);
+                const book = books.find((b) => b.id === bookId);
+                if (book) loadVolumesForBook(book);
             }
-
-            setVolumeFormTarget(null);
-            const book = books.find((b) => b.id === bookId);
-            if (book) loadVolumesForBook(book);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             const apiErrors = error?.response?.data?.body?.volume?.error;
@@ -477,6 +519,78 @@ export const useAdminBooks = () => {
         return removeAuxImageFromVolume(volumeFormTarget.volume.id, volumeFormTarget.volume.book.id, url);
     };
 
+    // --- Autores vinculados ao volume aberto no formulário - assim como as imagens acima, cada
+    // ação (vincular/desvincular) salva IMEDIATAMENTE no servidor, independente do botão
+    // "Salvar" principal do diálogo. Só disponível quando o volume já existe (modo "edit"),
+    // porque o endpoint de vínculo precisa de um volume_id válido.
+    const [isLinkingAuthor, setIsLinkingAuthor] = useState(false);
+    const [authorLinkError, setAuthorLinkError] = useState<string | null>(null);
+
+    const patchVolumeAuthors = useCallback((volumeId: number, bookId: number, nextAuthors: Author[]) => {
+        setVolumesByBookId((prev) => {
+            if (!prev[bookId]) return prev;
+            return { ...prev, [bookId]: prev[bookId].map((v) => (v.id === volumeId ? { ...v, authors: nextAuthors } : v)) };
+        });
+        setVolumeFormTarget((prev) =>
+            prev && prev.mode === "edit" && prev.volume.id === volumeId
+                ? { ...prev, volume: { ...prev.volume, authors: nextAuthors } }
+                : prev
+        );
+    }, []);
+
+    const handleAuthorLinkError = (error: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const apiErrors = (error as any)?.response?.data?.body?.volume_author?.error;
+        setAuthorLinkError(Array.isArray(apiErrors) ? apiErrors[0]?.message : t("authorLinkGenericError"));
+    };
+
+    // Recebe o autor inteiro (não só o id) porque não existe mais uma lista de autores
+    // carregada no cliente pra consultar os dados dele - autores são buscados sob demanda no
+    // servidor (ver VolumeAuthorManager), então quem chama já tem o objeto completo em mãos.
+    const linkAuthorForOpenForm = async (author: Author, description?: string): Promise<boolean> => {
+        if (!volumeFormTarget || volumeFormTarget.mode !== "edit") return false;
+        const volume = volumeFormTarget.volume;
+
+        setIsLinkingAuthor(true);
+        setAuthorLinkError(null);
+
+        try {
+            const link = await linkAuthorToVolume(volume.id, author.id, description);
+            if (!link) throw new Error("Resposta vazia do servidor.");
+
+            const nextAuthors = (volume.authors || []).filter((a) => a.id !== author.id);
+            nextAuthors.push({ ...author, role: description });
+
+            patchVolumeAuthors(volume.id, volume.book.id, nextAuthors);
+            return true;
+        } catch (error) {
+            handleAuthorLinkError(error);
+            return false;
+        } finally {
+            setIsLinkingAuthor(false);
+        }
+    };
+
+    const unlinkAuthorForOpenForm = async (authorId: number): Promise<boolean> => {
+        if (!volumeFormTarget || volumeFormTarget.mode !== "edit") return false;
+        const volume = volumeFormTarget.volume;
+
+        setIsLinkingAuthor(true);
+        setAuthorLinkError(null);
+
+        try {
+            await unlinkAuthorFromVolume(volume.id, authorId);
+            const nextAuthors = (volume.authors || []).filter((a) => a.id !== authorId);
+            patchVolumeAuthors(volume.id, volume.book.id, nextAuthors);
+            return true;
+        } catch (error) {
+            handleAuthorLinkError(error);
+            return false;
+        } finally {
+            setIsLinkingAuthor(false);
+        }
+    };
+
     // --- Complementar informações do livro com IA (Gemini) ---
     const [geminiBook, setGeminiBook] = useState<Book | null>(null);
     const [isLoadingSuggestion, setIsLoadingSuggestion] = useState(false);
@@ -559,6 +673,8 @@ export const useAdminBooks = () => {
 
         categories,
         publishers,
+        createPublisherQuick,
+        createAuthorQuick,
 
         editingBook,
         openCreateBookForm,
@@ -599,6 +715,11 @@ export const useAdminBooks = () => {
         selectExistingVolumeImageForOpenForm,
         clearVolumeImageForOpenForm,
         removeAuxImageForOpenForm,
+
+        isLinkingAuthor,
+        authorLinkError,
+        linkAuthorForOpenForm,
+        unlinkAuthorForOpenForm,
 
         geminiBook,
         isLoadingSuggestion,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Field, Input, Textarea, Spinner } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Field, Input, Textarea, Spinner } from "@chakra-ui/react";
 import { ErrorBanner, GhostButton, SimpleButton } from "components";
 
 interface EntityLike {
@@ -65,6 +65,7 @@ export default function SimpleEntityFormDialog<T extends EntityLike>({
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="md">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -130,6 +131,7 @@ export default function SimpleEntityFormDialog<T extends EntityLike>({
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

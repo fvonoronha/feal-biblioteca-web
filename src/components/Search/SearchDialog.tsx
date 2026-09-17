@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { DialogRoot, DialogBackdrop, DialogContent } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal } from "@chakra-ui/react";
 import { useModalDialog } from "hooks";
 import SearchDialogContent from "./SearchDialogContent";
 
@@ -23,6 +23,7 @@ export default function SearchDialog({ onDismiss }: Props) {
 
     return (
         <DialogRoot open={open} onOpenChange={(e) => !e.open && close()} size="xl">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -39,6 +40,7 @@ export default function SearchDialog({ onDismiss }: Props) {
             >
                 <SearchDialogContent onNavigate={leaveTo} />
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

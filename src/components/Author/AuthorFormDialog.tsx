@@ -6,6 +6,7 @@ import {
     DialogRoot,
     DialogBackdrop,
     DialogContent,
+    Portal,
     VStack,
     HStack,
     Heading,
@@ -16,7 +17,7 @@ import {
     Image,
     Spinner
 } from "@chakra-ui/react";
-import { ErrorBanner, GhostButton, SimpleButton } from "components";
+import { AuthorImageManager, ErrorBanner, GhostButton, SimpleButton } from "components";
 import { Author } from "types";
 import { AuthorPayload } from "endpoints";
 import { authorCover } from "assets";
@@ -27,11 +28,30 @@ interface Props {
     onSave: (payload: AuthorPayload) => void;
     isSaving: boolean;
     errors: string[];
+
+    // Gerenciamento da foto via upload/recorte - só disponível editando um autor já existente
+    // (o endpoint de upload precisa de um author_id válido) e só fornecido pela tela dedicada de
+    // autores; o cadastro rápido (a partir do formulário de volume) não passa essas props, e
+    // continua com o campo simples de URL abaixo.
+    onUploadImage?: (blob: Blob) => Promise<boolean>;
+    onClearImage?: () => Promise<boolean>;
+    isUploadingImage?: boolean;
+    imageError?: string | null;
 }
 
 const emptyForm = { name: "", description: "", avatar_url: "", is_spirit: false, birth_date: "", death_date: "" };
 
-export default function AuthorFormDialog({ editingAuthor, onClose, onSave, isSaving, errors }: Props) {
+export default function AuthorFormDialog({
+    editingAuthor,
+    onClose,
+    onSave,
+    isSaving,
+    errors,
+    onUploadImage,
+    onClearImage,
+    isUploadingImage,
+    imageError
+}: Props) {
     const t = useTranslations("AdminAuthors");
     const [form, setForm] = useState(emptyForm);
 
@@ -65,6 +85,7 @@ export default function AuthorFormDialog({ editingAuthor, onClose, onSave, isSav
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="lg">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -90,32 +111,44 @@ export default function AuthorFormDialog({ editingAuthor, onClose, onSave, isSav
                         </VStack>
                     )}
 
-                    <HStack align="start" gap={4}>
-                        <Image
-                            src={form.avatar_url || authorCover.default.src}
-                            alt=""
-                            boxSize="72px"
-                            borderRadius="full"
-                            objectFit="cover"
-                            flexShrink={0}
-                            border="2px solid"
-                            borderColor="gray.muted"
+                    {editingAuthor && editingAuthor !== "new" && onUploadImage && onClearImage ? (
+                        <AuthorImageManager
+                            avatarUrl={editingAuthor.avatar_url}
+                            isBusy={!!isUploadingImage}
+                            error={imageError ?? null}
+                            onUploadImage={onUploadImage}
+                            onClearImage={onClearImage}
                         />
-
-                        <Field.Root flex="1">
-                            <Field.Label>{t("avatarUrlLabel")}</Field.Label>
-                            <Input
-                                placeholder={t("avatarUrlPlaceholder")}
-                                value={form.avatar_url}
-                                onChange={(event) => setForm((current) => ({ ...current, avatar_url: event.target.value }))}
-                                variant="flushed"
-                                fontSize="sm"
-                                borderBottomWidth="2px"
-                                disabled={isSaving}
+                    ) : (
+                        <HStack align="start" gap={4}>
+                            <Image
+                                src={form.avatar_url || authorCover.default.src}
+                                alt=""
+                                boxSize="72px"
+                                borderRadius="full"
+                                objectFit="cover"
+                                flexShrink={0}
+                                border="2px solid"
+                                borderColor="gray.muted"
                             />
-                            <Field.HelperText>{t("avatarUrlHelper")}</Field.HelperText>
-                        </Field.Root>
-                    </HStack>
+
+                            <Field.Root flex="1">
+                                <Field.Label>{t("avatarUrlLabel")}</Field.Label>
+                                <Input
+                                    placeholder={t("avatarUrlPlaceholder")}
+                                    value={form.avatar_url}
+                                    onChange={(event) =>
+                                        setForm((current) => ({ ...current, avatar_url: event.target.value }))
+                                    }
+                                    variant="flushed"
+                                    fontSize="sm"
+                                    borderBottomWidth="2px"
+                                    disabled={isSaving}
+                                />
+                                <Field.HelperText>{t("avatarUrlHelper")}</Field.HelperText>
+                            </Field.Root>
+                        </HStack>
+                    )}
 
                     <Field.Root required>
                         <Field.Label>
@@ -200,6 +233,7 @@ export default function AuthorFormDialog({ editingAuthor, onClose, onSave, isSav
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

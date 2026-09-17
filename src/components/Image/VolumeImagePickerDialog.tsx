@@ -13,6 +13,7 @@ import {
     Icon,
     Image,
     Input,
+    Portal,
     Separator,
     Spinner,
     Tabs,
@@ -25,9 +26,12 @@ import { ErrorBanner, GhostButton, SimpleButton } from "components";
 import { fetchImageFromUrl } from "endpoints";
 import { getCroppedImageBlob } from "utils";
 
-const OUTPUT_WIDTH = 800;
-const OUTPUT_HEIGHT = 1100;
-const ASPECT_RATIO = OUTPUT_WIDTH / OUTPUT_HEIGHT;
+const DEFAULT_OUTPUT_WIDTH = 800;
+const DEFAULT_OUTPUT_HEIGHT = 1100;
+
+// Cor do molde de recorte (borda da área selecionada) - fealRed.500, fixa independente do
+// modo claro/escuro já que o fundo do cropper é sempre preto.
+const CROP_AREA_COLOR = "#b93a33";
 
 interface Props {
     isOpen: boolean;
@@ -38,6 +42,10 @@ interface Props {
     onClose: () => void;
     onCropped: (blob: Blob) => void;
     onSelectExisting: (url: string) => void;
+    // Permite reaproveitar este diálogo pra outras proporções (ex.: avatar de autor, 800x800) -
+    // o padrão continua sendo a capa de volume (800x1100).
+    outputWidth?: number;
+    outputHeight?: number;
 }
 
 export default function VolumeImagePickerDialog({
@@ -48,8 +56,11 @@ export default function VolumeImagePickerDialog({
     error,
     onClose,
     onCropped,
-    onSelectExisting
+    onSelectExisting,
+    outputWidth = DEFAULT_OUTPUT_WIDTH,
+    outputHeight = DEFAULT_OUTPUT_HEIGHT
 }: Props) {
+    const aspectRatio = outputWidth / outputHeight;
     const t = useTranslations("AdminCatalog");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,6 +71,7 @@ export default function VolumeImagePickerDialog({
     const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
+    const [rotation, setRotation] = useState(0);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     const resetAndClose = () => {
@@ -69,6 +81,7 @@ export default function VolumeImagePickerDialog({
         setPendingImageSrc(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setRotation(0);
         setCroppedAreaPixels(null);
         onClose();
     };
@@ -102,7 +115,13 @@ export default function VolumeImagePickerDialog({
         setLocalError(null);
 
         try {
-            const blob = await getCroppedImageBlob(pendingImageSrc, croppedAreaPixels, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+            const blob = await getCroppedImageBlob(
+                pendingImageSrc,
+                croppedAreaPixels,
+                outputWidth,
+                outputHeight,
+                rotation
+            );
             onCropped(blob);
         } catch {
             setLocalError(t("imagePickerGenericError"));
@@ -113,6 +132,7 @@ export default function VolumeImagePickerDialog({
         setPendingImageSrc(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setRotation(0);
         setCroppedAreaPixels(null);
     };
 
@@ -120,6 +140,7 @@ export default function VolumeImagePickerDialog({
 
     return (
         <DialogRoot open={isOpen} onOpenChange={(e) => !e.open && resetAndClose()} size="lg">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -150,10 +171,13 @@ export default function VolumeImagePickerDialog({
                                     image={pendingImageSrc}
                                     crop={crop}
                                     zoom={zoom}
-                                    aspect={ASPECT_RATIO}
+                                    rotation={rotation}
+                                    aspect={aspectRatio}
                                     onCropChange={setCrop}
                                     onZoomChange={setZoom}
+                                    onRotationChange={setRotation}
                                     onCropComplete={(_area, areaPixels) => setCroppedAreaPixels(areaPixels)}
+                                    style={{ cropAreaStyle: { border: `3px solid ${CROP_AREA_COLOR}` } }}
                                 />
                             </Box>
 
@@ -168,6 +192,22 @@ export default function VolumeImagePickerDialog({
                                     step={0.05}
                                     value={zoom}
                                     onChange={(e) => setZoom(Number(e.target.value))}
+                                    style={{ width: "100%" }}
+                                    disabled={isSubmitting}
+                                />
+                            </HStack>
+
+                            <HStack gap={3}>
+                                <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+                                    {t("imagePickerRotateLabel")}
+                                </Text>
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={360}
+                                    step={1}
+                                    value={rotation}
+                                    onChange={(e) => setRotation(Number(e.target.value))}
                                     style={{ width: "100%" }}
                                     disabled={isSubmitting}
                                 />
@@ -268,7 +308,7 @@ export default function VolumeImagePickerDialog({
                                                 <Box
                                                     key={url}
                                                     position="relative"
-                                                    aspectRatio={ASPECT_RATIO}
+                                                    aspectRatio={aspectRatio}
                                                     borderRadius="md"
                                                     overflow="hidden"
                                                     border="2px solid"
@@ -299,6 +339,7 @@ export default function VolumeImagePickerDialog({
                     )}
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

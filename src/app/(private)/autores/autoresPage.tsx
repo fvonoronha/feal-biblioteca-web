@@ -53,6 +53,11 @@ export default function AutoresPage() {
         formErrors,
         saveAuthor,
 
+        isUploadingAvatar,
+        avatarError,
+        uploadAuthorAvatarForOpenForm,
+        clearAuthorAvatarForOpenForm,
+
         geminiAuthor,
         isLoadingSuggestion,
         suggestion,
@@ -196,6 +201,10 @@ export default function AutoresPage() {
                 onSave={saveAuthor}
                 isSaving={isSaving}
                 errors={formErrors}
+                onUploadImage={uploadAuthorAvatarForOpenForm}
+                onClearImage={clearAuthorAvatarForOpenForm}
+                isUploadingImage={isUploadingAvatar}
+                imageError={avatarError}
             />
 
             <GeminiAuthorSuggestDialog

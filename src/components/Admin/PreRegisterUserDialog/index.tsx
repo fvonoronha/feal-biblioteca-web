@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Field, Input, Spinner } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Field, Input, Spinner } from "@chakra-ui/react";
 import { ErrorBanner, GhostButton, SimpleButton } from "components";
 import { getOnlyNumbers, isCPFValid, maskCPF, maskPhone } from "utils";
 
@@ -48,6 +48,7 @@ export default function PreRegisterUserDialog({ open, onClose, onSubmit, isSubmi
 
     return (
         <DialogRoot open={open} onOpenChange={(e) => !e.open && onClose()} size="md">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -137,6 +138,7 @@ export default function PreRegisterUserDialog({ open, onClose, onSubmit, isSubmi
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

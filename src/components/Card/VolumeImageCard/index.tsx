@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useRef, useState } from "react";
-import { Box, DialogBackdrop, DialogContent, DialogRoot, Image, Text, VStack, HStack } from "@chakra-ui/react";
+import { Box, DialogBackdrop, DialogContent, DialogRoot, Image, Portal, Text, VStack, HStack } from "@chakra-ui/react";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
 import { LuExpand, LuX } from "react-icons/lu";
 import { LabelBadge } from "components";
@@ -172,6 +172,7 @@ const VolumeImageCard = (props: VolumeCardProps) => {
             )}
 
             <DialogRoot lazyMount open={isViewerOpen} onOpenChange={(e) => setIsViewerOpen(e.open)}>
+              <Portal>
                 <DialogBackdrop bg="blackAlpha.900" backdropFilter="blur(6px)" />
 
                 <DialogContent
@@ -265,6 +266,7 @@ const VolumeImageCard = (props: VolumeCardProps) => {
                         </>
                     )}
                 </DialogContent>
+              </Portal>
             </DialogRoot>
         </VStack>
     );

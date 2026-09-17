@@ -118,6 +118,31 @@ export const removeVolumeAuxImage = async (volumeId: number, imageUrl: string): 
     return response?.body?.volume;
 };
 
+export type VolumeAuthorLink = { id: number; author_id: number; volume_id: number; description?: string; status: string };
+
+export const linkAuthorToVolume = async (
+    volumeId: number,
+    authorId: number,
+    description?: string
+): Promise<VolumeAuthorLink | undefined> => {
+    const response = await callAPI<{ volume_author?: VolumeAuthorLink }>({
+        method: "PUT",
+        url: `/volume/${volumeId}/author/${authorId}/link`,
+        data: { description }
+    });
+
+    return response?.body?.volume_author;
+};
+
+export const unlinkAuthorFromVolume = async (volumeId: number, authorId: number): Promise<boolean> => {
+    const response = await callAPI<{ volume_author?: VolumeAuthorLink }>({
+        method: "DELETE",
+        url: `/volume/${volumeId}/author/${authorId}/unlink`
+    });
+
+    return !!response?.body?.volume_author;
+};
+
 export const deleteVolume = async (volumeId: number): Promise<boolean> => {
     const response = await callAPI<{ volume?: { deleted?: boolean } }>({
         method: "DELETE",

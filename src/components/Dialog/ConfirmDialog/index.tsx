@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { DialogRoot, DialogBackdrop, DialogContent, VStack, HStack, Heading, Text } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal, VStack, HStack, Heading, Text } from "@chakra-ui/react";
 import { SimpleButton, GhostButton } from "components";
 
 interface ConfirmDialogProps {
@@ -22,6 +22,7 @@ interface ConfirmDialogProps {
 function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel, cancelLabel, onConfirm, isLoading }: ConfirmDialogProps) {
     return (
         <DialogRoot open={open} onOpenChange={(e) => onOpenChange(e.open)} size="sm">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -58,6 +59,7 @@ function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel, c
                     </HStack>
                 </VStack>
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }

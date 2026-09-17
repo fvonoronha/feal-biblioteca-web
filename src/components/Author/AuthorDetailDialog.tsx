@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { DialogRoot, DialogBackdrop, DialogContent } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, Portal } from "@chakra-ui/react";
 import { useModalDialog } from "hooks";
 import AuthorDetailContent from "./AuthorDetailContent";
 
@@ -22,6 +22,7 @@ export default function AuthorDetailDialog({ authorSlug, onDismiss }: Props) {
 
     return (
         <DialogRoot open={open} onOpenChange={(e) => !e.open && close()} size="xl">
+          <Portal>
             <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
 
             <DialogContent
@@ -37,6 +38,7 @@ export default function AuthorDetailDialog({ authorSlug, onDismiss }: Props) {
             >
                 <AuthorDetailContent authorSlug={authorSlug} onClose={close} onNavigate={leaveTo} />
             </DialogContent>
+          </Portal>
         </DialogRoot>
     );
 }
