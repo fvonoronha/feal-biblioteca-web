@@ -1,9 +1,11 @@
 "use client";
 
-import { memo, useState, useRef, useEffect } from "react";
-import { Image, Box, VStack, HStack } from "@chakra-ui/react";
+import { memo, useEffect, useRef, useState } from "react";
+import { Box, DialogBackdrop, DialogContent, DialogRoot, Image, Text, VStack, HStack } from "@chakra-ui/react";
 import { FaChevronRight, FaChevronLeft } from "react-icons/fa";
+import { LuExpand, LuX } from "react-icons/lu";
 import { LabelBadge } from "components";
+import { useScrollWiggleHint } from "hooks";
 import { VolumeCardProps } from "types";
 import { bookCover } from "assets";
 
@@ -11,14 +13,13 @@ const VolumeImageCard = (props: VolumeCardProps) => {
     const { volume } = props;
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const HOVER_SCALE_FACTOR = "2.2";
+    useScrollWiggleHint(scrollRef);
 
     const allImages = [volume.cover_url, ...(volume.images_url || [])].filter(Boolean);
     const images = allImages.length > 0 ? allImages : [bookCover.default.src];
 
     const [mainImage, setMainImage] = useState(images[0]);
-    const [zoomPos, setZoomPos] = useState({ x: "50%", y: "50%" });
-    const [isHovering, setIsHovering] = useState(false);
+    const [isViewerOpen, setIsViewerOpen] = useState(false);
 
     useEffect(() => {
         setMainImage(images[0]);
@@ -28,7 +29,7 @@ const VolumeImageCard = (props: VolumeCardProps) => {
 
     const currentIndex = images.indexOf(mainImage);
 
-    const handleNavigation = (direction: "prev" | "next") => {
+    const goToImage = (direction: "prev" | "next") => {
         let newIndex = currentIndex;
 
         if (direction === "prev") {
@@ -49,12 +50,20 @@ const VolumeImageCard = (props: VolumeCardProps) => {
         }
     };
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-        const x = ((e.pageX - left) / width) * 100;
-        const y = ((e.pageY - top) / height) * 100;
-        setZoomPos({ x: `${x}%`, y: `${y}%` });
-    };
+    // Setas do teclado navegam pelas imagens com o visualizador aberto, em loop - igual aos
+    // botões, só que sem precisar mirar num alvo pequeno na tela.
+    useEffect(() => {
+        if (!isViewerOpen) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "ArrowLeft") goToImage("prev");
+            if (event.key === "ArrowRight") goToImage("next");
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isViewerOpen, currentIndex]);
 
     return (
         <VStack gap={2} w="100%" align="stretch">
@@ -67,41 +76,50 @@ const VolumeImageCard = (props: VolumeCardProps) => {
                 cursor="zoom-in"
                 border="2px solid"
                 borderColor={{ base: "gray.200", _dark: "gray.600" }}
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+                onClick={() => setIsViewerOpen(true)}
                 transition="all .2s"
-                _hover={{ boxShadow: "2xl", borderColor: "fealRed" }}
+                _hover={{ boxShadow: "2xl", borderColor: "fealRed.solid" }}
             >
-                <Image
-                    src={mainImage}
-                    alt={volume.book?.title}
-                    objectFit="cover"
-                    w="100%"
-                    h="100%"
-                    transition={isHovering ? "none" : "transform .3s ease-out"}
-                    transform={isHovering ? `scale(${HOVER_SCALE_FACTOR})` : "scale(1)"}
-                    transformOrigin={`${zoomPos.x} ${zoomPos.y}`}
-                />
+                <Image src={mainImage} alt={volume.book?.title} objectFit="cover" w="100%" h="100%" />
 
-                {volume.label && !isHovering && (
-                    <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
+                {volume.label && (
+                    <Box position="absolute" bottom="6px" left="12px" zIndex="10">
                         <LabelBadge label={volume.label} size={"lg"} />
                     </Box>
                 )}
+
+                {/* Sempre visível (não só no hover) para funcionar igual no toque do celular -
+                    é só um indicativo visual, quem recebe o clique é a imagem toda por trás. */}
+                <Box
+                    position="absolute"
+                    top="10px"
+                    right="10px"
+                    zIndex="10"
+                    p={2}
+                    borderRadius="full"
+                    bg="blackAlpha.600"
+                    color="white"
+                    pointerEvents="none"
+                >
+                    <LuExpand size={16} />
+                </Box>
             </Box>
 
             {images.length > 1 && (
                 <HStack position="relative" w="100%" gap={0}>
                     <Box
-                        p={1}
-                        color={"fealRed"}
-                        cursor={"pointer"}
-                        onClick={() => handleNavigation("prev")}
-                        _hover={{ transform: "scale(1.2)" }}
-                        transition="transform .2s"
+                        flexShrink={0}
+                        p={2}
+                        mr={1}
+                        borderRadius="full"
+                        color="fealRed.solid"
+                        bg={{ base: "gray.100", _dark: "gray.700" }}
+                        cursor="pointer"
+                        onClick={() => goToImage("prev")}
+                        _hover={{ bg: "fealRed.solid", color: "white" }}
+                        transition="all .2s"
                     >
-                        <FaChevronLeft size="24" />
+                        <FaChevronLeft size="16" />
                     </Box>
 
                     <HStack
@@ -126,7 +144,7 @@ const VolumeImageCard = (props: VolumeCardProps) => {
                                 overflow="hidden"
                                 cursor="pointer"
                                 border="2px solid"
-                                borderColor={mainImage === img ? "fealRed" : { base: "gray.200", _dark: "gray.600" }}
+                                borderColor={mainImage === img ? "fealRed.solid" : { base: "gray.200", _dark: "gray.600" }}
                                 onClick={() => setMainImage(img)}
                                 transition="all .2s"
                                 _hover={{ transform: "translateY(-4px)" }}
@@ -137,17 +155,117 @@ const VolumeImageCard = (props: VolumeCardProps) => {
                     </HStack>
 
                     <Box
-                        p={1}
-                        color={"fealRed"}
-                        cursor={"pointer"}
-                        onClick={() => handleNavigation("next")}
-                        _hover={{ transform: "scale(1.2)" }}
-                        transition="transform .2s"
+                        flexShrink={0}
+                        p={2}
+                        ml={1}
+                        borderRadius="full"
+                        color="fealRed.solid"
+                        bg={{ base: "gray.100", _dark: "gray.700" }}
+                        cursor="pointer"
+                        onClick={() => goToImage("next")}
+                        _hover={{ bg: "fealRed.solid", color: "white" }}
+                        transition="all .2s"
                     >
-                        <FaChevronRight size="24" />
+                        <FaChevronRight size="16" />
                     </Box>
                 </HStack>
             )}
+
+            <DialogRoot lazyMount open={isViewerOpen} onOpenChange={(e) => setIsViewerOpen(e.open)}>
+                <DialogBackdrop bg="blackAlpha.900" backdropFilter="blur(6px)" />
+
+                <DialogContent
+                    position="fixed"
+                    inset="0"
+                    w="100vw"
+                    h="100dvh"
+                    maxW="100vw"
+                    maxH="100dvh"
+                    m={0}
+                    borderRadius={0}
+                    bg="transparent"
+                    boxShadow="none"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <Box
+                        position="absolute"
+                        top={{ base: "12px", md: "24px" }}
+                        right={{ base: "12px", md: "24px" }}
+                        zIndex={1}
+                        p={2}
+                        borderRadius="full"
+                        bg="whiteAlpha.200"
+                        color="white"
+                        cursor="pointer"
+                        _hover={{ bg: "whiteAlpha.400" }}
+                        onClick={() => setIsViewerOpen(false)}
+                    >
+                        <LuX size={22} />
+                    </Box>
+
+                    <Image
+                        src={mainImage}
+                        alt={volume.book?.title}
+                        objectFit="contain"
+                        maxW="90vw"
+                        maxH="85dvh"
+                        borderRadius="md"
+                    />
+
+                    {images.length > 1 && (
+                        <>
+                            <Box
+                                position="absolute"
+                                left={{ base: "8px", md: "24px" }}
+                                top="50%"
+                                transform="translateY(-50%)"
+                                p={3}
+                                borderRadius="full"
+                                bg="whiteAlpha.200"
+                                color="white"
+                                cursor="pointer"
+                                _hover={{ bg: "whiteAlpha.400" }}
+                                onClick={() => goToImage("prev")}
+                            >
+                                <FaChevronLeft size={22} />
+                            </Box>
+
+                            <Box
+                                position="absolute"
+                                right={{ base: "8px", md: "24px" }}
+                                top="50%"
+                                transform="translateY(-50%)"
+                                p={3}
+                                borderRadius="full"
+                                bg="whiteAlpha.200"
+                                color="white"
+                                cursor="pointer"
+                                _hover={{ bg: "whiteAlpha.400" }}
+                                onClick={() => goToImage("next")}
+                            >
+                                <FaChevronRight size={22} />
+                            </Box>
+
+                            <Text
+                                position="absolute"
+                                bottom={{ base: "12px", md: "24px" }}
+                                left="50%"
+                                transform="translateX(-50%)"
+                                color="white"
+                                fontSize="sm"
+                                bg="blackAlpha.600"
+                                px={3}
+                                py={1}
+                                borderRadius="full"
+                            >
+                                {currentIndex + 1} / {images.length}
+                            </Text>
+                        </>
+                    )}
+                </DialogContent>
+            </DialogRoot>
         </VStack>
     );
 };

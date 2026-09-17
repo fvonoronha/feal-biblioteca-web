@@ -1,15 +1,21 @@
 import { SortOption } from "types";
 
 export const USER_JWT_TOKEN_NAME = "usrtkn";
+export const PASSWORD_RESET_TOKEN_STORAGE_NAME = "pwdrst";
 
 export const PUBLIC_ROUTES = [
     { path: "/", whenAuthenticated: "next" },
     // { path: "/emprestimos", whenAuthenticated: "next" },
     { path: "/login", whenAuthenticated: "redirect" },
-    // { path: "/register", whenAuthenticated: "redirect" },
-    { path: "/v/[volume-slug]", whenAuthenticated: "next" }
+    { path: "/registro", whenAuthenticated: "redirect" },
+    { path: "/recuperar-senha", whenAuthenticated: "redirect" },
+    { path: "/v/[volume-slug]", whenAuthenticated: "next" },
+    { path: "/a/[author-slug]", whenAuthenticated: "next" },
+    { path: "/buscar", whenAuthenticated: "next" },
+    { path: "/sobre", whenAuthenticated: "next" },
+    { path: "/termos-de-uso", whenAuthenticated: "next" },
+    { path: "/politica-de-privacidade", whenAuthenticated: "next" }
     // { path: "/b/[book-slug]", whenAuthenticated: "next" }
-    // { path: "/a/[author-slug]", whenAuthenticated: "next" }
 ] as const;
 
 export const TOP_BAR_DEFAULT_ICON_SIZE = 20;
@@ -31,11 +37,13 @@ export const DEFAULT_VOLUME_SORT_OPTION: SortOption = {
     direction: "desc"
 };
 
+// Sentinela (field vazio) - useLoans não envia `sort` nenhum à API nesse caso, deixando o
+// back aplicar sua ordem padrão: atrasados primeiro, depois em aberto, por fim concluídos.
 export const DEFAULT_LOAN_SORT_OPTION: SortOption = {
-    value: "sortByDueDateDesc",
-    label: "sortByDueDateDesc",
-    field: "due_date",
-    direction: "desc"
+    value: "sortByDefault",
+    label: "sortByDefault",
+    field: "",
+    direction: "asc"
 };
 
 export const RELEVANCE_VOLUME_SORT_OPTION: SortOption = {
@@ -138,7 +146,7 @@ export const DEFAULT_EXAMPLE_VOLUME_FOR_SKELETON = {
     last_month_access_count: 10,
 
     publisher: DEFAULT_EXAMPLE_PUBLISHER_FOR_SKELETON,
-    tag: DEFAULT_EXAMPLE_TAG_FOR_SKELETON,
+    tags: [DEFAULT_EXAMPLE_TAG_FOR_SKELETON],
     authors: [DEFAULT_EXAMPLE_AUTHOR_FOR_SKELETON],
     book: DEFAULT_EXAMPLE_BOOK_FOR_SKELETON,
     category: DEFAULT_EXAMPLE_CATEGORY_FOR_SKELETON

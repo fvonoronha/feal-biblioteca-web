@@ -50,7 +50,7 @@ export default function TextHighlightProps({ text, query, styles }: TextHighligh
 
     // Estilo padrão do highlight (fique à vontade para customizar com as cores do seu tema)
     const defaultHighlightStyles: SystemStyleObject = {
-        bg: "fealRed",
+        bg: "fealRed.solid",
         color: "white",
         px: "1",
         rounded: "md",
@@ -63,8 +63,12 @@ export default function TextHighlightProps({ text, query, styles }: TextHighligh
             {parts.map((part, index) => {
                 // Verifica se o pedaço atual é um "match" da nossa Regex
                 if (part.match(regex)) {
+                    // `as="span"` (não "mark") de propósito: o `<mark>` nativo do navegador
+                    // carrega um fundo amarelo no stylesheet padrão do user-agent que, no
+                    // Chakra v3 (estilos gerados com `:where()`, especificidade zero),
+                    // ganhava do `bg="fealRed.solid"` mesmo estando definido depois.
                     return (
-                        <Text as="mark" key={index} {...defaultHighlightStyles}>
+                        <Text as="span" key={index} {...defaultHighlightStyles}>
                             {part}
                         </Text>
                     );

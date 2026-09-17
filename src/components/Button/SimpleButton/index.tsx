@@ -5,19 +5,13 @@ import { Button } from "@chakra-ui/react";
 import { SimpleButtonProps } from "types";
 
 const SimpleButton = (props: SimpleButtonProps) => {
+    // `variant="plain"` combinado com `bg`/`color` manuais fazia o fundo do botão ficar
+    // transparente (texto branco sobre fundo transparente = botão invisível). O variant padrão
+    // do Button ("solid") já usa o colorPalette "fealRed" definido no tema global.
     return (
-        <>
-            <Button
-                variant="plain"
-                fontSize={"md"}
-                color={"white"}
-                bg={`fealRed`}
-                // _hover={{ bg: { base: `fealPurple`, _dark: `${color}.800` } }}
-                {...props}
-            >
-                {props.children}
-            </Button>
-        </>
+        <Button fontSize={"md"} {...props}>
+            {props.children}
+        </Button>
     );
 };
 

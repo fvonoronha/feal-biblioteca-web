@@ -13,7 +13,13 @@ export const metadata: Metadata = {
     description: "Biblioteca Francisco Cândido Xavier"
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+    children,
+    modal
+}: {
+    children: React.ReactNode;
+    modal: React.ReactNode;
+}) {
     const cookieStore = await cookies();
     const locale = cookieStore.get("NEXT_LOCALE")?.value || "pt";
 
@@ -35,6 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                         <ToastContainer />
                         <AuthContextProvider>
                             <NavbarProvider>{children}</NavbarProvider>
+                            {modal}
                         </AuthContextProvider>
                     </Provider>
                 </NextIntlClientProvider>

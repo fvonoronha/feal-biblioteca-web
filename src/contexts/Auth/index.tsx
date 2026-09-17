@@ -5,7 +5,6 @@ import { AuthContextType, User } from "types";
 import { checkAuthToken } from "endpoints";
 import { getStorage, deleteStorage, USER_JWT_TOKEN_NAME, PUBLIC_ROUTES } from "utils";
 import { useRouter, usePathname } from "next/navigation";
-// import { FullPageLoading } from "components";
 import { toaster } from "components";
 
 const defaultValues = {
@@ -17,7 +16,6 @@ const defaultValues = {
 export const AuthContext = createContext<AuthContextType>(defaultValues);
 
 export function AuthContextProvider({ children }: { children: ReactNode }) {
-    const [, setIsLoading] = useState(false);
     const [user, setUser] = useState<User | null>(null);
 
     const router = useRouter();
@@ -58,8 +56,6 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
     const checkToken = async () => {
         try {
-            setIsLoading(true);
-
             const jwt = getStorage(USER_JWT_TOKEN_NAME);
 
             if (!jwt) {
@@ -77,9 +73,6 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
             logout();
         } catch {
             setUser(null);
-            return;
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -88,12 +81,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ user, setUser, logout }}>
-            {children}
-            {/* {isLoading ? <FullPageLoading message="Verificando login" pt="50px" /> : children} */}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={{ user, setUser, logout }}>{children}</AuthContext.Provider>;
 }
 
 export const useAuthContext = () => useContext(AuthContext);

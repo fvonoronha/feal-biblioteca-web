@@ -6,40 +6,25 @@ import { SimpleTooltip } from "components";
 import type { LoanBadgeProps } from "types";
 import { parseDateFullText } from "utils";
 import { useTranslations } from "next-intl";
-import { LuCalendarX, LuCheck } from "react-icons/lu";
+import { LuCalendarX } from "react-icons/lu";
 
-const LoanBadge = (props: LoanBadgeProps) => {
+const LoanBadge = ({ isAvailable, dueDate, ...props }: LoanBadgeProps) => {
     const t = useTranslations("Utils");
 
-    const loan = props.bookLoan || null;
+    if (isAvailable) return null;
 
-    return <></>;
     return (
-        <>
-            <SimpleTooltip
-                content={
-                    !loan
-                        ? t("availableTooltip")
-                        : t("loanedTooltip", { due_date: parseDateFullText(new Date(loan?.due_date)) })
-                }
-                openDelay={500}
-                closeDelay={0}
-                showArrow
-            >
-                <Badge
-                    px={"10px"}
-                    py={"3px"}
-                    bg={!loan ? { base: "green", _dark: "green" } : { base: "fealRed", _dark: "fealRed" }}
-                    color={{ base: "white", _dark: "white" }}
-                    variant="solid"
-                    cursor="pointer"
-                    {...props}
-                >
-                    {!loan ? t("available") : t("loaned")}
-                    {!loan ? <LuCheck /> : <LuCalendarX />}
-                </Badge>
-            </SimpleTooltip>
-        </>
+        <SimpleTooltip
+            content={dueDate ? t("loanedTooltip", { due_date: parseDateFullText(new Date(dueDate)) }) : t("loaned")}
+            openDelay={500}
+            closeDelay={0}
+            showArrow
+        >
+            <Badge px="10px" py="3px" bg="fealRed.solid" color="white" variant="solid" cursor="default" {...props}>
+                {t("loaned")}
+                <LuCalendarX />
+            </Badge>
+        </SimpleTooltip>
     );
 };
 
