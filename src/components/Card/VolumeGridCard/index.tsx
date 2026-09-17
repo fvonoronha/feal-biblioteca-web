@@ -1,18 +1,15 @@
 "use client";
 
-import { memo, useState } from "react";
-import { Card, VStack, Image, Text, Box, HStack } from "@chakra-ui/react";
+import { memo } from "react";
+import { Card, VStack, Text, Box, HStack } from "@chakra-ui/react";
 import { VolumeCardProps } from "types";
 import { useRouter } from "next/navigation";
-import { LabelBadge, SimpleButton, TextHighlight } from "components";
-import { volumeCover } from "assets";
+import { BookCoverFlip, LabelBadge, LoanBadge, SimpleButton, TextHighlight } from "components";
 import { LuBookOpen, LuCalendar } from "react-icons/lu";
 
 const VolumeGridCard = (props: VolumeCardProps) => {
     const router = useRouter();
-    const [isHovered, setIsHovered] = useState(false);
     const { volume, search, isSeeMorePlaceHolder, isSeeMore } = props;
-    const coverImg = volume.cover_url || volumeCover.default.src;
 
     const title = volume.book.title || "";
     const descLines = 6;
@@ -27,94 +24,27 @@ const VolumeGridCard = (props: VolumeCardProps) => {
     };
 
     return (
-        <Card.Root
-            bg="none"
-            boxShadow="none"
-            border="none"
-            w="100%"
-            cursor="pointer"
-            onClick={onClick}
-            onMouseEnter={() => !isSeeMore && setIsHovered(true)}
-            onMouseLeave={() => !isSeeMore && setIsHovered(false)}
-            position="relative"
-        >
-            {/* Container 3D principal */}
-            <Box
-                aspectRatio={8 / 11}
-                position="relative"
-                perspective="1500px"
-                style={{ transformStyle: "preserve-3d" }}
-            >
-                {/* 1. BLOCO DE PÁGINAS (Fica atrás da capa) */}
-                <Box
-                    position="absolute"
-                    top="2%"
-                    bottom="2%"
-                    left="2px"
-                    right="5px"
-                    bg="white"
-                    borderRadius="sm"
-                    transform="translateZ(-1px)" // Garante que fique atrás sem piscar
-                    boxShadow="
-                        1px 0 0 #ddd,
-                        2px 0 0 #fff,
-                        3px 0 0 #ddd,
-                        4px 0 0 #fff,
-                        5px 0 7px rgba(0,0,0,0.1)
-                    "
-                    _before={{
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundImage: "linear-gradient(90deg, transparent 95%, rgba(0,0,0,0.07) 100%)",
-                        backgroundSize: "4px 100%"
-                    }}
-                />
+        <Card.Root bg="none" boxShadow="none" border="none" w="100%" cursor="pointer" onClick={onClick} position="relative">
+            <BookCoverFlip coverUrl={volume.cover_url} alt={volume.book.title}>
+                {(isHovered) => (
+                    <>
+                        {/* Badge de Empréstimo - só aparece quando indisponível, sempre visível (não
+                            só no hover) já que essa é uma informação relevante de bater o olho e
+                            entender. */}
+                        {volume.is_available === false && (
+                            <Box position="absolute" top="6px" right="6px" zIndex="10" transform="translateZ(10px)">
+                                <LoanBadge isAvailable={false} dueDate={volume.loan_due_date} />
+                            </Box>
+                        )}
 
-                {/* 2. A CAPA DO LIVRO */}
-                <Box
-                    w="100%"
-                    h="100%"
-                    position="relative"
-                    transformOrigin="left center"
-                    willChange="transform"
-                    transition="transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.6s ease"
-                    style={{
-                        transformStyle: "preserve-3d",
-                        backfaceVisibility: "hidden"
-                    }}
-                    transform={`
-                        rotateY(${isHovered ? "-28deg" : "0.01deg"})
-                        translateZ(1px)
-                    `}
-                    boxShadow={isHovered ? "15px 10px 25px -5px rgba(0,0,0,0.25)" : "2px 2px 8px rgba(0,0,0,0.12)"}
-                >
-                    <Image
-                        borderRadius="sm"
-                        src={coverImg}
-                        alt={volume.book.title}
-                        objectFit="cover"
-                        w="100%"
-                        h="100%"
-                    />
-                </Box>
-
-                {/* Badge de Empréstimo (Sempre visível e acima de tudo) */}
-                {/* {book.loans?.length > 0 && !isHovered && (
-                    <Box position="absolute" top="6px" right="6px" zIndex="10" transform="translateZ(10px)">
-                        <LoanBadge bookLoan={book.loans[0]} />
-                    </Box>
-                )} */}
-
-                {volume.label && !isHovered && (
-                    <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
-                        <LabelBadge label={volume.label} />
-                    </Box>
+                        {volume.label && !isHovered && (
+                            <Box position="absolute" bottom="6px" left="12px" zIndex="10" transform="translateZ(10px)">
+                                <LabelBadge label={volume.label} />
+                            </Box>
+                        )}
+                    </>
                 )}
-            </Box>
+            </BookCoverFlip>
 
             {/* Corpo do Card com as descrições devolvidas */}
             <Card.Body py="3" px="0">

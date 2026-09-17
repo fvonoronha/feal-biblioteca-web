@@ -46,7 +46,7 @@ export default function SortSelect({ value, label, labelPosition = "top", onChan
                     borderColor="gray.emphasized"
                     borderRadius="0"
                     px="0"
-                    _focus={{ boxShadow: "none", borderColor: "fealRed" }}
+                    _focus={{ boxShadow: "none", borderColor: "fealRed.solid" }}
                     _hover={{ borderColor: "gray.fg" }}
                 >
                     <Select.ValueText

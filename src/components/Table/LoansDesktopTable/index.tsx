@@ -1,24 +1,27 @@
-import { Table, HStack, Avatar, VStack, Text, Image } from "@chakra-ui/react";
-import { LabelBadge, LoanStatus, LoanActions } from "components";
+import { Table, HStack, Avatar, VStack, Text, Badge } from "@chakra-ui/react";
+import { useTranslations } from "next-intl";
+import { LabelBadge, LoanStatus, LoanActions, BookCoverFlip } from "components";
 import { parseDateFullText, getDatesDistance } from "utils";
 import { Loan } from "types";
 
 interface Props {
     loans: Loan[];
-    returningLoanId: string | number | null;
-    onReturnLoan: (id: number) => void;
+    onRequestReturn: (loan: Loan) => void;
+    onRequestRenew: (loan: Loan) => void;
 }
 
-export function LoansDesktopTable({ loans, returningLoanId, onReturnLoan }: Props) {
+export function LoansDesktopTable({ loans, onRequestReturn, onRequestRenew }: Props) {
+    const t = useTranslations("Loans");
+
     return (
         <Table.Root interactive size="sm" variant="line">
             <Table.Header>
                 <Table.Row>
-                    <Table.ColumnHeader>Usuário</Table.ColumnHeader>
-                    <Table.ColumnHeader>Título</Table.ColumnHeader>
-                    <Table.ColumnHeader>Retirado em</Table.ColumnHeader>
-                    <Table.ColumnHeader>Status/Devolução</Table.ColumnHeader>
-                    <Table.ColumnHeader>Ações</Table.ColumnHeader>
+                    <Table.ColumnHeader>{t("columnUser")}</Table.ColumnHeader>
+                    <Table.ColumnHeader>{t("columnVolume")}</Table.ColumnHeader>
+                    <Table.ColumnHeader>{t("columnTakenAt")}</Table.ColumnHeader>
+                    <Table.ColumnHeader>{t("columnStatus")}</Table.ColumnHeader>
+                    <Table.ColumnHeader>{t("columnActions")}</Table.ColumnHeader>
                 </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -42,15 +45,16 @@ export function LoansDesktopTable({ loans, returningLoanId, onReturnLoan }: Prop
                         {/* Célula do Livro */}
                         <Table.Cell>
                             <HStack align="start" gap={2}>
-                                <Image
-                                    borderRadius="sm"
-                                    src={loan.volume.cover_url}
-                                    alt={loan.volume.book.title}
-                                    objectFit="cover"
-                                    w="50px"
-                                />
+                                <BookCoverFlip coverUrl={loan.volume.cover_url} alt={loan.volume.book.title} w="50px" />
                                 <VStack align="start" gap={0}>
-                                    <Text fontWeight="bold">{loan.volume.book.title}</Text>
+                                    <HStack gap={1.5}>
+                                        <Text fontWeight="bold">{loan.volume.book.title}</Text>
+                                        {loan.renewed_from_loan_id && (
+                                            <Badge size="xs" colorPalette="blue" variant="subtle">
+                                                {t("statusRenewedTag")}
+                                            </Badge>
+                                        )}
+                                    </HStack>
                                     <Text color="fg.muted" textStyle="xs" pb={1}>
                                         {loan.volume.publisher?.abbreviation
                                             ? `${loan.volume.publisher?.abbreviation} - `
@@ -68,9 +72,16 @@ export function LoansDesktopTable({ loans, returningLoanId, onReturnLoan }: Prop
                                 <Text fontWeight="bold">{parseDateFullText(loan.loan_date)}</Text>
                                 <Text color="fg.muted" textStyle="xs">
                                     {getDatesDistance(loan.loan_date, new Date()) === 0
-                                        ? "Hoje"
-                                        : `Há ${getDatesDistance(loan.loan_date, new Date())} dias`}
+                                        ? t("relativeToday")
+                                        : t("relativeDaysAgo", { days: getDatesDistance(loan.loan_date, new Date()) })}
                                 </Text>
+                                {loan.created_by_user && (
+                                    <Text color="fg.subtle" textStyle="xs" fontStyle="italic">
+                                        {t("registeredBy", {
+                                            name: loan.created_by_user.display_name || loan.created_by_user.name
+                                        })}
+                                    </Text>
+                                )}
                             </VStack>
                         </Table.Cell>
 
@@ -81,7 +92,11 @@ export function LoansDesktopTable({ loans, returningLoanId, onReturnLoan }: Prop
 
                         {/* Célula Ações */}
                         <Table.Cell>
-                            <LoanActions loan={loan} returningLoanId={returningLoanId} onReturnLoan={onReturnLoan} />
+                            <LoanActions
+                                loan={loan}
+                                onRequestReturn={onRequestReturn}
+                                onRequestRenew={onRequestRenew}
+                            />
                         </Table.Cell>
                     </Table.Row>
                 ))}

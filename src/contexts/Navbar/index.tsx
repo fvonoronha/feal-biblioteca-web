@@ -70,7 +70,7 @@ export function NavbarProvider({ children }: { children: ReactNode }) {
                             <ColorModeButton />
                         </Flex>
 
-                        {user?.role == "ADMIN" && (
+                        {(user?.role === "ADMIN" || user?.role === "LIBRARIAN") && (
                             <Flex align="center" gap={0}>
                                 <AdminNavbarMenu user={user} />
                             </Flex>

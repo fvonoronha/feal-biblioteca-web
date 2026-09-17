@@ -5,7 +5,9 @@ export interface Publisher {
     slug: string;
     name: string;
     abbreviation?: string;
+    description?: string;
     avatar_url?: string;
+    status?: string;
 
     books_count?: number;
     volumes_count?: number;
@@ -32,6 +34,17 @@ export interface Volume {
 
     all_time_access_count: number;
     last_month_access_count: number;
+
+    // Disponibilidade calculada a partir do empréstimo ativo (se houver) - nunca expõe quem
+    // está com o volume, só se está disponível, a previsão de devolução, e (só quando o
+    // próprio interessado está autenticado) se é ele mesmo quem está com o exemplar.
+    is_available?: boolean;
+    loan_due_date?: string | null;
+    loaned_to_current_user?: boolean;
+
+    // Só vem preenchido no detalhe de um volume indisponível: outras edições/exemplares do
+    // mesmo livro que o usuário pode pegar emprestado no lugar deste.
+    sibling_volumes?: Volume[];
 
     publisher?: Publisher;
     tags?: Tag[];

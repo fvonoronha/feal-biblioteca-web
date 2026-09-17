@@ -9,11 +9,11 @@ const PageHeading = (props: PageHeadingProps) => {
     return (
         <>
             <Flex w="100%" direction="column" gap={2} align={"flex-start"}>
-                <Heading w="100%" fontSize={"4xl"} fontWeight={"bold"} textAlign={"justify"}>
+                <Heading w="100%" fontSize={"4xl"} fontWeight={"bold"} textAlign={"left"}>
                     {props.header}
                 </Heading>
 
-                <Text w="100%" ml={"2px"} fontSize={"lg"} textAlign={"justify"}>
+                <Text w="100%" ml={"2px"} fontSize={"lg"} textAlign={"left"}>
                     {props.description}
                 </Text>
             </Flex>

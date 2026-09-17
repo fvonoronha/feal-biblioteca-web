@@ -1,4 +1,5 @@
 import { getVolume } from "endpoints";
+import { Volume } from "types";
 import { default as VolumeDetails } from "./volumeDetails";
 // ToDo: Ajustar isso. Ficou muito solto.
 
@@ -6,7 +7,15 @@ export async function generateMetadata({ params }: { params: Promise<{ volumeSlu
     const resolvedParams = await params;
     const slug = resolvedParams.volumeSlug;
 
-    const volume = await getVolume(slug);
+    // getVolume rejeita (404 de axios) para um slug inexistente/apagado, ou se a API estiver
+    // fora do ar - metadata nunca pode derrubar a página inteira por causa disso, então cai
+    // para um metadata genérico em vez de propagar o erro.
+    let volume: Volume | undefined;
+    try {
+        volume = await getVolume(slug);
+    } catch {
+        volume = undefined;
+    }
 
     return {
         title: `${volume?.book?.title} | Biblioteca`,

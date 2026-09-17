@@ -1,31 +1,22 @@
 "use client";
 
-import { memo, useState } from "react";
-import { Menu, Portal, Text, DialogRoot, DialogTrigger, DialogBackdrop, DialogContent } from "@chakra-ui/react";
+import { memo } from "react";
+import { useRouter } from "next/navigation";
+import { Box, Menu, Portal, Text } from "@chakra-ui/react";
 
 import { UserNavbarMenuProps } from "types";
 import { useAuthContext } from "contexts";
-import { LuLogOut, LuUser, LuLogIn } from "react-icons/lu";
+import { LOGIN_ROUTE } from "hooks";
+import { LuLogOut, LuUser, LuLogIn, LuBookOpen } from "react-icons/lu";
 import { useTranslations } from "next-intl";
 import { NavBarIconMenu } from "components";
-
-import Login from "./LoginPage";
-import CreateAccount from "./RegisterPage";
 
 const UserNavbarMenu = (props: UserNavbarMenuProps) => {
     const user = props.user;
     const { logout } = useAuthContext();
 
     const t = useTranslations("NavBar");
-
-    const [open, setOpen] = useState(false);
-    const [page, setPage] = useState<"login" | "create-account">("login");
-
-    const [justCreatedAccount, setJustCreatedAccount] = useState<boolean>(false);
-
-    const handleClose = () => {
-        setOpen(false);
-    };
+    const router = useRouter();
 
     if (user) {
         return (
@@ -35,22 +26,49 @@ const UserNavbarMenu = (props: UserNavbarMenuProps) => {
                     gutter: 8
                 }}
             >
-                <Menu.Trigger asChild>
-                    <NavBarIconMenu icon={<LuUser />} aria-label={t("authenticatedMenuLabel")} />
-                </Menu.Trigger>
+                {/* A bolinha de aviso fica FORA do elemento clonado pelo `asChild` de propósito:
+                    esse mecanismo só preserva props padrão de DOM/evento ao mesclar no elemento
+                    clonado, então uma prop customizada (ex.: hasNotification) passada ali dentro
+                    simplesmente desaparece silenciosamente - por isso o aviso é um Box irmão,
+                    posicionado por cima do ícone, e não uma prop do próprio NavBarIconMenu. */}
+                <Box position="relative" display="inline-flex">
+                    <Menu.Trigger asChild>
+                        <NavBarIconMenu icon={<LuUser />} aria-label={t("authenticatedMenuLabel")} />
+                    </Menu.Trigger>
+
+                    {user.has_overdue_loan && (
+                        <Box
+                            position="absolute"
+                            top="4px"
+                            right="4px"
+                            boxSize="8px"
+                            borderRadius="full"
+                            bg="fealRed.solid"
+                            border="2px solid"
+                            borderColor={{ base: "white", _dark: "gray.800" }}
+                            pointerEvents="none"
+                        />
+                    )}
+                </Box>
 
                 <Portal>
                     <Menu.Positioner>
                         <Menu.Content minW="200px">
-                            {/* <Menu.ItemGroup>
-                                <Menu.Item value="account" cursor="pointer">
+                            <Menu.ItemGroup>
+                                <Menu.Item value="account" cursor="pointer" onClick={() => router.push("/perfil")}>
                                     <LuUser />
 
                                     <Text fontSize="md">{t("myProfile")}</Text>
                                 </Menu.Item>
+
+                                <Menu.Item value="loans" cursor="pointer" onClick={() => router.push("/perfil/emprestimos")}>
+                                    <LuBookOpen />
+
+                                    <Text fontSize="md">{t("myLoans")}</Text>
+                                </Menu.Item>
                             </Menu.ItemGroup>
 
-                            <Menu.Separator /> */}
+                            <Menu.Separator />
 
                             <Menu.ItemGroup>
                                 <Menu.Item value="logout" cursor="pointer" onClick={logout}>
@@ -64,55 +82,17 @@ const UserNavbarMenu = (props: UserNavbarMenuProps) => {
                 </Portal>
             </Menu.Root>
         );
-    } else {
-        return (
-            <DialogRoot
-                lazyMount
-                open={open}
-                onOpenChange={(e) => {
-                    setOpen(e.open);
-                }}
-                size="xl"
-            >
-                <DialogTrigger asChild>
-                    <NavBarIconMenu icon={<LuLogIn />} aria-label={t("unauthenticatedMenuLabel")} />
-                </DialogTrigger>
-
-                <DialogBackdrop background="blackAlpha.600" backdropFilter="blur(4px)" />
-
-                <DialogContent
-                    borderRadius="lg"
-                    bg="gray.subtle"
-                    position="fixed"
-                    top="10%"
-                    left="50%"
-                    transform="translateX(-50%)"
-                    width={{ base: "90vw", md: "500px" }}
-                    maxH="90vh"
-                    overflowY="auto"
-                >
-                    {page === "login" ? (
-                        <Login
-                            justCreatedAccount={justCreatedAccount}
-                            onCreateAccount={() => {
-                                setJustCreatedAccount(false);
-                                setPage("create-account");
-                            }}
-                            onClose={handleClose}
-                        />
-                    ) : (
-                        <CreateAccount
-                            onLogin={(options) => {
-                                setJustCreatedAccount(options.justCreatedAccount);
-                                setPage("login");
-                            }}
-                            onClose={handleClose}
-                        />
-                    )}
-                </DialogContent>
-            </DialogRoot>
-        );
     }
+
+    // Só navega - o modal de login em si é uma rota interceptada (ver src/app/@modal), que
+    // abre por cima da página atual (seja lá qual for) sem desmontar nada por trás dela.
+    return (
+        <NavBarIconMenu
+            icon={<LuLogIn />}
+            aria-label={t("unauthenticatedMenuLabel")}
+            onClick={() => router.push(LOGIN_ROUTE)}
+        />
+    );
 };
 
 export default memo(UserNavbarMenu);

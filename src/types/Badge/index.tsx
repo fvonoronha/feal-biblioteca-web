@@ -1,5 +1,4 @@
 import { type BadgeProps } from "@chakra-ui/react";
-import { BookLoan } from "types";
 
 export interface DateBadgeProps extends BadgeProps {
     date?: Date;
@@ -22,7 +21,8 @@ export interface IdBadgeProps extends BadgeProps {
 }
 
 export interface LoanBadgeProps extends BadgeProps {
-    bookLoan: BookLoan;
+    isAvailable: boolean;
+    dueDate?: string | Date | null;
 }
 export interface LabelBadgeProps extends BadgeProps {
     label?: string;

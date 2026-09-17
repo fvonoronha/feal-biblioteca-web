@@ -4,21 +4,24 @@ import { HStack, Portal, Select, createListCollection, Text, Field } from "@chak
 import { SortSelectProps, SortOption, SORT_OPTIONS } from "types";
 import { useTranslations } from "next-intl";
 
-function getSortOptionByValue(value: string): SortOption {
-    for (const i in SORT_OPTIONS()) {
-        if (SORT_OPTIONS()[i].value === value) {
-            return SORT_OPTIONS()[i];
-        }
-    }
-    return SORT_OPTIONS()[0];
+function getSortOptionByValue(options: SortOption[], value: string): SortOption {
+    return options.find((option) => option.value === value) || options[0];
 }
 
-export default function SortSelect({ value, label, labelPosition = "top", onChange }: SortSelectProps) {
+export default function SortSelect({
+    value,
+    label,
+    labelPosition = "top",
+    onChange,
+    options,
+    namespace = "Collection"
+}: SortSelectProps) {
+    const sortOptions = options || SORT_OPTIONS();
     const collection = createListCollection({
-        items: SORT_OPTIONS()
+        items: sortOptions
     });
 
-    const t = useTranslations("Collection");
+    const t = useTranslations(namespace);
 
     return (
         <HStack w="100%">
@@ -27,7 +30,7 @@ export default function SortSelect({ value, label, labelPosition = "top", onChan
             <Select.Root
                 collection={collection}
                 value={[value.value]}
-                onValueChange={(e) => onChange(getSortOptionByValue(e.value[0]) as SortOption)}
+                onValueChange={(e) => onChange(getSortOptionByValue(sortOptions, e.value[0]))}
                 size="sm"
                 width="100%"
                 positioning={{ placement: "bottom-start" }}
@@ -39,25 +42,24 @@ export default function SortSelect({ value, label, labelPosition = "top", onChan
                 )}
 
                 <Select.Trigger
-                    w="100%" // <-- Adicionado: força o trigger a ocupar toda a largura do Root
-                    justifyContent="space-between" // <-- Adicionado: joga o ícone para a ponta direita
+                    w="100%"
+                    justifyContent="space-between"
                     border="none"
                     borderBottom="2px solid"
                     borderColor="gray.emphasized"
                     borderRadius="0"
                     px="0"
-                    _focus={{ boxShadow: "none", borderColor: "fealRed" }}
+                    _focus={{ boxShadow: "none", borderColor: "fealRed.solid" }}
                     _hover={{ borderColor: "gray.fg" }}
                 >
-                    <Select.ValueText
-                        fontSize={"md"}
-                        flex="1" // <-- Adicionado: faz o texto ocupar todo o espaço livre
-                        textAlign="left" // <-- Adicionado: garante que o texto fique alinhado corretamente
-                        // lineClamp="none" // Descomente esta linha se não quiser que corte de jeito nenhum (permitindo quebra de linha)
-                    >
+                    {/* O recipe padrão do Chakra trunca o valueText em 1 linha com "..." (lineClamp:
+                        1, maxW: 80%) - opções mais longas (ex.: "Nº de Acessos (Geral)") ficavam
+                        ilegíveis. Aqui removemos os dois limites para sempre mostrar o texto
+                        inteiro, quebrando linha quando precisar em vez de cortar. */}
+                    <Select.ValueText fontSize="md" flex="1" maxW="none" lineClamp="none" textAlign="left" whiteSpace="normal">
                         {t(value.value)}
                     </Select.ValueText>
-                    <Select.Indicator />
+                    <Select.Indicator flexShrink={0} />
                 </Select.Trigger>
 
                 <Portal>

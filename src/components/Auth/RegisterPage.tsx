@@ -1,31 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Field, Input, SimpleGrid, Spinner, Stack, Text } from "@chakra-ui/react";
-import { maskCPF, USER_JWT_TOKEN_NAME, getOnlyNumbers, isCPFValid, setStorage } from "utils";
-import { LuUserPlus, LuEye, LuEyeOff } from "react-icons/lu";
+import { Button, Checkbox, Field, Input, Link, SimpleGrid, Spinner, Stack, Text } from "@chakra-ui/react";
+import { maskCPF, maskPhone, getOnlyNumbers, isCPFValid, isEmailValid } from "utils";
+import { LuArrowLeft, LuEye, LuEyeOff } from "react-icons/lu";
 import { useTranslations } from "next-intl";
-import { useColorModeValue, ErrorBanner, SectionHeading, toaster, SuccessBanner } from "components";
-import { useAuthContext } from "contexts";
+import { useColorModeValue, ErrorBanner, SectionHeading } from "components";
 
 // importe sua função aqui
-import { login } from "endpoints";
+import { registerUser } from "endpoints";
 
-interface LoginPageProps {
-    onCreateAccount: () => void;
+interface CreateAccountProps {
+    onLogin: ({ justCreatedAccount }: { justCreatedAccount: boolean }) => void;
     onClose: () => void;
-    justCreatedAccount?: boolean;
 }
 
-const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPageProps) => {
-    const t = useTranslations("LoginPage");
-    const { setUser } = useAuthContext();
+const CreateAccount = ({ onLogin, onClose }: CreateAccountProps) => {
+    const t = useTranslations("RegisterPage");
+
     const [showPassword, setShowPassword] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<string[]>([]);
 
     const [form, setForm] = useState({
+        name: "",
         cpf: "",
+        email: "",
+        phone: "",
         password: ""
     });
 
@@ -41,6 +43,11 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
 
         const ValidationErrors: string[] = [];
 
+        if (!form.name.trim()) {
+            newErrors.name = t("fullNameRequired");
+            ValidationErrors.push(t("fullNameRequired"));
+        }
+
         const cpf = getOnlyNumbers(form.cpf);
 
         if (!cpf) {
@@ -51,12 +58,35 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
             ValidationErrors.push(t("cpfNotValid"));
         }
 
+        const phone = getOnlyNumbers(form.phone);
+
+        if (!phone) {
+            newErrors.phone = t("phoneRequired");
+            ValidationErrors.push(t("phoneRequired"));
+        } else if (phone.length < 10) {
+            newErrors.phone = t("phoneNotValid");
+            ValidationErrors.push(t("phoneNotValid"));
+        }
+
+        if (!form.email.trim()) {
+            newErrors.email = t("emailRequired");
+            ValidationErrors.push(t("emailRequired"));
+        } else if (!isEmailValid(form.email)) {
+            newErrors.email = t("emailNotValid");
+            ValidationErrors.push(t("emailNotValid"));
+        }
+
         if (!form.password) {
             newErrors.password = t("passwordRequired");
             ValidationErrors.push(t("passwordRequired"));
         } else if (form.password.length < 8) {
             newErrors.password = t("passwordNotValid");
             ValidationErrors.push(t("passwordNotValid"));
+        }
+
+        if (!acceptedTerms) {
+            newErrors.terms = t("termsNotAccepted");
+            ValidationErrors.push(t("termsNotAccepted"));
         }
 
         setErrors(ValidationErrors);
@@ -85,28 +115,25 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
         setIsLoading(true);
 
         try {
-            const response = await login(getOnlyNumbers(form.cpf) || "", form.password || "");
-
-            if (response?.token) {
-                setStorage(USER_JWT_TOKEN_NAME, `Bearer ${response?.token.jwt_token}`);
-
-                toaster.create({
-                    type: "success",
-                    title: "Log In com sucesso",
-                    description: "redirecion"
-                });
-                setUser(response.user);
-                onClose();
-                // router.push("/");
-            } else {
-                // setIsLoadingFailed(true);
-                // focusOnPasswordInput();
-            }
+            await registerUser({
+                name: form.name,
+                login: getOnlyNumbers(form.cpf),
+                email: form.email,
+                phone: getOnlyNumbers(form.phone),
+                password: form.password
+            });
 
             // Problema aqui??
-            // onLogin(t("accountCreatedMessage"));
-        } catch {
-            setErrors([t("loginGenericError")]);
+            onLogin({ justCreatedAccount: true });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const apiErrors = error?.response?.data?.body?.user?.error;
+
+            if (Array.isArray(apiErrors)) {
+                setErrors(apiErrors.map((item) => item.message));
+            } else {
+                setErrors([t("accountGenericCreationError")]);
+            }
         } finally {
             setIsLoading(false);
         }
@@ -133,12 +160,6 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
                     <SectionHeading header={t("title")} description={t("description")} align="center" />
                 </Stack>
 
-                {justCreatedAccount && (
-                    <Stack gap={2}>
-                        <SuccessBanner message={t("accountCreatedMessage")} />
-                    </Stack>
-                )}
-
                 {errors.length > 0 && (
                     <Stack gap={2}>
                         {errors.map((message, index) => (
@@ -153,6 +174,22 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
                 )}
 
                 <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+                    {/* Nome */}
+                    <Field.Root gridColumn={{ base: "auto", md: "1 / -1" }}>
+                        <Field.Label>{t("fullName")}</Field.Label>
+
+                        <Input
+                            placeholder={t("fullNamePlaceholder")}
+                            value={form.name}
+                            onChange={(event) => updateField("name", event.target.value)}
+                            autoComplete="name"
+                            disabled={isLoading}
+                            variant="flushed"
+                            fontSize="sm"
+                            borderBottomWidth="2px"
+                        />
+                    </Field.Root>
+
                     {/* CPF */}
                     <Field.Root gridColumn={{ base: "auto", md: "1 / -1" }}>
                         <Field.Label>{t("cpf")}</Field.Label>
@@ -165,6 +202,44 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
                             autoComplete="username"
                             maxLength={14}
                             disabled={isLoading}
+                            variant="flushed"
+                            fontSize="sm"
+                            borderBottomWidth="2px"
+                        />
+                        <Field.HelperText>{t("cpfExplanation")}</Field.HelperText>
+                    </Field.Root>
+
+                    {/* Telefone */}
+                    <Field.Root>
+                        <Field.Label>{t("phone")}</Field.Label>
+
+                        <Input
+                            placeholder={t("phonePlaceholder")}
+                            value={form.phone}
+                            onChange={(event) => updateField("phone", maskPhone(event.target.value))}
+                            inputMode="tel"
+                            autoComplete="tel"
+                            maxLength={15}
+                            disabled={isLoading}
+                            variant="flushed"
+                            fontSize="sm"
+                            borderBottomWidth="2px"
+                        />
+                    </Field.Root>
+
+                    {/* E-mail */}
+                    <Field.Root>
+                        <Field.Label>{t("email")}</Field.Label>
+                        <Input
+                            type="email"
+                            placeholder={t("emailPlaceholder")}
+                            value={form.email}
+                            onChange={(event) => updateField("email", event.target.value)}
+                            autoComplete="email"
+                            disabled={isLoading}
+                            variant="flushed"
+                            fontSize="sm"
+                            borderBottomWidth="2px"
                         />
                     </Field.Root>
 
@@ -180,6 +255,9 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
                             autoComplete="new-password"
                             pr="45px"
                             disabled={isLoading}
+                            variant="flushed"
+                            fontSize="sm"
+                            borderBottomWidth="2px"
                         />
 
                         <Button
@@ -198,49 +276,69 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
                             {showPassword ? <LuEyeOff /> : <LuEye />}
                         </Button>
                     </Field.Root>
-
-                    {/* <Span> </Span> */}
-
-                    {/* Esqueci minha senha */}
-                    {/* <Button
-                        // gridColumn={{ base: "auto", md: "1 / -1" }}
-                        // type="button"
-                        variant="ghost"
-                        colorPalette="fealLightBlue"
-                        onClick={() => onCreateAccount()}
-                        disabled={isLoading}
-                        display="flex"
-                        justifyContent="flex-end"
-                        m={0}
-                    >
-                        {t("forgotPassword")}
-                    </Button> */}
                 </SimpleGrid>
 
+                {/* Termos */}
+                <Checkbox.Root
+                    checked={acceptedTerms}
+                    onCheckedChange={(event) => setAcceptedTerms(!!event.checked)}
+                    disabled={isLoading}
+                >
+                    <Checkbox.HiddenInput />
+
+                    <Checkbox.Control />
+
+                    <Checkbox.Label>
+                        <Text fontSize="sm">
+                            {t("userAgreementBefore")}{" "}
+                            <Link
+                                href="/termos-de-uso"
+                                target="_blank"
+                                color={{ base: "fealLightBlue.700", _dark: "fealLightBlue.400" }}
+                                textDecoration="none"
+                            >
+                                {t("userAgreement")}
+                            </Link>{" "}
+                            {t("userAgreementMiddle")}{" "}
+                            <Link
+                                href="/politica-de-privacidade"
+                                target="_blank"
+                                color={{ base: "fealLightBlue.700", _dark: "fealLightBlue.400" }}
+                                textDecoration="none"
+                            >
+                                {t("privacyPolicy")}
+                            </Link>{" "}
+                            {t("userAgreementAfter")}
+                        </Text>
+                    </Checkbox.Label>
+                </Checkbox.Root>
+
+                {/* Criar conta */}
                 <Button type="submit" width="100%" disabled={isLoading}>
                     {isLoading ? (
                         <>
                             <Spinner size="sm" />
-                            {t("loggingIn")}
+                            {t("creatingAccount")}
                         </>
                     ) : (
-                        t("login")
+                        t("createAccount")
                     )}
                 </Button>
 
+                {/* Voltar para login */}
                 <Button
                     type="button"
                     variant="ghost"
                     colorPalette="fealLightBlue"
-                    onClick={() => onCreateAccount()}
+                    onClick={() => onLogin({ justCreatedAccount: false })}
                     disabled={isLoading}
                 >
-                    <LuUserPlus />
-                    {t("dontHaveAccount")}
+                    <LuArrowLeft />
+                    {t("alreadyHaveAccount")}
                 </Button>
 
                 <Text textAlign="center" fontSize="xs" color="fg.muted">
-                    {t("LoginDisclaimer")}
+                    {t("accountCreationDisclaimer")}
                 </Text>
 
                 <Button
@@ -257,4 +355,4 @@ const LoginPage = ({ onCreateAccount, onClose, justCreatedAccount }: LoginPagePr
     );
 };
 
-export default LoginPage;
+export default CreateAccount;

@@ -1,155 +1,135 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import {
+    QUERY_PARAMS_FOR_AUTHOR,
+    QUERY_PARAMS_FOR_SPIRIT_AUTHOR,
+    QUERY_PARAMS_FOR_CATEGORY,
+    QUERY_PARAMS_FOR_TAG,
+    QUERY_PARAMS_FOR_SEARCH,
+    QUERY_PARAMS_FOR_PUBLISHER
+} from "utils";
 
-export interface SortOption {
-    field: string;
-    direction: string;
-}
+export type SlugListUpdate = string[] | ((prev: string[]) => string[]);
 
-const DEFAULT_SORT_FIELD = "label";
-const DEFAULT_SORT_DIRECTION = "desc";
-const DEBOUNCE_DELAY = 300;
+const parseSlugList = (value: string | null): string[] => value?.split(",").filter(Boolean) ?? [];
 
+/**
+ * Reads/writes the volume collection's filters straight from the URL, so
+ * filtered views stay bookmarkable and shareable. Each multi-value filter is
+ * stored as a single comma-separated query param (e.g. `?c=poesia,romance`).
+ */
 export function useCollectionFilters() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    // Extract filter values from URL
-    const urlSearch = searchParams.get("search") ?? "";
-    const urlSortField = searchParams.get("sortField") ?? DEFAULT_SORT_FIELD;
-    const urlSortDirection = searchParams.get("sortDirection") ?? DEFAULT_SORT_DIRECTION;
-    const urlAuthors = searchParams.getAll("authors");
-    const urlSpiritAuthors = searchParams.getAll("spiritAuthors");
-    const urlTags = searchParams.getAll("tags");
-    const urlCategories = searchParams.getAll("categories");
-    const urlPublishers = searchParams.getAll("publishers");
+    // `useSearchParams()` devolve uma instância NOVA a cada navegação - inclusive uma puramente
+    // de pathname, tipo abrir o modal de busca (`/` -> `/buscar`), sem o menor query param
+    // mudando. Se os `useMemo` abaixo dependessem do objeto `searchParams` em si, essa troca de
+    // referência (mesmo com o MESMO conteúdo) recalcularia tudo, produzindo arrays novos a cada
+    // vez - e como esses arrays alimentam `combinedFilters`/`fetchVolumesPage` na home
+    // (useVolumesCollection), isso disparava uma busca de volumes inteira do nada só por abrir
+    // um modal. Lendo o valor primitivo (string) de cada parâmetro ANTES do useMemo, a
+    // comparação de dependência passa a ser por valor, não por referência do objeto.
+    const searchParam = searchParams.get(QUERY_PARAMS_FOR_SEARCH);
+    const categoryParam = searchParams.get(QUERY_PARAMS_FOR_CATEGORY);
+    const tagParam = searchParams.get(QUERY_PARAMS_FOR_TAG);
+    const authorParam = searchParams.get(QUERY_PARAMS_FOR_AUTHOR);
+    const spiritAuthorParam = searchParams.get(QUERY_PARAMS_FOR_SPIRIT_AUTHOR);
+    const publisherParam = searchParams.get(QUERY_PARAMS_FOR_PUBLISHER);
 
-    // Immediate search input state (for controlled input)
-    const [searchInput, setSearchInput] = useState(urlSearch);
-    const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+    const search = searchParam || "";
+    const categories = useMemo(() => parseSlugList(categoryParam), [categoryParam]);
+    const tags = useMemo(() => parseSlugList(tagParam), [tagParam]);
+    const authors = useMemo(() => parseSlugList(authorParam), [authorParam]);
+    const spiritAuthors = useMemo(() => parseSlugList(spiritAuthorParam), [spiritAuthorParam]);
+    const publishers = useMemo(() => parseSlugList(publisherParam), [publisherParam]);
 
-    // Sync search input when URL search changes externally
-    useEffect(() => {
-        setSearchInput(urlSearch);
-    }, [urlSearch]);
-
-    // Helper to build query string and push
-    const pushQueryString = useCallback(
+    const updateUrlParams = useCallback(
         (updates: Record<string, string | string[] | null>) => {
-            const params = new URLSearchParams(searchParams.toString());
+            const current = new URLSearchParams(Array.from(searchParams.entries()));
+
             Object.entries(updates).forEach(([key, value]) => {
-                if (value === null || value === "" || (Array.isArray(value) && value.length === 0)) {
-                    params.delete(key);
+                const isEmpty = value === null || value === "" || (Array.isArray(value) && value.length === 0);
+
+                if (isEmpty) {
+                    current.delete(key);
                 } else if (Array.isArray(value)) {
-                    params.delete(key);
-                    value.forEach((v) => v && params.append(key, v));
+                    current.set(key, value.join(","));
                 } else {
-                    params.set(key, value);
+                    current.set(key, value);
                 }
             });
-            const queryString = params.toString();
-            router.push(pathname + (queryString ? `?${queryString}` : ""));
+
+            const queryString = current.toString();
+            router.push(`${pathname}${queryString ? `?${queryString}` : ""}`, { scroll: false });
         },
         [searchParams, pathname, router]
     );
 
-    // Debounced search update
-    const handleSearchChange = useCallback(
-        (newValue: string) => {
-            setSearchInput(newValue);
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
-            debounceTimer.current = setTimeout(() => {
-                pushQueryString({ search: newValue || null });
-            }, DEBOUNCE_DELAY);
-        },
-        [pushQueryString]
-    );
+    const setSearch = useCallback((value: string) => updateUrlParams({ [QUERY_PARAMS_FOR_SEARCH]: value }), [
+        updateUrlParams
+    ]);
 
-    // Cleanup debounce on unmount
-    useEffect(() => {
-        return () => {
-            if (debounceTimer.current) {
-                clearTimeout(debounceTimer.current);
-            }
-        };
-    }, []);
-
-    // Direct filter setters
-    const setSort = useCallback(
-        (field: string, direction: string) => {
-            pushQueryString({ sortField: field, sortDirection: direction });
-        },
-        [pushQueryString]
-    );
-
-    const setAuthors = useCallback(
-        (ids: string[]) => {
-            pushQueryString({ authors: ids });
-        },
-        [pushQueryString]
-    );
-
-    const setSpiritAuthors = useCallback(
-        (ids: string[]) => {
-            pushQueryString({ spiritAuthors: ids });
-        },
-        [pushQueryString]
+    const setCategories = useCallback(
+        (update: SlugListUpdate) =>
+            updateUrlParams({ [QUERY_PARAMS_FOR_CATEGORY]: typeof update === "function" ? update(categories) : update }),
+        [updateUrlParams, categories]
     );
 
     const setTags = useCallback(
-        (ids: string[]) => {
-            pushQueryString({ tags: ids });
-        },
-        [pushQueryString]
+        (update: SlugListUpdate) =>
+            updateUrlParams({ [QUERY_PARAMS_FOR_TAG]: typeof update === "function" ? update(tags) : update }),
+        [updateUrlParams, tags]
     );
 
-    const setCategories = useCallback(
-        (ids: string[]) => {
-            pushQueryString({ categories: ids });
-        },
-        [pushQueryString]
+    const setAuthors = useCallback(
+        (update: SlugListUpdate) =>
+            updateUrlParams({ [QUERY_PARAMS_FOR_AUTHOR]: typeof update === "function" ? update(authors) : update }),
+        [updateUrlParams, authors]
+    );
+
+    const setSpiritAuthors = useCallback(
+        (update: SlugListUpdate) =>
+            updateUrlParams({
+                [QUERY_PARAMS_FOR_SPIRIT_AUTHOR]: typeof update === "function" ? update(spiritAuthors) : update
+            }),
+        [updateUrlParams, spiritAuthors]
     );
 
     const setPublishers = useCallback(
-        (ids: string[]) => {
-            pushQueryString({ publishers: ids });
-        },
-        [pushQueryString]
+        (update: SlugListUpdate) =>
+            updateUrlParams({
+                [QUERY_PARAMS_FOR_PUBLISHER]: typeof update === "function" ? update(publishers) : update
+            }),
+        [updateUrlParams, publishers]
     );
 
-    const clearFilters = useCallback(() => {
-        router.push(pathname);
-    }, [router, pathname]);
+    const clearFilters = useCallback(() => router.push(pathname, { scroll: false }), [router, pathname]);
 
-    // Assemble the sort option
-    const sort: SortOption = {
-        field: urlSortField,
-        direction: urlSortDirection
-    };
+    const hasActiveFilters =
+        search !== "" ||
+        categories.length > 0 ||
+        tags.length > 0 ||
+        authors.length > 0 ||
+        spiritAuthors.length > 0 ||
+        publishers.length > 0;
 
     return {
-        // Effective filter values (from URL, used for data fetching)
-        search: urlSearch,
-        sort,
-        authors: urlAuthors,
-        spiritAuthors: urlSpiritAuthors,
-        tags: urlTags,
-        categories: urlCategories,
-        publishers: urlPublishers,
-        // Immediate search input for controlled field
-        searchInput,
-        // Update functions
-        setSearch: handleSearchChange,
-        setSort,
+        search,
+        categories,
+        tags,
+        authors,
+        spiritAuthors,
+        publishers,
+        hasActiveFilters,
+        setSearch,
+        setCategories,
+        setTags,
         setAuthors,
         setSpiritAuthors,
-        setTags,
-        setCategories,
         setPublishers,
         clearFilters
     };

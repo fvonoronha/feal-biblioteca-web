@@ -75,7 +75,7 @@ const BookGrid = (props: ExtendedBookGridProps) => {
 
             {isLoadingMore && (
                 <HStack justify="center" align="center" pt="50px">
-                    <Spinner size="lg" color="fealRed" />
+                    <Spinner size="lg" color="fealRed.solid" />
                     <Heading size="md">{t("loadingMore")}</Heading>
                 </HStack>
             )}
